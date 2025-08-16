@@ -57,14 +57,14 @@ const AllProducts = () => {
       headerTop="visible"
     >
       <div className="shop-area pt-100 pb-100">
-                 <div className="container-fluid" style={{ padding: '0 40px' }}>
+        <div className="container-fluid" style={{ padding: '0 40px' }}>
           {/* Simple Search Bar */}
           <div className="row mb-4">
             <div className="col-lg-12">
               <div className="text-center">
                 <input
                   type="text"
-                  className="form-control"
+                  className="form-control search-input"
                   placeholder="Search products..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -96,7 +96,7 @@ const AllProducts = () => {
                 <h4 style={{ textAlign: 'center', marginBottom: '20px', color: '#350008' }}>
                   Filter by Category
                 </h4>
-                <div className="d-flex flex-wrap justify-content-center" style={{ gap: '18px 18px', position: 'relative' }}>
+                <div className="d-flex flex-wrap justify-content-center" style={{ gap: '12px 12px', position: 'relative' }}>
                   {categories.map((category) => (
                     <div
                       key={category}
@@ -106,16 +106,16 @@ const AllProducts = () => {
                       onKeyDown={(e) => (e.key === 'Enter' ? handleCategoryClick(category) : null)}
                       className={`category-btn ${selectedCategory === category ? 'selected' : ''}`}
                       style={{
-                        width: 'calc(20% - 18px)',
-                        marginBottom: '12px',
-                        padding: '16px 12px',
-                        fontSize: '16px',
+                        flex: '1 1 140px',
+                        maxWidth: '200px',
+                        padding: '12px 10px',
+                        fontSize: '14px',
                         fontWeight: 700,
                         borderRadius: '25px',
                         border: '2px solid #350008',
                         textTransform: 'uppercase',
-                        letterSpacing: '0.6px',
-                        minHeight: '52px',
+                        letterSpacing: '0.4px',
+                        minHeight: '44px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -148,9 +148,9 @@ const AllProducts = () => {
 
           <div className="row">
             <div className="col-lg-12">
-              <div className="shop-header">
-                <h2>All Products</h2>
-                <p>Showing {filteredProducts.length} products</p>
+              <div className="shop-header" style={{ textAlign: 'left' }}>
+                <h2 style={{ fontSize: '1.6rem' }}>All Products</h2>
+                <p style={{ fontSize: '0.95rem' }}>Showing {filteredProducts.length} products</p>
                 {(searchTerm || selectedCategory) && (
                   <p style={{ color: '#666', fontSize: '14px' }}>
                     {searchTerm && `Search results for: "<strong>${searchTerm}</strong>"`}
@@ -160,13 +160,7 @@ const AllProducts = () => {
                 )}
               </div>
               
-                             <div style={{ 
-                 display: 'grid', 
-                 gridTemplateColumns: 'repeat(6, 1fr)',
-                 gap: '16px',
-                 width: '100%',
-                 margin: '0'
-               }}>
+              <div className="product-grid">
                 {filteredProducts && filteredProducts.length > 0 ? (
                   filteredProducts.map((product) => (
                     <div key={product.ProductId}>

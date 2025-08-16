@@ -1,0 +1,52 @@
+/* Responsive tweaks for category buttons and product grid */
+
+@media (max-width: 1199px) {
+  .category-btn { font-size: 13px !important; padding: 10px 10px !important; }
+}
+
+@media (max-width: 991px) {
+  .category-btn { flex: 1 1 45% !important; max-width: 48% !important; }
+  .shop-header h2 { font-size: 1.4rem !important; }
+}
+
+@media (max-width: 767px) {
+  .category-btn { flex: 1 1 100% !important; max-width: 100% !important; }
+}
+
+@media (max-width: 1400px) {
+  .shop-area .container-fluid { padding-left: 16px !important; padding-right: 16px !important; }
+}
+
+/* Product grid explicit breakpoints */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1399px) {
+  .product-grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+@media (max-width: 1199px) {
+  .product-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 991px) {
+  .product-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 767px) {
+  .product-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 575px) {
+  .product-grid { grid-template-columns: 1fr; }
+}
+
+/* Search input responsive size */
+.search-input { max-width: 1000px; }
+@media (max-width: 575px) {
+  .search-input { font-size: 16px !important; padding: 14px 18px !important; }
+}
+

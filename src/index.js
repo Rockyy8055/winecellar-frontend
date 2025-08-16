@@ -2,6 +2,7 @@ import React from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import './assets/css/responsive-overrides.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import "./assets/scss/style.scss";
@@ -17,7 +18,8 @@ import { Provider } from 'react-redux';
 
 const fetchProducts = async () => {
   try {
-    const apiUrl = process.env.REACT_APP_API_URL;
+    const apiUrl = process.env.REACT_APP_API_URL || (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE) || '';
+    if (!apiUrl) throw new Error('API base URL not set. Set REACT_APP_API_URL or VITE_API_BASE');
     console.log('Fetching products from:', `${apiUrl}/api/product/get`);
     
     const response = await fetch(`${apiUrl}/api/product/get`);
