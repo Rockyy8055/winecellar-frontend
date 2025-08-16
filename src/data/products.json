@@ -1,0 +1,24 @@
+[
+  {
+    "ProductId": "01",
+    "name": "Vintage Rye Whiskey",
+    "price": 15.6,
+    "desc": "A bold, spicy rye whiskey with notes of cinnamon and clove.",
+    "category": ["furniture"],
+    "subCategory": "Whiskey",
+    "discount": "20",
+    "size": "750ML",
+    "SKU": "SKU11111",
+    "tags": ["best selling", "discount"],
+    "created_at": "2025-01-11T15:30:00.000Z",
+    "modified_at": "2025-01-11T15:30:00.000Z",
+    "deleted_at": null,
+    "vendor": "Heritage Spirits",
+    "Country": "USA",
+    "Region": "North America",
+    "taxable": true,
+    "brand": "Heritage Spirits",
+    "img": "/assets/img/product/furnitures/1.jpg",
+    "stock": "1"
+  }
+]

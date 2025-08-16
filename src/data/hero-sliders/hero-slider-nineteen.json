@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "title": "",
+    "subtitle": "",
+    "image": "/assets/img/Wine-Slider/HENSSY%20BANNER.png",
+    "url": "/shop-grid-standard"
+  },
+  {
+    "id": 2,
+    "title": "",
+    "subtitle": "",
+    "image": "/assets/img/Wine-Slider/Buzzballz.webp",
+    "url": "/shop-grid-standard"
+  },
+  {
+    "id": 3,
+    "title": "",
+    "subtitle": "",
+    "image": "/assets/img/Wine-Slider/new%20orange%20banner.png",
+    "url": "/shop-grid-standard"
+  },
+  {
+    "id": 4,
+    "title": "",
+    "subtitle": "",
+    "image": "/assets/img/Wine-Slider/white%20claw%20banner.jpg",
+    "url": "/shop-grid-standard"
+  }
+]

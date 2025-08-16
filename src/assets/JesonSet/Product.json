@@ -1,0 +1,2190 @@
+[
+    {
+      "ProductId": "01",
+      "name": "Vintage Rye Whiskey",
+      "desc": "A bold, spicy rye whiskey with notes of cinnamon and clove.",
+      "category": "Liquor",
+      "subCategory": "Whiskey",
+      "discount": "20%",
+      "inventories": [
+        {
+          "available": false,
+          "price": 32.99,
+          "SKU": "SKU11111",
+          "tags": ["best selling", "discount"],
+          "size": "M"
+        },
+        {
+          "available": false,
+          "price": 42.99,
+          "SKU": "SKU11112",
+          "tags": ["best selling", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:30:00.000Z",
+      "modified_at": "2025-01-11T15:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Heritage Spirits",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Heritage Spirits",
+      "img": "https://example.com/images/vintage-rye-whiskey.jpg"
+    },
+    {
+      "ProductId": "02",
+      "name": "Premium Irish Whiskey",
+      "desc": "A smooth, triple-distilled Irish whiskey with hints of honey and oak.",
+      "category": "Liquor",
+      "subCategory": "Whiskey",
+      "discount": "15%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 27.99,
+          "SKU": "SKU22221",
+          "tags": ["limited edition", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 37.99,
+          "SKU": "SKU22222",
+          "tags": ["limited edition", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:31:00.000Z",
+      "modified_at": "2025-01-11T15:31:00.000Z",
+      "deleted_at": null,
+      "vendor": "Emerald Distillers",
+      "Country": "Ireland",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Emerald Distillers",
+      "img": "https://example.com/images/premium-irish-whiskey.jpg"
+    },
+    {
+      "ProductId": "03",
+      "name": "Smoky Scotch Whisky",
+      "desc": "A rich, smoky Scotch whisky with hints of peat and sea salt.",
+      "category": "Liquor",
+      "subCategory": "Whisky",
+      "discount": "18%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 45.99,
+          "SKU": "SKU33331",
+          "tags": ["award-winning", "discount"],
+          "size": "S"
+        },
+        {
+          "available": true,
+          "price": 55.99,
+          "SKU": "SKU33332",
+          "tags": ["award-winning", "discount"],
+          "size": "M"
+        }
+      ],
+      "created_at": "2025-01-11T15:32:00.000Z",
+      "modified_at": "2025-01-11T15:32:00.000Z",
+      "deleted_at": null,
+      "vendor": "Highland Spirits",
+      "Country": "Scotland",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Highland Spirits",
+      "img": "https://example.com/images/smoky-scotch-whisky.jpg"
+    },
+    {
+      "ProductId": "04",
+      "name": "Classic Bourbon",
+      "desc": "A smooth, classic bourbon with notes of vanilla and a hint of spice.",
+      "category": "Liquor",
+      "subCategory": "Bourbon",
+      "discount": "10%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 34.99,
+          "SKU": "SKU44441",
+          "tags": ["limited edition", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 44.99,
+          "SKU": "SKU44442",
+          "tags": ["limited edition", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:33:00.000Z",
+      "modified_at": "2025-01-11T15:33:00.000Z",
+      "deleted_at": null,
+      "vendor": "Bourbon Masters",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Bourbon Masters",
+      "img": "https://example.com/images/classic-bourbon.jpg"
+    },
+    {
+      "ProductId": "05",
+      "name": "Golden Rum",
+      "desc": "A sweet, golden rum with hints of tropical fruit and vanilla.",
+      "category": "Liquor",
+      "subCategory": "Rum",
+      "discount": "12%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 24.99,
+          "SKU": "SKU55551",
+          "tags": ["best selling", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 34.99,
+          "SKU": "SKU55552",
+          "tags": ["best selling", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:34:00.000Z",
+      "modified_at": "2025-01-11T15:34:00.000Z",
+      "deleted_at": null,
+      "vendor": "Caribbean Spirits",
+      "Country": "Jamaica",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Caribbean Spirits",
+      "img": "https://example.com/images/golden-rum.jpg"
+    },
+    {
+      "ProductId": "06",
+      "name": "Aged Brandy",
+      "desc": "An elegant, aged brandy with a rich, smooth flavor profile.",
+      "category": "Liquor",
+      "subCategory": "Brandy",
+      "discount": "25%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 49.99,
+          "SKU": "SKU66661",
+          "tags": ["luxury", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 59.99,
+          "SKU": "SKU66662",
+          "tags": ["luxury", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:35:00.000Z",
+      "modified_at": "2025-01-11T15:35:00.000Z",
+      "deleted_at": null,
+      "vendor": "Fine Spirits Co.",
+      "Country": "France",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Fine Spirits Co.",
+      "img": "https://example.com/images/aged-brandy.jpg"
+    },
+    {
+      "ProductId": "07",
+      "name": "Signature Gin",
+      "desc": "A premium gin with botanical notes of juniper, citrus, and herbs.",
+      "category": "Liquor",
+      "subCategory": "Gin",
+      "discount": "8%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 29.99,
+          "SKU": "SKU77771",
+          "tags": ["signature", "discount"],
+          "size": "S"
+        },
+        {
+          "available": true,
+          "price": 39.99,
+          "SKU": "SKU77772",
+          "tags": ["signature", "discount"],
+          "size": "M"
+        }
+      ],
+      "created_at": "2025-01-11T15:36:00.000Z",
+      "modified_at": "2025-01-11T15:36:00.000Z",
+      "deleted_at": null,
+      "vendor": "Botanical Spirits",
+      "Country": "UK",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Botanical Spirits",
+      "img": "https://example.com/images/signature-gin.jpg"
+    },
+    {
+      "ProductId": "08",
+      "name": "Classic Vodka",
+      "desc": "A clean, classic vodka with a smooth finish, perfect for cocktails.",
+      "category": "Liquor",
+      "subCategory": "Vodka",
+      "discount": "5%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 19.99,
+          "SKU": "SKU88881",
+          "tags": ["classic", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 29.99,
+          "SKU": "SKU88882",
+          "tags": ["classic", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:37:00.000Z",
+      "modified_at": "2025-01-11T15:37:00.000Z",
+      "deleted_at": null,
+      "vendor": "Crystal Spirits",
+      "Country": "Russia",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Crystal Spirits",
+      "img": "https://example.com/images/classic-vodka.jpg"
+    },
+    {
+      "ProductId": "09",
+      "name": "Honey Infused Liqueur",
+      "desc": "A sweet, honey-infused liqueur with a smooth, rich taste.",
+      "category": "Liquor",
+      "subCategory": "Liqueur",
+      "discount": "10%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 24.99,
+          "SKU": "SKU99991",
+          "tags": ["infused", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 34.99,
+          "SKU": "SKU99992",
+          "tags": ["infused", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:38:00.000Z",
+      "modified_at": "2025-01-11T15:38:00.000Z",
+      "deleted_at": null,
+      "vendor": "Nature's Spirits",
+      "Country": "Canada",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Nature's Spirits",
+      "img": "https://example.com/images/honey-infused-liqueur.jpg"
+    },
+    {
+      "ProductId": "10",
+      "name": "Spiced Rum",
+      "desc": "A bold, spiced rum with flavors of cinnamon, nutmeg, and cloves.",
+      "category": "Liquor",
+      "subCategory": "Rum",
+      "discount": "15%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 26.99,
+          "SKU": "SKU10101",
+          "tags": ["spiced", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 36.99,
+          "SKU": "SKU10102",
+          "tags": ["spiced", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:39:00.000Z",
+      "modified_at": "2025-01-11T15:39:00.000Z",
+      "deleted_at": null,
+      "vendor": "Island Spirits",
+      "Country": "Barbados",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Island Spirits",
+      "img": "https://example.com/images/spiced-rum.jpg"
+    },
+    {
+      "ProductId": "11",
+      "name": "Citrus Vodka",
+      "desc": "A zesty, citrus-flavored vodka with a refreshing, crisp taste.",
+      "category": "Liquor",
+      "subCategory": "Vodka",
+      "discount": "10%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 22.99,
+          "SKU": "SKU11111",
+          "tags": ["citrus", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 32.99,
+          "SKU": "SKU11112",
+          "tags": ["citrus", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:40:00.000Z",
+      "modified_at": "2025-01-11T15:40:00.000Z",
+      "deleted_at": null,
+      "vendor": "Zest Spirits",
+      "Country": "Poland",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Zest Spirits",
+      "img": "https://example.com/images/citrus-vodka.jpg"
+    },
+    {
+      "ProductId": "12",
+      "name": "Dark Chocolate Liqueur",
+      "desc": "A rich, dark chocolate liqueur with a smooth, velvety finish.",
+      "category": "Liquor",
+      "subCategory": "Liqueur",
+      "discount": "20%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 29.99,
+          "SKU": "SKU12121",
+          "tags": ["chocolate", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 39.99,
+          "SKU": "SKU12122",
+          "tags": ["chocolate", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:41:00.000Z",
+      "modified_at": "2025-01-11T15:41:00.000Z",
+      "deleted_at": null,
+      "vendor": "Gourmet Spirits",
+      "Country": "Belgium",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Gourmet Spirits",
+      "img": "https://example.com/images/dark-chocolate-liqueur.jpg"
+    },
+    {
+      "ProductId": "13",
+      "name": "Coconut Rum",
+      "desc": "A tropical coconut rum with a sweet, smooth flavor.",
+      "category": "Liquor",
+      "subCategory": "Rum",
+      "discount": "12%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 25.99,
+          "SKU": "SKU13131",
+          "tags": ["tropical", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 35.99,
+          "SKU": "SKU13132",
+          "tags": ["tropical", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:42:00.000Z",
+      "modified_at": "2025-01-11T15:42:00.000Z",
+      "deleted_at": null,
+      "vendor": "Island Spirits",
+      "Country": "Trinidad",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Island Spirits",
+      "img": "https://example.com/images/coconut-rum.jpg"
+    },
+    {
+      "ProductId": "14",
+      "name": "Apple Cider Brandy",
+      "desc": "A rich, apple cider brandy with a smooth, sweet finish.",
+      "category": "Liquor",
+      "subCategory": "Brandy",
+      "discount": "18%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 27.99,
+          "SKU": "SKU14141",
+          "tags": ["cider", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 37.99,
+          "SKU": "SKU14142",
+          "tags": ["cider", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:43:00.000Z",
+      "modified_at": "2025-01-11T15:43:00.000Z",
+      "deleted_at": null,
+      "vendor": "Cider Spirits",
+      "Country": "France",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Cider Spirits",
+      "img": "https://example.com/images/apple-cider-brandy.jpg"
+    },
+    {
+      "ProductId": "15",
+      "name": "Peppermint Schnapps",
+      "desc": "A refreshing peppermint schnapps with a cool, minty flavor.",
+      "category": "Liquor",
+      "subCategory": "Schnapps",
+      "discount": "22%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 23.99,
+          "SKU": "SKU15151",
+          "tags": ["minty", "discount"],
+          "size": "M"
+        },
+        {
+          "available": true,
+          "price": 33.99,
+          "SKU": "SKU15152",
+          "tags": ["minty", "discount"],
+          "size": "L"
+        }
+      ],
+      "created_at": "2025-01-11T15:44:00.000Z",
+      "modified_at": "2025-01-11T15:44:00.000Z",
+      "deleted_at": null,
+      "vendor": "Cider Spirits",
+    "Country": "France",
+    "Region": "Europe",
+    "taxable": true,
+    "brand": "Cider Spirits",
+    "img": "https://example.com/images/apple-cider-brandy.jpg"
+  },
+  {
+    "ProductId": "16",
+    "name": "Classic Red Wine",
+    "desc": "A smooth and elegant red wine with hints of berries and oak.",
+    "category": "Wine",
+    "subCategory": "Red Wine",
+    "discount": "18%",
+    "inventories": [
+      {
+        "available": true,
+        "price": 19.99,
+        "SKU": "SKU16161",
+        "tags": ["fruity", "discount"],
+        "size": "750ml"
+      }
+    ],
+    "created_at": "2025-01-11T16:00:00.000Z",
+    "modified_at": "2025-01-11T16:00:00.000Z",
+    "deleted_at": null,
+    "vendor": "Vineyard Select",
+    "Country": "Italy",
+    "Region": "Europe",
+    "taxable": true,
+    "brand": "Vineyard Select",
+    "img": "https://example.com/images/classic-red-wine.jpg"
+  },
+  {
+    "ProductId": "17",
+    "name": "Craft IPA Beer",
+    "desc": "A hoppy and flavorful IPA with citrus notes.",
+    "category": "Beer",
+    "subCategory": "IPA",
+    "discount": "10%",
+    "inventories": [
+      {
+        "available": true,
+        "price": 12.99,
+        "SKU": "SKU17171",
+        "tags": ["hoppy", "craft"],
+        "size": "6-pack"
+      }
+    ],
+    "created_at": "2025-01-11T16:15:00.000Z",
+    "modified_at": "2025-01-11T16:15:00.000Z",
+    "deleted_at": null,
+    "vendor": "Hop Brewery",
+    "Country": "USA",
+    "Region": "North America",
+    "taxable": true,
+    "brand": "Hop Brewery",
+    "img": "https://example.com/images/craft-ipa-beer.jpg"
+  },
+  {
+    "ProductId": "18",
+    "name": "Premium Vodka",
+    "desc": "A clean and crisp vodka, perfect for cocktails.",
+    "category": "Liquor",
+    "subCategory": "Vodka",
+    "discount": "25%",
+    "inventories": [
+      {
+        "available": true,
+        "price": 25.99,
+        "SKU": "SKU18181",
+        "tags": ["smooth", "discount"],
+        "size": "750ml"
+      }
+    ],
+    "created_at": "2025-01-11T16:30:00.000Z",
+    "modified_at": "2025-01-11T16:30:00.000Z",
+    "deleted_at": null,
+    "vendor": "Northern Spirits",
+    "Country": "Russia",
+    "Region": "Europe",
+    "taxable": true,
+    "brand": "Northern Spirits",
+    "img": "https://example.com/images/premium-vodka.jpg"
+  },
+  {
+    "ProductId": "19",
+    "name": "Golden Ale",
+    "desc": "A light and refreshing golden ale with subtle malt flavors.",
+    "category": "Beer",
+    "subCategory": "Ale",
+    "discount": "12%",
+    "inventories": [
+      {
+        "available": true,
+        "price": 10.99,
+        "SKU": "SKU19191",
+        "tags": ["refreshing", "ale"],
+        "size": "6-pack"
+      }
+    ],
+    "created_at": "2025-01-11T16:45:00.000Z",
+    "modified_at": "2025-01-11T16:45:00.000Z",
+    "deleted_at": null,
+    "vendor": "Golden Brewery",
+    "Country": "England",
+    "Region": "Europe",
+    "taxable": true,
+    "brand": "Golden Brewery",
+    "img": "https://example.com/images/golden-ale.jpg"
+  },
+  {
+    "ProductId": "20",
+    "name": "Premium Gin",
+    "desc": "A botanical gin with hints of juniper and citrus.",
+    "category": "Liquor",
+    "subCategory": "Gin",
+    "discount": "20%",
+    "inventories": [
+      {
+        "available": true,
+        "price": 28.99,
+        "SKU": "SKU20202",
+        "tags": ["botanical", "discount"],
+        "size": "700ml"
+      }
+    ],
+    "created_at": "2025-01-11T17:00:00.000Z",
+    "modified_at": "2025-01-11T17:00:00.000Z",
+    "deleted_at": null,
+    "vendor": "Botanic Spirits",
+    "Country": "Netherlands",
+    "Region": "Europe",
+    "taxable": true,
+    "brand": "Botanic Spirits",
+    "img": "https://example.com/images/premium-gin.jpg"
+  },
+  {
+    "ProductId": "21",
+    "name": "Cherry Brandy",
+    "desc": "A rich and fruity cherry brandy with a smooth finish.",
+    "category": "Liquor",
+    "subCategory": "Brandy",
+    "discount": "15%",
+    "inventories": [
+      {
+        "available": true,
+        "price": 34.99,
+        "SKU": "SKU21212",
+        "tags": ["fruity", "brandy"],
+        "size": "500ml"
+      }
+    ],
+    "created_at": "2025-01-11T17:15:00.000Z",
+    "modified_at": "2025-01-11T17:15:00.000Z",
+    "deleted_at": null,
+    "vendor": "Cherry Spirits",
+    "Country": "Germany",
+    "Region": "Europe",
+    "taxable": true,
+    "brand": "Cherry Spirits",
+    "img": "https://example.com/images/cherry-brandy.jpg"
+  },
+  {
+    "ProductId": "22",
+    "name": "Classic Champagne",
+    "desc": "A sparkling champagne with fine bubbles and a crisp taste.",
+    "category": "Wine",
+    "subCategory": "Champagne",
+    "discount": "5%",
+    "inventories": [
+      {
+        "available": true,
+        "price": 49.99,
+        "SKU": "SKU22222",
+        "tags": ["sparkling", "luxury"],
+        "size": "750ml"
+      }
+    ],
+    "created_at": "2025-01-11T17:30:00.000Z",
+    "modified_at": "2025-01-11T17:30:00.000Z",
+    "deleted_at": null,
+    "vendor": "Champagne House",
+    "Country": "France",
+    "Region": "Europe",
+    "taxable": true,
+    "brand": "Champagne House",
+    "img": "https://example.com/images/classic-champagne.jpg"
+  },
+  {
+    "ProductId": "23",
+    "name": "Peach Schnapps",
+    "desc": "A sweet and fruity peach schnapps perfect for cocktails.",
+    "category": "Liquor",
+    "subCategory": "Schnapps",
+    "discount": "18%",
+    "inventories": [
+      {
+        "available": true,
+        "price": 21.99,
+        "SKU": "SKU23232",
+        "tags": ["sweet", "peach"],
+        "size": "500ml"
+      }
+    ],
+    "created_at": "2025-01-11T17:45:00.000Z",
+    "modified_at": "2025-01-11T17:45:00.000Z",
+    "deleted_at": null,
+    "vendor": "Peachy Spirits",
+    "Country": "USA",
+    "Region": "North America",
+    "taxable": true,
+    "brand": "Peachy Spirits",
+    "img": "https://example.com/images/peach-schnapps.jpg"
+  },
+  {
+    "ProductId": "24",
+    "name": "Irish Cream Liqueur",
+    "desc": "A creamy liqueur with a rich blend of Irish whiskey and cream.",
+    "category": "Liquor",
+    "subCategory": "Liqueur",
+    "discount": "10%",
+    "inventories": [
+      {
+        "available": true,
+        "price": 27.99,
+        "SKU": "SKU24242",
+        "tags": ["creamy", "whiskey"],
+        "size": "750ml"
+      }
+    ],
+    "created_at": "2025-01-11T18:00:00.000Z",
+    "modified_at": "2025-01-11T18:00:00.000Z",
+    "deleted_at": null,
+    "vendor": "Creamy Spirits",
+    "Country": "Ireland",
+    "Region": "Europe",
+    "taxable": true,
+    "brand": "Creamy Spirits",
+    "img": "https://example.com/images/irish-cream-liqueur.jpg"
+  },
+  {
+    "ProductId": "25",
+    "name": "Cider Reserve",
+    "desc": "A crisp apple cider with a refreshing finish.",
+    "category": "Cider",
+    "subCategory": "Apple Cider",
+    "discount": "15%",
+    "inventories": [
+      {
+        "available": true,
+        "price": 15.99,
+        "SKU": "SKU25252",
+        "tags": ["crisp", "apple"],
+        "size": "750ml"
+      }
+    ],
+    "created_at": "2025-01-11T18:15:00.000Z",
+    "modified_at": "2025-01-11T18:15:00.000Z",
+    "deleted_at": null,
+    "vendor": "Cider House",
+    "Country": "England",
+    "Region": "Europe",
+    "taxable": true,
+    "brand": "Cider House",
+    "img": "https://example.com/images/cider-reserve.jpg"
+  },
+    {
+      "ProductId": "26",
+      "name": "Dark Rum Reserve",
+      "desc": "A full-bodied dark rum with rich molasses and spice notes.",
+      "category": "Liquor",
+      "subCategory": "Rum",
+      "discount": "20%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 31.99,
+          "SKU": "SKU26262",
+          "tags": ["rich", "spicy"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T19:00:00.000Z",
+      "modified_at": "2025-01-11T19:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Tropical Spirits",
+      "Country": "Jamaica",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Tropical Spirits",
+      "img": "https://example.com/images/dark-rum-reserve.jpg"
+    },
+    {
+      "ProductId": "27",
+      "name": "Organic Chardonnay",
+      "desc": "A crisp and refreshing organic Chardonnay with citrus undertones.",
+      "category": "Wine",
+      "subCategory": "White Wine",
+      "discount": "25%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 22.99,
+          "SKU": "SKU27272",
+          "tags": ["organic", "citrus"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T19:15:00.000Z",
+      "modified_at": "2025-01-11T19:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Eco Vineyards",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Eco Vineyards",
+      "img": "https://example.com/images/organic-chardonnay.jpg"
+    },
+    {
+      "ProductId": "28",
+      "name": "Triple Sec Liqueur",
+      "desc": "A classic orange-flavored liqueur, perfect for cocktails.",
+      "category": "Liquor",
+      "subCategory": "Liqueur",
+      "discount": "18%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 19.99,
+          "SKU": "SKU28282",
+          "tags": ["orange", "cocktail"],
+          "size": "700ml"
+        }
+      ],
+      "created_at": "2025-01-11T19:30:00.000Z",
+      "modified_at": "2025-01-11T19:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Citrus Spirits",
+      "Country": "France",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Citrus Spirits",
+      "img": "https://example.com/images/triple-sec-liqueur.jpg"
+    },
+    {
+      "ProductId": "29",
+      "name": "Hazy Pale Ale",
+      "desc": "A hazy pale ale with tropical fruit aromas and a smooth finish.",
+      "category": "Beer",
+      "subCategory": "Pale Ale",
+      "discount": "12%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 14.99,
+          "SKU": "SKU29292",
+          "tags": ["hazy", "tropical"],
+          "size": "6-pack"
+        }
+      ],
+      "created_at": "2025-01-11T19:45:00.000Z",
+      "modified_at": "2025-01-11T19:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Craft Brew Co.",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Craft Brew Co.",
+      "img": "https://example.com/images/hazy-pale-ale.jpg"
+    },
+    {
+      "ProductId": "30",
+      "name": "Raspberry Vodka",
+      "desc": "A sweet and tart raspberry-infused vodka, perfect for mixing.",
+      "category": "Liquor",
+      "subCategory": "Vodka",
+      "discount": "22%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 24.99,
+          "SKU": "SKU30303",
+          "tags": ["raspberry", "infused"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T20:00:00.000Z",
+      "modified_at": "2025-01-11T20:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Berry Spirits",
+      "Country": "Poland",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Berry Spirits",
+      "img": "https://example.com/images/raspberry-vodka.jpg"
+    },
+    {
+      "ProductId": "31",
+      "name": "Coconut Rum",
+      "desc": "A smooth coconut-flavored rum, perfect for tropical cocktails.",
+      "category": "Liquor",
+      "subCategory": "Rum",
+      "discount": "15%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 27.99,
+          "SKU": "SKU31313",
+          "tags": ["coconut", "tropical"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T20:15:00.000Z",
+      "modified_at": "2025-01-11T20:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Island Spirits",
+      "Country": "Caribbean",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Island Spirits",
+      "img": "https://example.com/images/coconut-rum.jpg"
+    },
+    {
+      "ProductId": "32",
+      "name": "Merlot Reserve",
+      "desc": "A rich Merlot with notes of black cherry and chocolate.",
+      "category": "Wine",
+      "subCategory": "Red Wine",
+      "discount": "20%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 29.99,
+          "SKU": "SKU32323",
+          "tags": ["rich", "black cherry"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T20:30:00.000Z",
+      "modified_at": "2025-01-11T20:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Vineyard Classics",
+      "Country": "Italy",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Vineyard Classics",
+      "img": "https://example.com/images/merlot-reserve.jpg"
+    },
+    {
+      "ProductId": "33",
+      "name": "IPA Adventure",
+      "desc": "A bold IPA with a strong hoppy flavor and hints of citrus.",
+      "category": "Beer",
+      "subCategory": "IPA",
+      "discount": "10%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 13.99,
+          "SKU": "SKU33333",
+          "tags": ["bold", "hoppy"],
+          "size": "6-pack"
+        }
+      ],
+      "created_at": "2025-01-11T20:45:00.000Z",
+      "modified_at": "2025-01-11T20:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Brew Masters",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Brew Masters",
+      "img": "https://example.com/images/ipa-adventure.jpg"
+    },
+    {
+      "ProductId": "34",
+      "name": "Ginger Liqueur",
+      "desc": "A spicy and sweet ginger liqueur, ideal for mixing.",
+      "category": "Liquor",
+      "subCategory": "Liqueur",
+      "discount": "17%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 26.99,
+          "SKU": "SKU34343",
+          "tags": ["spicy", "ginger"],
+          "size": "700ml"
+        }
+      ],
+      "created_at": "2025-01-11T21:00:00.000Z",
+      "modified_at": "2025-01-11T21:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Spice Spirits",
+      "Country": "China",
+      "Region": "Asia",
+      "taxable": true,
+      "brand": "Spice Spirits",
+      "img": "https://example.com/images/ginger-liqueur.jpg"
+    },
+    {
+      "ProductId": "35",
+      "name": "Peach White Wine",
+      "desc": "A delicate white wine with subtle peach flavors and a floral aroma.",
+      "category": "Wine",
+      "subCategory": "White Wine",
+      "discount": "18%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 24.99,
+          "SKU": "SKU35353",
+          "tags": ["peach", "floral"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T21:15:00.000Z",
+      "modified_at": "2025-01-11T21:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Fruit Vineyards",
+      "Country": "France",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Fruit Vineyards",
+      "img": "https://example.com/images/peach-white-wine.jpg"
+    },
+    {
+      "ProductId": "36",
+      "name": "Herbal Gin",
+      "desc": "A botanical gin with herbal notes and a smooth finish.",
+      "category": "Liquor",
+      "subCategory": "Gin",
+      "discount": "12%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 30.99,
+          "SKU": "SKU36363",
+          "tags": ["herbal", "smooth"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T21:30:00.000Z",
+      "modified_at": "2025-01-11T21:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Botanical Spirits",
+      "Country": "Netherlands",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Botanical Spirits",
+      "img": "https://example.com/images/herbal-gin.jpg"
+    },
+    {
+      "ProductId": "37",
+      "name": "Honey Mead",
+      "desc": "A traditional honey mead with a sweet and smooth taste.",
+      "category": "Mead",
+      "subCategory": "Honey Mead",
+      "discount": "10%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 19.99,
+          "SKU": "SKU37373",
+          "tags": ["sweet", "honey"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T21:45:00.000Z",
+      "modified_at": "2025-01-11T21:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Mead Makers",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Mead Makers",
+      "img": "https://example.com/images/honey-mead.jpg"
+    },
+    {
+      "ProductId": "38",
+      "name": "Blackberry Brandy",
+      "desc": "A fruity blackberry brandy with a smooth and rich finish.",
+      "category": "Liquor",
+      "subCategory": "Brandy",
+      "discount": "15%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 32.99,
+          "SKU": "SKU38383",
+          "tags": ["fruity", "blackberry"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T22:00:00.000Z",
+      "modified_at": "2025-01-11T22:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Berry Brandy Co.",
+      "Country": "Germany",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Berry Brandy Co.",
+      "img": "https://example.com/images/blackberry-brandy.jpg"
+    },
+    {
+      "ProductId": "39",
+      "name": "Sparkling Rosé",
+      "desc": "A delightful sparkling rosé with notes of strawberry and rose.",
+      "category": "Wine",
+      "subCategory": "Rosé Wine",
+      "discount": "18%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 21.99,
+          "SKU": "SKU39393",
+          "tags": ["strawberry", "sparkling"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T22:15:00.000Z",
+      "modified_at": "2025-01-11T22:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Rosé Vineyards",
+      "Country": "France",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Rosé Vineyards",
+      "img": "https://example.com/images/sparkling-rose.jpg"
+    },
+    {
+      "ProductId": "40",
+      "name": "Maple Whiskey",
+      "desc": "A smooth whiskey with a hint of maple sweetness.",
+      "category": "Liquor",
+      "subCategory": "Whiskey",
+      "discount": "22%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 34.99,
+          "SKU": "SKU40404",
+          "tags": ["maple", "smooth"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T22:30:00.000Z",
+      "modified_at": "2025-01-11T22:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Maple Spirits",
+      "Country": "Canada",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Maple Spirits",
+      "img": "https://example.com/images/maple-whiskey.jpg"
+    },
+    {
+      "ProductId": "41",
+      "name": "Apricot Brandy",
+      "desc": "A rich apricot brandy with a smooth and fruity flavor.",
+      "category": "Liquor",
+      "subCategory": "Brandy",
+      "discount": "16%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 33.99,
+          "SKU": "SKU41414",
+          "tags": ["apricot", "fruity"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T22:45:00.000Z",
+      "modified_at": "2025-01-11T22:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Apricot Spirits",
+      "Country": "Armenia",
+      "Region": "Asia",
+      "taxable": true,
+      "brand": "Apricot Spirits",
+      "img": "https://example.com/images/apricot-brandy.jpg"
+    },
+    {
+      "ProductId": "42",
+      "name": "Spiced Apple Cider",
+      "desc": "A warm spiced apple cider with cinnamon and nutmeg flavors.",
+      "category": "Cider",
+      "subCategory": "Spiced Cider",
+      "discount": "12%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 16.99,
+          "SKU": "SKU42424",
+          "tags": ["spiced", "cinnamon"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T23:00:00.000Z",
+      "modified_at": "2025-01-11T23:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Cider House",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Cider House",
+      "img": "https://example.com/images/spiced-apple-cider.jpg"
+    },
+    {
+      "ProductId": "43",
+      "name": "Cherry Blossom Gin",
+      "desc": "A floral gin infused with the delicate flavors of cherry blossoms.",
+      "category": "Liquor",
+      "subCategory": "Gin",
+      "discount": "20%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 31.99,
+          "SKU": "SKU43434",
+          "tags": ["floral", "cherry blossom"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T23:15:00.000Z",
+      "modified_at": "2025-01-11T23:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Floral Spirits",
+      "Country": "Japan",
+      "Region": "Asia",
+      "taxable": true,
+      "brand": "Floral Spirits",
+      "img": "https://example.com/images/cherry-blossom-gin.jpg"
+    },
+    {
+      "ProductId": "44",
+      "name": "Vanilla Vodka",
+      "desc": "A smooth vanilla-infused vodka, perfect for desserts and cocktails.",
+      "category": "Liquor",
+      "subCategory": "Vodka",
+      "discount": "14%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 25.99,
+          "SKU": "SKU44444",
+          "tags": ["vanilla", "infused"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T23:30:00.000Z",
+      "modified_at": "2025-01-11T23:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Vanilla Spirits",
+      "Country": "Russia",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Vanilla Spirits",
+      "img": "https://example.com/images/vanilla-vodka.jpg"
+    },
+    {
+      "ProductId": "45",
+      "name": "Caramel Whiskey",
+      "desc": "A smooth whiskey with rich caramel undertones.",
+      "category": "Liquor",
+      "subCategory": "Whiskey",
+      "discount": "18%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 36.99,
+          "SKU": "SKU45454",
+          "tags": ["caramel", "smooth"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-11T23:45:00.000Z",
+      "modified_at": "2025-01-11T23:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Caramel Spirits",
+      "Country": "Ireland",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Caramel Spirits",
+      "img": "https://example.com/images/caramel-whiskey.jpg"
+    },
+    {
+      "ProductId": "46",
+      "name": "Strawberry Champagne",
+      "desc": "A luxurious champagne with hints of strawberry and a crisp finish.",
+      "category": "Wine",
+      "subCategory": "Champagne",
+      "discount": "22%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 42.99,
+          "SKU": "SKU46464",
+          "tags": ["luxurious", "strawberry"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T00:00:00.000Z",
+      "modified_at": "2025-01-12T00:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Champagne House",
+      "Country": "France",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Champagne House",
+      "img": "https://example.com/images/strawberry-champagne.jpg"
+    },
+    {
+      "ProductId": "47",
+      "name": "Blueberry Gin",
+      "desc": "A fruity blueberry-infused gin with a refreshing taste.",
+      "category": "Liquor",
+      "subCategory": "Gin",
+      "discount": "16%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 29.99,
+          "SKU": "SKU47474",
+          "tags": ["fruity", "blueberry"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T00:15:00.000Z",
+      "modified_at": "2025-01-12T00:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Berry Spirits",
+      "Country": "England",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Berry Spirits",
+      "img": "https://example.com/images/blueberry-gin.jpg"
+    },
+    {
+      "ProductId": "48",
+      "name": "Spiced Rum",
+      "desc": "A rich spiced rum with hints of cinnamon, vanilla, and nutmeg.",
+      "category": "Liquor",
+      "subCategory": "Rum",
+      "discount": "20%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 33.99,
+          "SKU": "SKU48484",
+          "tags": ["spiced", "cinnamon"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T00:30:00.000Z",
+      "modified_at": "2025-01-12T00:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Spice Spirits",
+      "Country": "Jamaica",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Spice Spirits",
+      "img": "https://example.com/images/spiced-rum.jpg"
+    },
+    {
+      "ProductId": "49",
+      "name": "Pineapple Cider",
+      "desc": "A tropical pineapple cider with a refreshing taste.",
+      "category": "Cider",
+      "subCategory": "Fruit Cider",
+      "discount": "15%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 17.99,
+          "SKU": "SKU49494",
+          "tags": ["tropical", "pineapple"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T00:45:00.000Z",
+      "modified_at": "2025-01-12T00:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Cider House",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Cider House",
+      "img": "https://example.com/images/pineapple-cider.jpg"
+    },
+    {
+      "ProductId": "50",
+      "name": "Coconut Water Vodka",
+      "desc": "A unique vodka infused with refreshing coconut water.",
+      "category": "Liquor",
+      "subCategory": "Vodka",
+      "discount": "18%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 28.99,
+          "SKU": "SKU50505",
+          "tags": ["coconut", "refreshing"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T01:00:00.000Z",
+      "modified_at": "2025-01-12T01:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Tropical Spirits",
+      "Country": "Caribbean",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Tropical Spirits",
+      "img": "https://example.com/images/coconut-water-vodka.jpg"
+    },
+    {
+      "ProductId": "51",
+      "name": "Plum Wine",
+      "desc": "A sweet and fruity plum wine with a smooth finish.",
+      "category": "Wine",
+      "subCategory": "Fruit Wine",
+      "discount": "22%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 26.99,
+          "SKU": "SKU51515",
+          "tags": ["sweet", "plum"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T01:15:00.000Z",
+      "modified_at": "2025-01-12T01:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Fruit Vineyards",
+      "Country": "Japan",
+      "Region": "Asia",
+      "taxable": true,
+      "brand": "Fruit Vineyards",
+      "img": "https://example.com/images/plum-wine.jpg"
+    },
+    {
+      "ProductId": "52",
+      "name": "Peach Schnapps",
+      "desc": "A sweet peach schnapps with a smooth and fruity flavor.",
+      "category": "Liquor",
+      "subCategory": "Schnapps",
+      "discount": "20%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 21.99,
+          "SKU": "SKU52525",
+          "tags": ["sweet", "peach"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T01:30:00.000Z",
+      "modified_at": "2025-01-12T01:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Peach Spirits",
+      "Country": "Germany",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Peach Spirits",
+      "img": "https://example.com/images/peach-schnapps.jpg"
+    },
+    {
+      "ProductId": "53",
+      "name": "Ginger Beer",
+      "desc": "A spicy and refreshing ginger beer with a crisp finish.",
+      "category": "Beer",
+      "subCategory": "Ginger Beer",
+      "discount": "15%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 13.99,
+          "SKU": "SKU53535",
+          "tags": ["spicy", "ginger"],
+          "size": "6-pack"
+        }
+      ],
+      "created_at": "2025-01-12T01:45:00.000Z",
+      "modified_at": "2025-01-12T01:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Brew Masters",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Brew Masters",
+      "img": "https://example.com/images/ginger-beer.jpg"
+    },
+    {
+      "ProductId": "54",
+      "name": "Espresso Vodka",
+      "desc": "A bold espresso-infused vodka, perfect for coffee lovers.",
+      "category": "Liquor",
+      "subCategory": "Vodka",
+      "discount": "18%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 27.99,
+          "SKU": "SKU54545",
+          "tags": ["bold", "espresso"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T02:00:00.000Z",
+      "modified_at": "2025-01-12T02:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Coffee Spirits",
+      "Country": "Russia",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Coffee Spirits",
+      "img": "https://example.com/images/espresso-vodka.jpg"
+    },
+    {
+      "ProductId": "55",
+      "name": "Honey Bourbon",
+      "desc": "A smooth bourbon with a hint of honey sweetness.",
+      "category": "Liquor",
+      "subCategory": "Bourbon",
+      "discount": "14%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 35.99,
+          "SKU": "SKU55555",
+          "tags": ["smooth", "honey"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T02:15:00.000Z",
+      "modified_at": "2025-01-12T02:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Honey Spirits",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Honey Spirits",
+      "img": "https://example.com/images/honey-bourbon.jpg"
+    },
+    {
+      "ProductId": "56",
+      "name": "Watermelon Cooler",
+      "desc": "A refreshing watermelon cooler with a sweet and crisp taste.",
+      "category": "Cocktail",
+      "subCategory": "Cooler",
+      "discount": "12%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 18.99,
+          "SKU": "SKU56565",
+          "tags": ["refreshing", "watermelon"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T02:30:00.000Z",
+      "modified_at": "2025-01-12T02:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Cooler Co.",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Cooler Co.",
+      "img": "https://example.com/images/watermelon-cooler.jpg"
+    },
+    {
+      "ProductId": "57",
+      "name": "Mango Mojito",
+      "desc": "A tropical mango mojito with a refreshing minty twist.",
+      "category": "Cocktail",
+      "subCategory": "Mojito",
+      "discount": "15%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 19.99,
+          "SKU": "SKU57575",
+          "tags": ["tropical", "mango"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T02:45:00.000Z",
+      "modified_at": "2025-01-12T02:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Tropical Spirits",
+      "Country": "Caribbean",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Tropical Spirits",
+      "img": "https://example.com/images/mango-mojito.jpg"
+    },
+    {
+      "ProductId": "58",
+      "name": "Lavender Gin",
+      "desc": "A floral lavender-infused gin with a calming aroma.",
+      "category": "Liquor",
+      "subCategory": "Gin",
+      "discount": "18%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 29.99,
+          "SKU": "SKU58585",
+          "tags": ["floral", "lavender"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T03:00:00.000Z",
+      "modified_at": "2025-01-12T03:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Floral Spirits",
+      "Country": "Netherlands",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Floral Spirits",
+      "img": "https://example.com/images/lavender-gin.jpg"
+    },
+    {
+      "ProductId": "59",
+      "name": "Cherry Whiskey",
+      "desc": "A rich cherry-infused whiskey with a bold flavor.",
+      "category": "Liquor",
+      "subCategory": "Whiskey",
+      "discount": "20%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 36.99,
+          "SKU": "SKU59595",
+          "tags": ["rich", "cherry"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T03:15:00.000Z",
+      "modified_at": "2025-01-12T03:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Berry Spirits",
+      "Country": "Ireland",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Berry Spirits",
+      "img": "https://example.com/images/cherry-whiskey.jpg"
+    },
+    {
+      "ProductId": "60",
+      "name": "Grapefruit IPA",
+      "desc": "A bold IPA with a refreshing grapefruit twist.",
+      "category": "Beer",
+      "subCategory": "IPA",
+      "discount": "15%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 15.99,
+          "SKU": "SKU60606",
+          "tags": ["bold", "grapefruit"],
+          "size": "6-pack"
+        }
+      ],
+      "created_at": "2025-01-12T03:30:00.000Z",
+      "modified_at": "2025-01-12T03:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Brew Masters",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Brew Masters",
+      "img": "https://example.com/images/grapefruit-ipa.jpg"
+    },
+    {
+      "ProductId": "61",
+      "name": "Lemon Vodka",
+      "desc": "A crisp lemon-infused vodka with a refreshing citrus flavor.",
+      "category": "Liquor",
+      "subCategory": "Vodka",
+      "discount": "18%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 26.99,
+          "SKU": "SKU61616",
+          "tags": ["crisp", "lemon"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T03:45:00.000Z",
+      "modified_at": "2025-01-12T03:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Citrus Spirits",
+      "Country": "Russia",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Citrus Spirits",
+      "img": "https://example.com/images/lemon-vodka.jpg"
+    },
+    {
+      "ProductId": "62",
+      "name": "Berry Rosé",
+      "desc": "A delightful rosé wine with hints of fresh berries and a crisp finish.",
+      "category": "Wine",
+      "subCategory": "Rosé",
+      "discount": "12%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 28.99,
+          "SKU": "SKU62626",
+          "tags": ["delightful", "berry"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T04:00:00.000Z",
+      "modified_at": "2025-01-12T04:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Berry Vineyards",
+      "Country": "France",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Berry Vineyards",
+      "img": "https://example.com/images/berry-rose.jpg"
+    },
+    {
+      "ProductId": "63",
+      "name": "Apple Cider",
+      "desc": "A traditional apple cider with a crisp and refreshing taste.",
+      "category": "Cider",
+      "subCategory": "Apple Cider",
+      "discount": "10%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 15.99,
+          "SKU": "SKU63636",
+          "tags": ["traditional", "apple"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T04:15:00.000Z",
+      "modified_at": "2025-01-12T04:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Cider House",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Cider House",
+      "img": "https://example.com/images/apple-cider.jpg"
+    },
+    {
+      "ProductId": "64",
+      "name": "Vanilla Cream Liqueur",
+      "desc": "A rich and creamy vanilla liqueur with a smooth finish.",
+      "category": "Liquor",
+      "subCategory": "Liqueur",
+      "discount": "14%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 31.99,
+          "SKU": "SKU64646",
+          "tags": ["rich", "vanilla"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T04:30:00.000Z",
+      "modified_at": "2025-01-12T04:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Cream Spirits",
+      "Country": "Ireland",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Cream Spirits",
+      "img": "https://example.com/images/vanilla-cream-liqueur.jpg"
+    },
+    {
+      "ProductId": "65",
+      "name": "Tropical Punch",
+      "desc": "A tropical punch with a blend of exotic fruit flavors.",
+      "category": "Cocktail",
+      "subCategory": "Punch",
+      "discount": "16%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 19.99,
+          "SKU": "SKU65656",
+          "tags": ["tropical", "punch"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T04:45:00.000Z",
+      "modified_at": "2025-01-12T04:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Tropical Spirits",
+      "Country": "Caribbean",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Tropical Spirits",
+      "img": "https://example.com/images/tropical-punch.jpg"
+    },
+    {
+      "ProductId": "66",
+      "name": "Raspberry Champagne",
+      "desc": "A luxurious champagne with hints of raspberry and a crisp finish.",
+      "category": "Wine",
+      "subCategory": "Champagne",
+      "discount": "22%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 44.99,
+          "SKU": "SKU66666",
+          "tags": ["luxurious", "raspberry"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T05:00:00.000Z",
+      "modified_at": "2025-01-12T05:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Champagne House",
+      "Country": "France",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Champagne House",
+      "img": "https://example.com/images/raspberry-champagne.jpg"
+    },
+    {
+      "ProductId": "67",
+      "name": "Mint Julep",
+      "desc": "A classic mint julep with a refreshing minty flavor.",
+      "category": "Cocktail",
+      "subCategory": "Mint Julep",
+      "discount": "12%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 17.99,
+          "SKU": "SKU67676",
+          "tags": ["classic", "mint"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T05:15:00.000Z",
+      "modified_at": "2025-01-12T05:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Mint Spirits",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Mint Spirits",
+      "img": "https://example.com/images/mint-julep.jpg"
+    },
+    {
+      "ProductId": "68",
+      "name": "Cherry Cola",
+      "desc": "A classic cherry cola with a sweet and refreshing taste.",
+      "category": "Soft Drink",
+      "subCategory": "Cola",
+      "discount": "10%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 5.99,
+          "SKU": "SKU68686",
+          "tags": ["classic", "cherry"],
+          "size": "1L"
+        }
+      ],
+      "created_at": "2025-01-12T05:30:00.000Z",
+      "modified_at": "2025-01-12T05:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Soda Co.",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Soda Co.",
+      "img": "https://example.com/images/cherry-cola.jpg"
+    },
+    {
+      "ProductId": "69",
+      "name": "Cinnamon Whiskey",
+      "desc": "A bold cinnamon-infused whiskey with a spicy kick.",
+      "category": "Liquor",
+      "subCategory": "Whiskey",
+      "discount": "18%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 33.99,
+          "SKU": "SKU69696",
+          "tags": ["bold", "cinnamon"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T05:45:00.000Z",
+      "modified_at": "2025-01-12T05:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Spice Spirits",
+      "Country": "Ireland",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Spice Spirits",
+      "img": "https://example.com/images/cinnamon-whiskey.jpg"
+    },
+    {
+      "ProductId": "70",
+      "name": "Coconut Water",
+      "desc": "A refreshing and hydrating coconut water, perfect for any occasion.",
+      "category": "Soft Drink",
+      "subCategory": "Coconut Water",
+      "discount": "5%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 3.99,
+          "SKU": "SKU70707",
+          "tags": ["refreshing", "hydrating"],
+          "size": "500ml"
+        }
+      ],
+      "created_at": "2025-01-12T06:00:00.000Z",
+      "modified_at": "2025-01-12T06:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Tropical Beverages",
+      "Country": "Caribbean",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Tropical Beverages",
+      "img": "https://example.com/images/coconut-water.jpg"
+    },
+    {
+      "ProductId": "71",
+      "name": "Pear Brandy",
+      "desc": "A smooth pear brandy with a rich and fruity flavor.",
+      "category": "Liquor",
+      "subCategory": "Brandy",
+      "discount": "14%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 34.99,
+          "SKU": "SKU71717",
+          "tags": ["smooth", "pear"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T06:15:00.000Z",
+      "modified_at": "2025-01-12T06:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Fruit Spirits",
+      "Country": "France",
+      "Region": "Europe",
+      "taxable": true,
+      "brand": "Fruit Spirits",
+      "img": "https://example.com/images/pear-brandy.jpg"
+    },
+    {
+      "ProductId": "72",
+      "name": "Lime Margarita",
+      "desc": "A classic lime margarita with a refreshing citrus flavor.",
+      "category": "Cocktail",
+      "subCategory": "Margarita",
+      "discount": "12%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 18.99,
+          "SKU": "SKU72727",
+          "tags": ["classic", "lime"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T06:30:00.000Z",
+      "modified_at": "2025-01-12T06:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Margarita Co.",
+      "Country": "Mexico",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Margarita Co.",
+      "img": "https://example.com/images/lime-margarita.jpg"
+    },
+    {
+      "ProductId": "73",
+      "name": "Ginger Ale",
+      "desc": "A classic ginger ale with a spicy and refreshing taste.",
+      "category": "Soft Drink",
+      "subCategory": "Ginger Ale",
+      "discount": "8%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 4.99,
+          "SKU": "SKU73737",
+          "tags": ["classic", "ginger"],
+          "size": "1L"
+        }
+      ],
+      "created_at": "2025-01-12T06:45:00.000Z",
+      "modified_at": "2025-01-12T06:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Soda Co.",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Soda Co.",
+      "img": "https://example.com/images/ginger-ale.jpg"
+    },
+    {
+      "ProductId": "74",
+      "name": "Lemonade",
+      "desc": "A classic lemonade with a sweet and tangy taste.",
+      "category": "Soft Drink",
+      "subCategory": "Lemonade",
+      "discount": "6%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 3.49,
+          "SKU": "SKU74747",
+          "tags": ["classic", "lemon"],
+          "size": "1L"
+        }
+      ],
+      "created_at": "2025-01-12T07:00:00.000Z",
+      "modified_at": "2025-01-12T07:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Soda Co.",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Soda Co.",
+      "img": "https://example.com/images/lemonade.jpg"
+    },
+    {
+      "ProductId": "75",
+      "name": "Strawberry Daiquiri",
+      "desc": "A tropical strawberry daiquiri with a sweet and refreshing taste.",
+      "category": "Cocktail",
+      "subCategory": "Daiquiri",
+      "discount": "15%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 20.99,
+          "SKU": "SKU75757",
+          "tags": ["tropical", "strawberry"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T07:15:00.000Z",
+      "modified_at": "2025-01-12T07:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Tropical Spirits",
+      "Country": "Caribbean",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Tropical Spirits",
+      "img": "https://example.com/images/strawberry-daiquiri.jpg"
+    },
+    {
+      "ProductId": "76",
+      "name": "Pineapple Rum",
+      "desc": "A tropical pineapple-infused rum with a sweet and refreshing taste.",
+      "category": "Liquor",
+      "subCategory": "Rum",
+      "discount": "16%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 32.99,
+          "SKU": "SKU76767",
+          "tags": ["tropical", "pineapple"],
+          "size": "750ml"
+        }
+      ],
+      "created_at": "2025-01-12T07:30:00.000Z",
+      "modified_at": "2025-01-12T07:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Tropical Spirits",
+      "Country": "Caribbean",
+      "Region": "Caribbean",
+      "taxable": true,
+      "brand": "Tropical Spirits",
+      "img": "https://example.com/images/pineapple-rum.jpg"
+    },
+    {
+      "ProductId": "77",
+      "name": "Mint Iced Tea",
+      "desc": "A refreshing mint iced tea with a crisp and cooling taste.",
+      "category": "Soft Drink",
+      "subCategory": "Iced Tea",
+      "discount": "5%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 3.99,
+          "SKU": "SKU77777",
+          "tags": ["refreshing", "mint"],
+          "size": "1L"
+        }
+      ],
+      "created_at": "2025-01-12T07:45:00.000Z",
+      "modified_at": "2025-01-12T07:45:00.000Z",
+      "deleted_at": null,
+      "vendor": "Tea Co.",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Tea Co.",
+      "img": "https://example.com/images/mint-iced-tea.jpg"
+    },
+    {
+      "ProductId": "78",
+      "name": "Peach Tea",
+      "desc": "A sweet peach tea with a smooth and fruity flavor.",
+      "category": "Soft Drink",
+      "subCategory": "Tea",
+      "discount": "10%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 4.99,
+          "SKU": "SKU78787",
+          "tags": ["sweet", "peach"],
+          "size": "1L"
+        }
+      ],
+      "created_at": "2025-01-12T08:00:00.000Z",
+      "modified_at": "2025-01-12T08:00:00.000Z",
+      "deleted_at": null,
+      "vendor": "Tea Co.",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Tea Co.",
+      "img": "https://example.com/images/peach-tea.jpg"
+    },
+    {
+      "ProductId": "79",
+      "name": "Ginger Lemon Tea",
+      "desc": "A refreshing ginger lemon tea with a spicy and tangy taste.",
+      "category": "Soft Drink",
+      "subCategory": "Tea",
+      "discount": "8%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 5.49,
+          "SKU": "SKU79797",
+          "tags": ["refreshing", "ginger"],
+          "size": "1L"
+        }
+      ],
+      "created_at": "2025-01-12T08:15:00.000Z",
+      "modified_at": "2025-01-12T08:15:00.000Z",
+      "deleted_at": null,
+      "vendor": "Tea Co.",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Tea Co.",
+      "img": "https://example.com/images/ginger-lemon-tea.jpg"
+    },
+    {
+      "ProductId": "80",
+      "name": "Berry Lemonade",
+      "desc": "A delightful berry lemonade with hints of fresh berries and a crisp finish.",
+      "category": "Soft Drink",
+      "subCategory": "Lemonade",
+      "discount": "12%",
+      "inventories": [
+        {
+          "available": true,
+          "price": 4.99,
+          "SKU": "SKU80808",
+          "tags": ["delightful", "berry"],
+          "size": "1L"
+        }
+      ],
+      "created_at": "2025-01-12T08:30:00.000Z",
+      "modified_at": "2025-01-12T08:30:00.000Z",
+      "deleted_at": null,
+      "vendor": "Soda Co.",
+      "Country": "USA",
+      "Region": "North America",
+      "taxable": true,
+      "brand": "Soda Co.",
+      "img": "https://example.com/images/berry-lemonade.jpg"
+    }
+  ]
+  
+     
+  

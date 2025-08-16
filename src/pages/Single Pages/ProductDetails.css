@@ -1,0 +1,130 @@
+.product-details {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-details .image-container {
+  flex: 1;
+  max-width: 50%;
+  padding-right: 20px;
+}
+
+.product-details .image-container img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.product-details .details-container {
+  flex: 2;
+  max-width: 50%;
+}
+
+.product-details h1 {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.product-details p {
+  font-size: 1.2em;
+  margin: 5px 0;
+}
+
+.product-details h2 {
+  font-size: 1.5em;
+  margin-top: 20px;
+}
+
+.product-details .size-selector {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.product-details .size-box {
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.product-details .size-box.selected {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+.product-details .size-box:hover {
+  background-color: #f0f0f0;
+}
+
+.product-details .product-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.product-details .action-button,
+.product-details .wishlist-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.product-details .action-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.product-details .action-button:hover {
+  background-color: #0056b3;
+}
+
+.product-details .wishlist-button {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.product-details .wishlist-button:hover {
+  background-color: #ff4c4c;
+}
+
+.product-details .wishlist-button.in-wishlist {
+  background-color: #ff4c4c;
+}
+
+.product-details .quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-details .quantity-button {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.product-details .quantity-button:hover {
+  background-color: #0056b3;
+}
+
+.product-details .quantity {
+  font-size: 16px;
+  font-weight: bold;
+}

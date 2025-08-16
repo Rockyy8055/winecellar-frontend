@@ -1,0 +1,35 @@
+.pricing-container {
+    padding: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .pricing-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .pricing-container p {
+    margin: 10px 0;
+  }
+  
+  .pricing-container button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+  }
+  
+  .pricing-container button:hover {
+    background-color: #45a049;
+  }

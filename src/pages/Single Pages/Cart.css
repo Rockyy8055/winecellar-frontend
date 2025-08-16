@@ -1,0 +1,100 @@
+/* filepath: /d:/WineCeller/wineseller_website_frontend/src/pages/Single Pages/Cart.css */
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.home-button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: #45a049;
+}
+
+.cart-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cart-item {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.cart-item img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quantity-button {
+  padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.quantity-button:hover {
+  background-color: #45a049;
+}
+
+.quantity-input {
+  width: 50px;
+  padding: 5px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.cart-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.checkout-button:hover {
+  background-color: #45a049;
+}
+
+.home-header .header-icons .icon.active {
+  color: red;
+}

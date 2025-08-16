@@ -1,0 +1,53 @@
+/* filepath: /d:/WineCeller/wineseller_website_frontend/src/pages/Shipping/Shipping.css */
+.shipping-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+  }
+  
+  .shipping-form {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+  }
+  
+  .shipping-form h2 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+  }
+  
+  .shipping-form label {
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .shipping-form input {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .shipping-form button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .shipping-form button:hover {
+    background-color: #45a049;
+  }

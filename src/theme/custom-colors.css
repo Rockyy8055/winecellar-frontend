@@ -1,0 +1,272 @@
+/* Custom Color Theme - User Specified Colors */
+
+:root {
+  /* User's Specific Colors */
+  --page-background: #fffef1; /* RGB: 255, 254, 241 */
+  --text-color: #350008; /* RGB: 53, 0, 8 */
+  --white: #ffffff;
+  --light-gray: #f5f5f5;
+  --border-color: #e0e0e0;
+}
+
+/* Global Background */
+body {
+  background-color: var(--page-background) !important;
+  color: var(--text-color) !important;
+}
+
+/* All page containers */
+.container, .container-fluid {
+  background-color: var(--page-background) !important;
+}
+
+/* Header background */
+.header-area {
+  background-color: var(--page-background) !important;
+}
+
+/* Main content areas */
+.main-content, .content-area {
+  background-color: var(--page-background) !important;
+}
+
+/* Hero section */
+.hero-banner-simple {
+  background-color: var(--page-background) !important;
+}
+
+/* Product sections */
+.product-area, .product-section {
+  background-color: var(--page-background) !important;
+}
+
+/* Footer */
+.footer-area {
+  background-color: var(--page-background) !important;
+}
+
+/* All text elements */
+h1, h2, h3, h4, h5, h6, p, span, div, a, li, label, input, textarea, select {
+  color: var(--text-color) !important;
+}
+
+/* Navigation text */
+.main-menu ul li a {
+  color: var(--text-color) !important;
+}
+
+/* Button text */
+.btn, button {
+  color: var(--text-color) !important;
+}
+
+/* Form text */
+.form-control, input, textarea, select {
+  color: var(--text-color) !important;
+}
+
+/* Product titles and descriptions */
+.product-title, .product-name, .product-description {
+  color: var(--text-color) !important;
+}
+
+/* Price text */
+.price, .product-price {
+  color: var(--text-color) !important;
+}
+
+/* Cart and wishlist text */
+.cart-item, .wishlist-item {
+  color: var(--text-color) !important;
+}
+
+/* Override any existing white backgrounds */
+*[style*="background: white"], 
+*[style*="background: #fff"], 
+*[style*="background-color: white"], 
+*[style*="background-color: #fff"] {
+  background-color: var(--page-background) !important;
+}
+
+/* Override any existing white text */
+*[style*="color: white"], 
+*[style*="color: #fff"] {
+  color: var(--text-color) !important;
+}
+
+/* Move content below hero section upwards to overlay on image */
+.slider-area + * {
+  margin-top: -30vh !important;
+  position: relative;
+  z-index: 10;
+  background: linear-gradient(to top, var(--page-background) 0%, transparent 100%);
+  padding-top: 50px !important;
+}
+
+/* Ensure proper spacing for daily deals section */
+.daily-deals-section, 
+[class*="daily"], 
+[class*="deals"] {
+  margin-top: 0 !important;
+  padding-top: 30px !important;
+  background: var(--page-background);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -5px 20px rgba(53, 0, 8, 0.1);
+}
+
+/* Product sections spacing */
+.product-area, 
+.product-section,
+[class*="product"] {
+  margin-top: 0 !important;
+  background: var(--page-background);
+}
+
+/* Button text colors - ensure cream text on dark backgrounds */
+.btn, button {
+  color: var(--text-color) !important;
+}
+
+/* Dark background buttons - cream text */
+.btn[style*="background: black"],
+.btn[style*="background-color: black"],
+.btn[style*="background: #000"],
+.btn[style*="background-color: #000"],
+.btn[style*="background: #350008"],
+.btn[style*="background-color: #350008"],
+.btn[style*="background: #8B0000"],
+.btn[style*="background-color: #8B0000"],
+button[style*="background: black"],
+button[style*="background-color: black"],
+button[style*="background: #000"],
+button[style*="background-color: #000"],
+button[style*="background: #350008"],
+button[style*="background-color: #350008"],
+button[style*="background: #8B0000"],
+button[style*="background-color: #8B0000"],
+a[style*="background: black"],
+a[style*="background-color: black"],
+a[style*="background: #000"],
+a[style*="background-color: #000"],
+a[style*="background: #350008"],
+a[style*="background-color: #350008"],
+a[style*="background: #8B0000"],
+a[style*="background-color: #8B0000"] {
+  color: #fffef1 !important;
+}
+
+/* Dark background classes - cream text */
+.btn-dark,
+.btn-black,
+.bg-dark,
+.bg-black,
+[class*="dark"] [class*="btn"],
+[class*="black"] [class*="btn"] {
+  color: #fffef1 !important;
+}
+
+/* Specific button text colors */
+.btn[style*="background: black"],
+.btn[style*="background-color: black"],
+.btn[style*="background: #000"],
+.btn[style*="background-color: #000"],
+.btn[style*="background: #350008"],
+.btn[style*="background-color: #350008"],
+.btn[style*="background: #8B0000"],
+.btn[style*="background-color: #8B0000"],
+button[style*="background: black"],
+button[style*="background-color: black"],
+button[style*="background: #000"],
+button[style*="background-color: #000"],
+button[style*="background: #350008"],
+button[style*="background-color: #350008"],
+button[style*="background: #8B0000"],
+button[style*="background-color: #8B0000"] {
+  color: #fffef1 !important;
+}
+
+/* Add to Cart and View More Products buttons */
+[class*="add-to-cart"],
+[class*="addtocart"],
+[class*="view-more"],
+[class*="viewmore"],
+[class*="more-products"],
+[class*="moreproducts"],
+.btn-primary,
+.btn-secondary,
+.btn-success {
+  color: #fffef1 !important;
+}
+
+/* Override any dark button text */
+.btn[style*="background"],
+button[style*="background"],
+a[style*="background"] {
+  color: #fffef1 !important;
+}
+
+/* Notification numbers - cream color */
+.count-style,
+[class*="count"],
+[class*="badge"],
+[class*="notification"],
+[class*="cart-count"],
+[class*="wishlist-count"],
+span[class*="count"],
+span[class*="badge"],
+span[class*="notification"] {
+  color: #fffef1 !important;
+  background-color: #350008 !important;
+}
+
+/* Cart and wishlist notification badges */
+.header-right-wrap .count-style,
+.header-right-wrap [class*="count"],
+.header-right-wrap [class*="badge"] {
+  color: #fffef1 !important;
+  background-color: #350008 !important;
+}
+
+/* Specific button styling for View More Products and Add to Cart */
+.view-more-products-btn,
+[class*="view-more-products"],
+[class*="viewmoreproducts"],
+[class*="add-to-cart"],
+[class*="addtocart"],
+[class*="addtocart-btn"] {
+  color: #fffef1 !important;
+}
+
+/* Ensure all buttons with dark backgrounds have cream text */
+button[style*="background: #111"],
+button[style*="background-color: #111"],
+a[style*="background: #111"],
+a[style*="background-color: #111"] {
+  color: #fffef1 !important;
+} 
+
+/* Category filter buttons */
+.category-btn {
+  background: #fff !important;
+  color: #350008 !important;
+}
+.category-btn.selected {
+  background: #350008 !important;
+  color: #fffef1 !important;
+  border-color: #350008 !important;
+} 
+
+/* Ensure size pills text is visible before selection */
+.popup-size-selector .size-pill {
+  color: #350008 !important;
+}
+.popup-size-selector .size-pill.selected {
+  color: #fffef1 !important;
+  background: #350008 !important;
+}
+
+/* Navbar bottom shadow */
+.header-area .sticky-bar,
+.header-area .stick {
+  box-shadow: 0 6px 18px rgba(53, 0, 8, 0.12) !important;
+} 
