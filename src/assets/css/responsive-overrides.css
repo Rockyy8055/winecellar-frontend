@@ -7,10 +7,14 @@
 @media (max-width: 991px) {
   .category-btn { flex: 1 1 45% !important; max-width: 48% !important; }
   .shop-header h2 { font-size: 1.4rem !important; }
+  .main-menu a { font-size: 18px !important; }
+  .main-menu { padding-right: 240px !important; }
 }
 
 @media (max-width: 767px) {
   .category-btn { flex: 1 1 100% !important; max-width: 100% !important; }
+  .main-menu a { font-size: 16px !important; }
+  .main-menu { padding-right: 200px !important; }
 }
 
 @media (max-width: 1400px) {
@@ -42,6 +46,10 @@
 
 @media (max-width: 575px) {
   .product-grid { grid-template-columns: 1fr; }
+  .cart-page-title { font-size: 1.6rem !important; }
+  .cart-table-content table thead tr { font-size: .9rem !important; }
+  .cart-table-content table td { padding: 12px !important; }
+  .cart-plus-minus { transform: scale(1.2) !important; }
 }
 
 /* Search input responsive size */

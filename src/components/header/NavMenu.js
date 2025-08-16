@@ -15,22 +15,22 @@ const NavMenu = ({ menuWhiteClass, sidebarMenu }) => {
       <nav style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', paddingRight: 'min(34vw, 420px)' }}>
         <ul style={{ display: 'flex', alignItems: 'center', margin: 0, padding: 0, listStyle: 'none', gap: 28, whiteSpace: 'nowrap' }}>
           <li>
-            <Link to={process.env.PUBLIC_URL + "/"} style={{ fontSize: '24px', fontWeight: '700', marginTop: '10px' }}>
+            <Link to={process.env.PUBLIC_URL + "/"} style={{ fontSize: '22px', fontWeight: '700', marginTop: '10px' }}>
               {t("Home")}
             </Link>
           </li>
           <li>
-            <Link to={process.env.PUBLIC_URL + "/shop-grid-standard"} style={{ fontSize: '24px', fontWeight: '700', marginTop: '10px' }}>
+            <Link to={process.env.PUBLIC_URL + "/shop-grid-standard"} style={{ fontSize: '22px', fontWeight: '700', marginTop: '10px' }}>
               {t("Shop")}
             </Link>
           </li>
           <li>
-            <Link to={process.env.PUBLIC_URL + "/about-us"} style={{ fontSize: '24px', fontWeight: '700', marginTop: '10px' }}>
+            <Link to={process.env.PUBLIC_URL + "/about-us"} style={{ fontSize: '22px', fontWeight: '700', marginTop: '10px' }}>
               {t("About Us")}
             </Link>
           </li>
           <li>
-            <Link to={process.env.PUBLIC_URL + "/contact-us"} style={{ fontSize: '24px', fontWeight: '700', marginTop: '10px' }}>
+            <Link to={process.env.PUBLIC_URL + "/contact-us"} style={{ fontSize: '22px', fontWeight: '700', marginTop: '10px' }}>
               {t("Contact Us")}
             </Link>
           </li>
@@ -39,7 +39,7 @@ const NavMenu = ({ menuWhiteClass, sidebarMenu }) => {
           <Link 
             to={process.env.PUBLIC_URL + "/trade-customer"} 
             style={{ 
-              fontSize: '18px', 
+              fontSize: '16px', 
               fontWeight: '700', 
               marginTop: '10px',
               background: '#350008',
@@ -55,7 +55,7 @@ const NavMenu = ({ menuWhiteClass, sidebarMenu }) => {
           <Link 
             to={process.env.PUBLIC_URL + "/order-status"}
             style={{ 
-              fontSize: '18px', 
+              fontSize: '16px', 
               fontWeight: '700', 
               marginTop: '10px',
               background: '#350008',

@@ -37,13 +37,13 @@ const Cart = () => {
           <div className="container">
             {cartItems && cartItems.length >= 1 ? (
               <Fragment>
-                <h3 className="cart-page-title" style={{ fontSize: '5rem', fontWeight: 800 }}>Your cart items</h3>
+                <h3 className="cart-page-title" style={{ fontSize: '2.2rem', fontWeight: 800, lineHeight: 1.2 }}>Your cart items</h3>
                 <div className="row">
                   <div className="col-12">
                     <div className="table-content table-responsive cart-table-content" style={{ fontSize: '1.3rem' }}>
-                      <table style={{ width: '100%', borderSpacing: 0, tableLayout: 'fixed' }}>
+                      <table style={{ width: '100%', borderSpacing: 0 }}>
                         <thead>
-                          <tr style={{ fontSize: '5rem' }}>
+                          <tr style={{ fontSize: '1rem' }}>
                             <th>Image</th>
                             <th>Product</th>
                             <th>Unit Price</th>
