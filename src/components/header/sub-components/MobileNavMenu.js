@@ -26,6 +26,16 @@ const MobileNavMenu = () => {
             {t("Contact Us")}
           </Link>
         </li>
+        <li>
+          <Link to={process.env.PUBLIC_URL + "/trade-customer"}>
+            TRADE CUSTOMERS CLICK HERE
+          </Link>
+        </li>
+        <li>
+          <Link to={process.env.PUBLIC_URL + "/order-status"}>
+            TRACK ORDER
+          </Link>
+        </li>
       </ul>
     </nav>
   );
