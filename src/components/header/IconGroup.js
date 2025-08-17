@@ -25,14 +25,14 @@ const IconGroup = ({ iconWhiteClass }) => {
         <button
           className="account-setting-active"
           onClick={e => handleClick(e)}
-          style={{ fontSize: '38px' }}
+          style={{ fontSize: '38px', background:'#fffef1', border:'2px solid #350008', borderRadius:8, color:'#350008' }}
         >
-          <i className="pe-7s-user-female" />
+          <i className="pe-7s-user-female" style={{ color:'#350008' }} />
         </button>
-        <div className="account-dropdown">
+        <div className="account-dropdown" style={{ background:'#fffef1', border:'2px solid #350008' }}>
           <ul>
-            <li><Link to={process.env.PUBLIC_URL + "/login"}>Login</Link></li>
-            <li><Link to={process.env.PUBLIC_URL + "/signup"}>Sign Up</Link></li>
+            <li><Link to={process.env.PUBLIC_URL + "/login"} style={{ color:'#350008' }}>Login</Link></li>
+            <li><Link to={process.env.PUBLIC_URL + "/signup"} style={{ color:'#350008' }}>Sign Up</Link></li>
           </ul>
         </div>
       </div>
