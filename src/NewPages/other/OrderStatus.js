@@ -17,6 +17,7 @@ const OrderStatus = () => {
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
+  const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
     if (!trackingCode || trackingCode === 'N/A' || status === 'CANCELLED') return;
@@ -36,6 +37,16 @@ const OrderStatus = () => {
     timer = setInterval(fetchStatus, 25000);
     return () => clearInterval(timer);
   }, [trackingCode, status]);
+
+  useEffect(() => {
+    // Check auth status for showing login CTA
+    (async () => {
+      try {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, { credentials: 'include' });
+        setAuthed(res.ok);
+      } catch (_) { setAuthed(false); }
+    })();
+  }, []);
 
   const cancelOrder = async () => {
     setCancelling(true);
@@ -96,7 +107,7 @@ const OrderStatus = () => {
             </div>
           )}
         </div>
-        {!userToken && (
+        {!authed && (
           <div style={{ marginTop: 12 }}>
             <button className="btn btn-outline-dark" onClick={()=>setShowAuth(true)}>Login to see full order history</button>
           </div>
