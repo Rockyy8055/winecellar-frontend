@@ -39,15 +39,18 @@ const AdminProducts = () => {
       }, token);
       setNewProd({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', stock: '' });
       await fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      alert(e?.message || 'Failed to add product');
+      console.error(e);
+    }
   };
 
   const onQuickPrice = async (id, value) => {
-    try { await updateProduct(id, { price: Number(value) }, token); await fetchData(); } catch (e) { console.error(e); }
+    try { await updateProduct(id, { price: Number(value) }, token); await fetchData(); } catch (e) { alert(e?.message || 'Update failed'); console.error(e); }
   };
 
   const onQuickName = async (id, value) => {
-    try { await updateProduct(id, { name: String(value || '').trim() }, token); await fetchData(); } catch (e) { console.error(e); }
+    try { await updateProduct(id, { name: String(value || '').trim() }, token); await fetchData(); } catch (e) { alert(e?.message || 'Update failed'); console.error(e); }
   };
 
   const onSaveEdit = async () => {
@@ -56,7 +59,7 @@ const AdminProducts = () => {
       await updateProduct(id, { name, price: Number(price), description: desc, img, category, subCategory, stock: Number(stock) }, token);
       setShowEdit(null);
       await fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) { alert(e?.message || 'Save failed'); console.error(e); }
   };
 
   return (

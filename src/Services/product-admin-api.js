@@ -87,7 +87,14 @@ export async function updateProduct(id, fields = {}, token) {
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken(token)}` },
     body: JSON.stringify(body)
   });
-  if (!r.ok) throw new Error(`updateProduct failed: ${r.status}`);
+  if (!r.ok) {
+    let message = `updateProduct failed: ${r.status}`;
+    try {
+      const data = await r.json();
+      message = data?.message || data?.error || (Array.isArray(data?.errors) ? data.errors.join(', ') : message);
+    } catch (_) { /* ignore JSON parse errors */ }
+    throw new Error(message);
+  }
   return r.json();
 }
 
