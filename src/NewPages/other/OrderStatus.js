@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import Layout from '../../layouts/Layout';
 import UserAuthModal from './UserAuthModal';
-import { getUserToken } from '../../Services/auth-api';
 
 function useQuery() {
   const { search } = useLocation();
@@ -18,7 +17,6 @@ const OrderStatus = () => {
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
-  const userToken = getUserToken();
 
   useEffect(() => {
     if (!trackingCode || trackingCode === 'N/A' || status === 'CANCELLED') return;
@@ -26,8 +24,7 @@ const OrderStatus = () => {
     const fetchStatus = async () => {
       try {
         setLoading(true);
-        const headers = userToken ? { Authorization: `Bearer ${userToken}` } : {};
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/track/${encodeURIComponent(trackingCode)}`, { headers });
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/track/${encodeURIComponent(trackingCode)}`, { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           if (data && data.status) setStatus(data.status);
@@ -38,7 +35,7 @@ const OrderStatus = () => {
     fetchStatus();
     timer = setInterval(fetchStatus, 25000);
     return () => clearInterval(timer);
-  }, [trackingCode, status, userToken]);
+  }, [trackingCode, status]);
 
   const cancelOrder = async () => {
     setCancelling(true);
