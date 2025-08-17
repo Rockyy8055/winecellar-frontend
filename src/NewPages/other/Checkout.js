@@ -134,7 +134,8 @@ const Checkout = () => {
   useEffect(() => {
     let sub = 0;
     cartItems.forEach(item => { sub += item.price * item.quantity; });
-    const shippingFee = sub >= 100 ? 0 : 4.99;
+    // For Pick & Pay (cod), shipping is always £0
+    const shippingFee = paymentMethod === 'cod' ? 0 : (sub >= 100 ? 0 : 4.99);
     const discount = isTradeCustomer ? sub * 0.20 : 0; // 20% off for trade customers
     const vat = isTradeCustomer ? sub * 0.20 : 0;      // 20% VAT for trade customers
     const total = sub - discount + vat + shippingFee;
@@ -143,7 +144,7 @@ const Checkout = () => {
     setDiscountAmount(discount);
     setVatAmount(vat);
     setTotalAmount(total);
-  }, [cartItems, isTradeCustomer]);
+  }, [cartItems, isTradeCustomer, paymentMethod]);
 
   useEffect(() => {
     if (totalAmount > 0 && paymentMethod === 'card') {
