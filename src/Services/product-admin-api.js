@@ -98,5 +98,21 @@ export async function updateProduct(id, fields = {}, token) {
   return r.json();
 }
 
+export async function deleteProduct(id, token) {
+  const r = await fetch(`${API_BASE}/api/admin/products/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${getToken(token)}` }
+  });
+  if (!r.ok) {
+    let message = `deleteProduct failed: ${r.status}`;
+    try {
+      const data = await r.json();
+      message = data?.message || data?.error || message;
+    } catch (_) {}
+    throw new Error(message);
+  }
+  return r.json?.() || { ok: true };
+}
+
 // Image changes are sent via updateProduct with img URL
 

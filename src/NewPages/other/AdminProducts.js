@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Layout from '../../layouts/Layout';
-import { listProducts, createProduct, updateProduct } from '../../Services/product-admin-api';
+import { listProducts, createProduct, updateProduct, deleteProduct } from '../../Services/product-admin-api';
 import { formatGBP } from '../../Services/admin-api';
 
 const AdminProducts = () => {
@@ -14,10 +14,10 @@ const AdminProducts = () => {
 
   const token = useMemo(() => { try { return localStorage.getItem('admin_token') || ''; } catch (_) { return ''; } }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (opts = {}) => {
     try {
       setLoading(true);
-      const data = await listProducts({ page, limit: 20, search: q }, token);
+      const data = await listProducts({ page, limit: opts.limit ?? 20, search: q }, token);
       setRows(data.items || data.rows || []);
       setTotal(data.total || 0);
     } catch (e) { console.error(e); }
@@ -70,8 +70,9 @@ const AdminProducts = () => {
           <div className="col-md-6">
             <input className="form-control" placeholder="Search products" value={q} onChange={(e)=>setQ(e.target.value)} onKeyDown={(e)=>{ if (e.key==='Enter') fetchData(); }} />
           </div>
-          <div className="col-md-2">
-            <button className="btn btn-dark" onClick={fetchData}>Search</button>
+          <div className="col-md-3" style={{ display:'flex', gap:8 }}>
+            <button className="btn btn-dark" onClick={()=>fetchData()}>Search</button>
+            <button className="btn btn-outline-secondary" onClick={()=>{ setPage(1); fetchData({ limit: 5000 }); }}>Load All</button>
           </div>
         </div>
 
@@ -114,7 +115,13 @@ const AdminProducts = () => {
                           <button className="btn btn-sm btn-dark" onClick={async ()=>{ const el = document.activeElement; const value = (el && el.tagName==='INPUT') ? el.value : p.stock; try { await updateProduct(p.id, { stock: Number(value) }, token); await fetchData(); } catch (er) { console.error(er); } }}>Save</button>
                         </div>
                       </td>
-                      <td><button className="btn btn-sm btn-outline-secondary" onClick={()=>setShowEdit({ ...p })}>Edit</button></td>
+                      <td style={{ whiteSpace:'nowrap', display:'flex', gap:6 }}>
+                        <button className="btn btn-sm btn-outline-secondary" onClick={()=>setShowEdit({ ...p })}>Edit</button>
+                        <button className="btn btn-sm btn-outline-danger" onClick={async ()=>{
+                          if (!window.confirm(`Delete product "${p.name}"? This cannot be undone.`)) return;
+                          try { await deleteProduct(p.id, token); await fetchData(); } catch(e){ alert(e?.message||'Delete failed'); }
+                        }}>Delete</button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
