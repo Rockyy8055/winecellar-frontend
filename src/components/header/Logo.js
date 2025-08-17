@@ -10,12 +10,11 @@ const Logo = ({ imageUrl, logoClass }) => {
           alt="" 
           src={process.env.PUBLIC_URL + imageUrl} 
                       style={{
-              maxHeight: '200px',
-              maxWidth: '200px',
+              maxHeight: '48px',
+              maxWidth: '180px',
               width: 'auto',
               height: 'auto',
-              objectFit: 'contain',
-              transform: 'translateY(-20px)'
+              objectFit: 'contain'
             }}
         />
       </Link>
