@@ -63,6 +63,31 @@ const BestSellersSection = () => {
             </div>
           )}
         </div>
+        <div className="view-more text-center mt-20 toggle-btn6 col-12">
+          <a
+            className="view-more-products-btn"
+            href={process.env.PUBLIC_URL + "/shop-grid-standard"}
+            style={{
+              display: 'inline-block',
+              background: '#111',
+              color: '#fffef1',
+              fontWeight: 700,
+              fontSize: '1.35rem',
+              padding: '22px 60px',
+              borderRadius: '32px',
+              border: 'none',
+              letterSpacing: '1px',
+              margin: '18px 0 0 0',
+              boxShadow: '0 4px 18px rgba(0,0,0,0.08)',
+              transition: 'transform 0.18s cubic-bezier(.23,1.02,.64,.97), background 0.18s',
+              textDecoration: 'none'
+            }}
+            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.08)'}
+            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            VIEW MORE PRODUCTS
+          </a>
+        </div>
       </div>
     </div>
   );
