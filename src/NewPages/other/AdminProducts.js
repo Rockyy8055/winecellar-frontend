@@ -46,10 +46,14 @@ const AdminProducts = () => {
     try { await updateProduct(id, { price: Number(value) }, token); await fetchData(); } catch (e) { console.error(e); }
   };
 
+  const onQuickName = async (id, value) => {
+    try { await updateProduct(id, { name: String(value || '').trim() }, token); await fetchData(); } catch (e) { console.error(e); }
+  };
+
   const onSaveEdit = async () => {
     try {
       const { id, name, desc, img, category, subCategory, stock, price } = showEdit;
-      await updateProduct(id, { price: Number(price), description: desc, img, category, subCategory, stock: Number(stock) }, token);
+      await updateProduct(id, { name, price: Number(price), description: desc, img, category, subCategory, stock: Number(stock) }, token);
       setShowEdit(null);
       await fetchData();
     } catch (e) { console.error(e); }
@@ -89,7 +93,14 @@ const AdminProducts = () => {
                   {rows.map(p => (
                     <tr key={p.id}>
                       <td>{p.img || p.imageUrl ? <img src={p.img || p.imageUrl} alt={p.name} style={{ width:40, height:40, objectFit:'cover' }} /> : '-'}</td>
-                      <td>{p.name}</td>
+                      <td>
+                        <input
+                          type="text"
+                          defaultValue={p.name}
+                          className="form-control form-control-sm"
+                          onBlur={(e)=>onQuickName(p.id, e.target.value)}
+                        />
+                      </td>
                       <td>
                         <input type="number" step="0.01" defaultValue={p.price} className="form-control form-control-sm" onBlur={(e)=>onQuickPrice(p.id, e.target.value)} />
                       </td>
