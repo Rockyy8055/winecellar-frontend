@@ -2,16 +2,11 @@
   {
     "id": 1,
     "title": "Free Shipping",
-    "subtitle": "Lorem ipsum dolor sit amet consectetu adipisicing elit sed"
+    "subtitle": "Orders above £100 ship free."
   },
   {
     "id": 2,
     "title": "Support 24/7",
-    "subtitle": "Lorem ipsum dolor sit amet consectetu adipisicing elit sed"
-  },
-  {
-    "id": 3,
-    "title": "Money Return",
-    "subtitle": "Lorem ipsum dolor sit amet consectetu adipisicing elit sed"
+    "subtitle": "Contact us anytime. Details in the Contact Us section."
   }
 ]

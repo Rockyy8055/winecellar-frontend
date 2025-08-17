@@ -109,7 +109,9 @@ const NEFTForm = () => (
 const Checkout = () => {
   const { cartItems } = useSelector((state) => state.cart);
   const currency = useSelector((state) => state.currency);
+  const [subtotal, setSubtotal] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0);
   const [vatAmount, setVatAmount] = useState(0);
   const [clientSecret, setClientSecret] = useState("");
   const [paymentMethod, setPaymentMethod] = useState('card'); // default to card
@@ -117,6 +119,9 @@ const Checkout = () => {
   const [paypalPaid, setPaypalPaid] = useState(false);
   const [orderId, setOrderId] = useState(null);
   const [shipping, setShipping] = useState(0);
+  const isTradeCustomer = (() => {
+    try { return !!localStorage.getItem('trade_customer_profile'); } catch (_) { return false; }
+  })();
   // Billing form state
   const [billing, setBilling] = useState({ firstName: '', lastName: '', email: '', phone: '', address: '', postcode: '' });
   const ukPostcodeRegex = /^([A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2})$/i;
@@ -127,16 +132,18 @@ const Checkout = () => {
   ), [clientSecret]);
 
   useEffect(() => {
-    let subtotal = 0;
-    cartItems.forEach(item => {
-      subtotal += item.price * item.quantity;
-    });
-    const vat = subtotal * 0.20; // 20% VAT
-    const shippingFee = subtotal >= 100 ? 0 : 4.99;
-    setVatAmount(vat);
+    let sub = 0;
+    cartItems.forEach(item => { sub += item.price * item.quantity; });
+    const shippingFee = sub >= 100 ? 0 : 4.99;
+    const discount = isTradeCustomer ? sub * 0.20 : 0; // 20% off for trade customers
+    const vat = isTradeCustomer ? sub * 0.20 : 0;      // 20% VAT for trade customers
+    const total = sub - discount + vat + shippingFee;
+    setSubtotal(sub);
     setShipping(shippingFee);
-    setTotalAmount(subtotal + vat + shippingFee);
-  }, [cartItems]);
+    setDiscountAmount(discount);
+    setVatAmount(vat);
+    setTotalAmount(total);
+  }, [cartItems, isTradeCustomer]);
 
   useEffect(() => {
     if (totalAmount > 0 && paymentMethod === 'card') {
@@ -172,8 +179,11 @@ const Checkout = () => {
         customer: { name: `${billing.firstName} ${billing.lastName}`.trim(), email: billing.email, phone: billing.phone },
         shippingAddress: { line1: billing.address, postcode: billing.postcode },
         items: cartItems.map(it => ({ id: it.ProductId, name: it.name, qty: it.quantity, price: it.price })),
-        total: Number(totalAmount.toFixed(2)),
+        subtotal: Number(subtotal.toFixed(2)),
+        discount: Number(discountAmount.toFixed(2)),
+        vat: Number(vatAmount.toFixed(2)),
         shipping: Number(shipping.toFixed(2)),
+        total: Number(totalAmount.toFixed(2))
       };
       const { trackingCode } = await createOrder(payload);
       setOrderPlaced(true);
@@ -355,18 +365,30 @@ const Checkout = () => {
                             ))}
                           </ul>
                         </div>
-                        <div className="your-order-total" style={{ fontSize: '1.3rem' }}>
+                        <div className="your-order-total" style={{ fontSize: '1.1rem' }}>
                           <ul>
-                            <li style={{ fontWeight: 700 }}>VAT (20%)</li>
-                            <li style={{ fontWeight: 700 }}>{currency.currencySymbol + vatAmount.toFixed(2)}</li>
+                            <li>Subtotal</li>
+                            <li>{currency.currencySymbol + subtotal.toFixed(2)}</li>
+                          </ul>
+                          {isTradeCustomer && (
+                            <ul>
+                              <li>Trade Discount (20%)</li>
+                              <li>-{currency.currencySymbol + discountAmount.toFixed(2)}</li>
+                            </ul>
+                          )}
+                          {isTradeCustomer && (
+                            <ul>
+                              <li>VAT (20%)</li>
+                              <li>{currency.currencySymbol + vatAmount.toFixed(2)}</li>
+                            </ul>
+                          )}
+                          <ul>
+                            <li>Shipping</li>
+                            <li>{shipping === 0 ? 'FREE' : (currency.currencySymbol + shipping.toFixed(2))}</li>
                           </ul>
                           <ul>
-                            <li style={{ fontWeight: 700 }}>Shipping</li>
-                            <li style={{ fontWeight: 700 }}>{shipping === 0 ? 'FREE' : (currency.currencySymbol + shipping.toFixed(2))}</li>
-                          </ul>
-                          <ul>
-                            <li className="order-total" style={{ fontSize: '1.6rem', fontWeight: 900 }}>Total (incl. VAT)</li>
-                            <li style={{ fontSize: '1.6rem', fontWeight: 900 }}>{currency.currencySymbol + totalAmount.toFixed(2)}</li>
+                            <li className="order-total" style={{ fontSize: '1.4rem', fontWeight: 900 }}>Total</li>
+                            <li style={{ fontSize: '1.4rem', fontWeight: 900 }}>{currency.currencySymbol + totalAmount.toFixed(2)}</li>
                           </ul>
                         </div>
                       </div>
