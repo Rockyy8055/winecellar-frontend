@@ -22,7 +22,7 @@ const fetchProducts = async () => {
     if (!apiUrl) throw new Error('API base URL not set. Set REACT_APP_API_URL or VITE_API_BASE');
     console.log('Fetching products from:', `${apiUrl}/api/product/get`);
     
-    const response = await fetch(`${apiUrl}/api/product/get`);
+    const response = await fetch(`${apiUrl}/api/product/get`, { credentials: 'include' });
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
