@@ -170,6 +170,11 @@ const Checkout = () => {
   }, [totalAmount, paymentMethod]);
 
   const handlePlaceOrderCOD = async () => {
+    // Require login (server also enforces; client UX guard)
+    try {
+      const meRes = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, { credentials: 'include' });
+      if (!meRes.ok) { window.location.href = '/login'; return; }
+    } catch (_) { window.location.href = '/login'; return; }
     if (!isBillingComplete) {
       alert('Please fill the Billing Details.');
       return;

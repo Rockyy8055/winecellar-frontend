@@ -2,31 +2,44 @@ import { API_BASE } from './admin-api';
 
 export { API_BASE };
 
-export function saveUserToken(token) {
-  try { localStorage.setItem('user_token', token); } catch (_) {}
-}
-
-export function getUserToken() {
-  try { return localStorage.getItem('user_token') || ''; } catch (_) { return ''; }
-}
-
-export async function registerUser({ login, password, name, email, phone }) {
-  const r = await fetch(new URL('/api/auth/register', API_BASE).toString(), {
+export async function signup({ name, phone, email, password, confirmPassword }) {
+  const r = await fetch(new URL('/api/auth/signup', API_BASE).toString(), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ login, password, name, email, phone })
+    credentials: 'include',
+    body: JSON.stringify({ name, phone, email, password, confirmPassword })
   });
-  if (!r.ok) throw new Error(`register failed: ${r.status}`);
-  return r.json();
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data?.message || `signup failed: ${r.status}`);
+  return data;
 }
 
-export async function loginUser({ login, password }) {
+export async function login({ email, password }) {
   const r = await fetch(new URL('/api/auth/login', API_BASE).toString(), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ login, password })
+    credentials: 'include',
+    body: JSON.stringify({ email, password })
   });
-  if (!r.ok) throw new Error(`login failed: ${r.status}`);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data?.message || `login failed: ${r.status}`);
+  return data;
+}
+
+export async function me() {
+  const r = await fetch(new URL('/api/auth/me', API_BASE).toString(), {
+    method: 'GET',
+    credentials: 'include'
+  });
+  if (!r.ok) return null;
   return r.json();
+}
+
+export async function logout() {
+  const r = await fetch(new URL('/api/auth/logout', API_BASE).toString(), {
+    method: 'POST',
+    credentials: 'include'
+  });
+  return r.ok;
 }
 

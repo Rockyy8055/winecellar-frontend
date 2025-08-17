@@ -31,14 +31,8 @@ const IconGroup = ({ iconWhiteClass }) => {
         </button>
         <div className="account-dropdown">
           <ul>
-            <li>
-              <Link to={process.env.PUBLIC_URL + "/"}>Login</Link>
-            </li>
-            <li>
-              <Link to={process.env.PUBLIC_URL + "/"}>
-                Register
-              </Link>
-            </li>
+            <li><Link to={process.env.PUBLIC_URL + "/login"}>Login</Link></li>
+            <li><Link to={process.env.PUBLIC_URL + "/signup"}>Sign Up</Link></li>
           </ul>
         </div>
       </div>

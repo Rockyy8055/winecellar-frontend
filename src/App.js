@@ -16,6 +16,8 @@ import PricingBifurcation from './pages/Payment/PricingBifurcation';
 import PaymentSuccess from './pages/Payment/PaymentSuccess';
 
 const HomeNew = lazy(() => import("./NewPages/Home/Home"));
+const LoginPage = lazy(() => import('./pages/Auth/Login'));
+const SignupPage = lazy(() => import('./pages/Auth/Signup'));
 const WishlistNew = lazy(() => import("./NewPages/other/Wishlist"));
 const CartNew = lazy(() => import("./NewPages/other/Cart"));
 const AllProducts = lazy(() => import("./NewPages/other/AllProducts"));
@@ -47,6 +49,8 @@ function App() {
              <Route path="/Home"  element={<HomeNew />} />
               <Route path="/about-us" element={<AboutUs />} />
               <Route path="/contact-us" element={<ContactUs />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
               <Route path="/trade-customer" element={<TradeCustomerForm />} />
              <Route path="/Wishlist"  element={<WishlistNew />} />
              <Route path="/Cart"  element={<CartNew />} />
