@@ -37,6 +37,15 @@ const ProductGridSingleTwo = ({ product }) => {
   const dispatch = useDispatch();
   const wishlistItems = useSelector((state) => state.wishlist.wishlistItems || []);
   const isWishlisted = wishlistItems.some(item => item.ProductId === product.ProductId);
+  const isQuickAddProduct = useMemo(() => {
+    const name = String(product?.name || '').toUpperCase();
+    return (
+      name.includes('WHITE CLAW') ||
+      name.includes('BUZZBALL') ||
+      name.includes('BUZZ BALL') ||
+      name.includes('BUZZBALLZ')
+    );
+  }, [product]);
 
   const handleAddToCart = () => {
     setShowQty(true);
@@ -67,6 +76,16 @@ const ProductGridSingleTwo = ({ product }) => {
     }
     dispatch(addToCart({ ...product, quantity: qty, selectedProductSize: selectedSize }));
     setShowQty(false);
+    setQty(1);
+    setShowStockMsg(false);
+  };
+
+  const handleQuickConfirmAdd = () => {
+    if (typeof product.stock === 'number' && qty > product.stock) {
+      setShowStockMsg(true);
+      return;
+    }
+    dispatch(addToCart({ ...product, quantity: qty }));
     setQty(1);
     setShowStockMsg(false);
   };
@@ -190,26 +209,68 @@ const ProductGridSingleTwo = ({ product }) => {
           {product.desc}
         </div>
       )}
-      {/* Add to Cart Button (on hover) */}
-      {hovered && !showQty && (
-        <button
-          onClick={handleAddToCart}
-          style={{
-            marginTop: '14px',
-            background: '#111',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '20px',
-            padding: '8px 28px',
-            fontWeight: 600,
-            fontSize: '1rem',
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-            transition: 'background 0.2s',
-          }}
-        >
-          Add to Cart
-        </button>
+      {/* Quick-add for specific products */}
+      {isQuickAddProduct ? (
+        <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+            <button
+              onClick={() => handleQtyChange(-1)}
+              style={{
+                width: '36px', height: '36px', borderRadius: '50%',
+                border: '2px solid #350008', background: '#350008', color: '#fffef1',
+                fontWeight: 900, cursor: 'pointer'
+              }}
+            >
+              −
+            </button>
+            <div style={{ minWidth: '40px', textAlign: 'center', fontWeight: 800 }}>{qty}</div>
+            <button
+              onClick={() => handleQtyChange(1)}
+              style={{
+                width: '36px', height: '36px', borderRadius: '50%',
+                border: '2px solid #350008', background: '#350008', color: '#fffef1',
+                fontWeight: 900, cursor: 'pointer'
+              }}
+            >
+              +
+            </button>
+          </div>
+          <button
+            onClick={handleQuickConfirmAdd}
+            style={{
+              background: '#111', color: '#fff', border: 'none', borderRadius: '20px',
+              padding: '8px 22px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+            }}
+          >
+            Confirm & Add
+          </button>
+          {showStockMsg && (
+            <div style={{ color: '#b12704', fontWeight: 700 }}>Only limited stock available</div>
+          )}
+        </div>
+      ) : (
+        /* Default: show Add to Cart on hover which opens quantity/size modal */
+        hovered && !showQty && (
+          <button
+            onClick={handleAddToCart}
+            style={{
+              marginTop: '14px',
+              background: '#111',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '8px 28px',
+              fontWeight: 600,
+              fontSize: '1rem',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              transition: 'background 0.2s',
+            }}
+          >
+            Add to Cart
+          </button>
+        )
       )}
       {showQty && (
         <div style={{
