@@ -209,46 +209,48 @@ const ProductGridSingleTwo = ({ product }) => {
           {product.desc}
         </div>
       )}
-      {/* Quick-add for specific products */}
+      {/* Quick-add for specific products (only show on hover) */}
       {isQuickAddProduct ? (
-        <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+        hovered && (
+          <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+              <button
+                onClick={() => handleQtyChange(-1)}
+                style={{
+                  width: '36px', height: '36px', borderRadius: '50%',
+                  border: '2px solid #350008', background: '#350008', color: '#fffef1',
+                  fontWeight: 900, cursor: 'pointer'
+                }}
+              >
+                −
+              </button>
+              <div style={{ minWidth: '40px', textAlign: 'center', fontWeight: 800 }}>{qty}</div>
+              <button
+                onClick={() => handleQtyChange(1)}
+                style={{
+                  width: '36px', height: '36px', borderRadius: '50%',
+                  border: '2px solid #350008', background: '#350008', color: '#fffef1',
+                  fontWeight: 900, cursor: 'pointer'
+                }}
+              >
+                +
+              </button>
+            </div>
             <button
-              onClick={() => handleQtyChange(-1)}
+              onClick={handleQuickConfirmAdd}
               style={{
-                width: '36px', height: '36px', borderRadius: '50%',
-                border: '2px solid #350008', background: '#350008', color: '#fffef1',
-                fontWeight: 900, cursor: 'pointer'
+                background: '#111', color: '#fff', border: 'none', borderRadius: '20px',
+                padding: '8px 22px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
               }}
             >
-              −
+              Confirm & Add
             </button>
-            <div style={{ minWidth: '40px', textAlign: 'center', fontWeight: 800 }}>{qty}</div>
-            <button
-              onClick={() => handleQtyChange(1)}
-              style={{
-                width: '36px', height: '36px', borderRadius: '50%',
-                border: '2px solid #350008', background: '#350008', color: '#fffef1',
-                fontWeight: 900, cursor: 'pointer'
-              }}
-            >
-              +
-            </button>
+            {showStockMsg && (
+              <div style={{ color: '#b12704', fontWeight: 700 }}>Only limited stock available</div>
+            )}
           </div>
-          <button
-            onClick={handleQuickConfirmAdd}
-            style={{
-              background: '#111', color: '#fff', border: 'none', borderRadius: '20px',
-              padding: '8px 22px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-            }}
-          >
-            Confirm & Add
-          </button>
-          {showStockMsg && (
-            <div style={{ color: '#b12704', fontWeight: 700 }}>Only limited stock available</div>
-          )}
-        </div>
+        )
       ) : (
         /* Default: show Add to Cart on hover which opens quantity/size modal */
         hovered && !showQty && (
