@@ -26,6 +26,18 @@ export async function login({ email, password }) {
   return data;
 }
 
+export async function verifyOtp({ otp, token }) {
+  const r = await fetch(new URL('/api/auth/verify-otp', API_BASE).toString(), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ otp, token })
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data?.message || `verify-otp failed: ${r.status}`);
+  return data;
+}
+
 export async function me() {
   const r = await fetch(new URL('/api/auth/me', API_BASE).toString(), {
     method: 'GET',

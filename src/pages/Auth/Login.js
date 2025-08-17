@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Layout from '../../layouts/Layout';
-import { login } from '../../Services/auth-api';
+import { login, me } from '../../Services/auth-api';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
@@ -15,7 +15,14 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
-      await login({ email, password });
+      try {
+        await login({ email, password });
+      } catch (e) {
+        // surface exact backend messages
+        setError(e?.message || 'Login failed');
+        return;
+      }
+      await me();
       navigate('/checkout');
     } catch (err) {
       setError(err?.message || 'Login failed');
