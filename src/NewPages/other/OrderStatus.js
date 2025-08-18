@@ -18,6 +18,9 @@ const OrderStatus = () => {
   const [cancelError, setCancelError] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
   const [authed, setAuthed] = useState(false);
+  const [items, setItems] = useState([]);
+  const [orderedDate, setOrderedDate] = useState('');
+  const [eta, setEta] = useState('');
 
   useEffect(() => {
     if (!trackingCode || trackingCode === 'N/A' || status === 'CANCELLED') return;
@@ -29,6 +32,19 @@ const OrderStatus = () => {
         if (res.ok) {
           const data = await res.json();
           if (data && data.status) setStatus(data.status);
+          // Owner view returns items, createdAt, estimatedDelivery
+          if (Array.isArray(data?.items)) setItems(data.items);
+          if (data?.createdAt) {
+            const d = new Date(data.createdAt);
+            setOrderedDate(d.toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' }));
+          }
+          if (data?.estimatedDelivery) {
+            const d2 = new Date(data.estimatedDelivery);
+            setEta(d2.toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' }));
+          } else if (data?.estimatedDeliveryDate) {
+            const d3 = new Date(data.estimatedDeliveryDate);
+            setEta(d3.toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' }));
+          }
         }
       } catch (_) {}
       finally { setLoading(false); }
@@ -82,7 +98,23 @@ const OrderStatus = () => {
           <div style={{ fontSize: '1.1rem' }}>
             <div><strong>Tracking Code:</strong> {trackingCode}</div>
             <div><strong>Status:</strong> {status} {loading ? '(updating...)' : ''}</div>
+            {orderedDate && (
+              <div><strong>Order placed on</strong> {orderedDate}</div>
+            )}
+            {eta && (
+              <div><strong>Estimated delivery</strong> {eta}</div>
+            )}
           </div>
+          {items && items.length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <h5 style={{ fontWeight: 800, color: '#350008' }}>Items</h5>
+              <ul style={{ marginBottom: 0 }}>
+                {items.map((it, idx) => (
+                  <li key={idx} style={{ lineHeight: 1.6 }}>{it.name} × {it.qty || it.quantity || 1}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div style={{ marginTop: 14 }}>
             <Link to={process.env.PUBLIC_URL + '/shop-grid-standard'} style={{ background: '#350008', color: '#fffef1', padding: '10px 16px', borderRadius: 6, textDecoration: 'none' }}>Continue Shopping</Link>
           </div>
