@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import Layout from '../../layouts/Layout';
 import UserAuthModal from './UserAuthModal';
+import { API_BASE } from '../../Services/admin-api';
+import { cancelOrderByTracking } from '../../Services/orders-api';
 
 function useQuery() {
   const { search } = useLocation();
@@ -23,12 +25,12 @@ const OrderStatus = () => {
   const [eta, setEta] = useState('');
 
   useEffect(() => {
-    if (!trackingCode || trackingCode === 'N/A' || status === 'CANCELLED') return;
+    if (!trackingCode || trackingCode === 'N/A') return;
     let timer;
     const fetchStatus = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/track/${encodeURIComponent(trackingCode)}`, { credentials: 'include' });
+        const res = await fetch(`${API_BASE}/api/orders/track/${encodeURIComponent(trackingCode)}`, { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           if (data && data.status) setStatus(data.status);
@@ -52,7 +54,7 @@ const OrderStatus = () => {
     fetchStatus();
     timer = setInterval(fetchStatus, 25000);
     return () => clearInterval(timer);
-  }, [trackingCode, status]);
+  }, [trackingCode]);
 
   useEffect(() => {
     // Check auth status for showing login CTA
@@ -68,20 +70,17 @@ const OrderStatus = () => {
     setCancelling(true);
     setCancelError(null);
     try {
-      // Assumes backend endpoint exists; falls back to local cancel if not
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/cancel/${encodeURIComponent(trackingCode)}`, { method: 'POST' });
-      if (!res.ok) {
-        // If server doesn't support cancel, treat as locally cancelled
-        if (res.status === 404 || res.status === 405) {
-          setStatus('CANCELLED');
-        } else {
-          const text = await res.text();
-          throw new Error(text || 'Cancel failed');
-        }
-      } else {
-        setStatus('CANCELLED');
-      }
+      await cancelOrderByTracking(trackingCode);
+      setStatus('CANCELLED');
       try { localStorage.setItem(`order_status_${trackingCode}`, 'CANCELLED'); } catch (_) {}
+      // Immediately refetch from server to ensure persistent status reflects
+      try {
+        const res = await fetch(`${API_BASE}/api/orders/track/${encodeURIComponent(trackingCode)}`, { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.status) setStatus(data.status);
+        }
+      } catch (_) {}
     } catch (err) {
       setCancelError(err?.message || 'Unable to cancel order at this time');
     } finally {
