@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import SectionTitle from "../../components/section-title/SectionTitle";
 import ProductGridSingleTwo from "../../components/product/ProductGridSingleTwo";
 
@@ -14,23 +13,29 @@ const BestSellersSection = () => {
 
   const apiBase = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE)
     || process.env.REACT_APP_API_URL
-    || 'https://winecellar-backend.onrender.com';
+    || '';
 
   useEffect(() => {
-    console.log('BestSellers - Products from Redux:', products);
-    console.log('BestSellers - Products length:', products ? products.length : 0);
-    console.log('BestSellers - Is Array:', Array.isArray(products));
-    
-    // Use products from Redux directly (already fetched in index.js)
-    if (products && Array.isArray(products) && products.length > 0) {
-      // Take first 15 products as best sellers
-      const first15 = products.slice(0, 15);
-      console.log('BestSellers - Setting bestSellers:', first15.length);
-      setBestSellers(first15);
-    } else {
-      console.log('BestSellers - No products available');
+    let cancelled = false;
+    async function fetchBest() {
+      // Try backend endpoint if available; otherwise fallback to first 15 products
+      if (!apiBase) {
+        setBestSellers(Array.isArray(products) ? products.slice(0, 15) : []);
+        return;
+      }
+      try {
+        const r = await fetch(`${apiBase}/api/product/best-sellers?limit=15&days=7`);
+        if (!r.ok) throw new Error(String(r.status));
+        const arr = await r.json();
+        const list = Array.isArray(arr) ? arr : (arr.items || arr.rows || arr.data || []);
+        if (!cancelled) setBestSellers(list.slice(0, 15));
+      } catch (_) {
+        if (!cancelled) setBestSellers(Array.isArray(products) ? products.slice(0, 15) : []);
+      }
     }
-  }, [products]);
+    fetchBest();
+    return () => { cancelled = true; };
+  }, [apiBase, products]);
 
   const items = useMemo(() => (Array.isArray(bestSellers) ? bestSellers.slice(0, 15) : []), [bestSellers]);
 
@@ -59,9 +64,9 @@ const BestSellersSection = () => {
           )}
         </div>
         <div className="view-more text-center mt-20 toggle-btn6 col-12">
-          <Link
+          <a
             className="view-more-products-btn"
-            to="/shop-grid-standard"
+            href={process.env.PUBLIC_URL + "/shop-grid-standard"}
             style={{
               display: 'inline-block',
               background: '#111',
@@ -81,7 +86,7 @@ const BestSellersSection = () => {
             onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
           >
             VIEW MORE PRODUCTS
-          </Link>
+          </a>
         </div>
       </div>
     </div>
@@ -89,6 +94,4 @@ const BestSellersSection = () => {
 };
 
 export default BestSellersSection;
-
-
 

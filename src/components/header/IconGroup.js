@@ -45,8 +45,8 @@ const IconGroup = ({ iconWhiteClass }) => {
           <ul>
             {!authed ? (
               <>
-                <li><Link to={"/login"} style={{ color:'#350008' }}>Login</Link></li>
-                <li><Link to={"/signup"} style={{ color:'#350008' }}>Sign Up</Link></li>
+                <li><Link to={process.env.PUBLIC_URL + "/login"} style={{ color:'#350008' }}>Login</Link></li>
+                <li><Link to={process.env.PUBLIC_URL + "/signup"} style={{ color:'#350008' }}>Sign Up</Link></li>
               </>
             ) : (
               <li>
@@ -57,7 +57,7 @@ const IconGroup = ({ iconWhiteClass }) => {
         </div>
       </div>
       <div className="same-style header-wishlist">
-        <Link to={"/Wishlist"} style={{ fontSize: '38px' }}>
+        <Link to={process.env.PUBLIC_URL + "/Wishlist"} style={{ fontSize: '38px' }}>
           <i className="pe-7s-like" />
           <span className="count-style">
             {wishlistItems && wishlistItems.length ? wishlistItems.length : 0}
@@ -75,7 +75,7 @@ const IconGroup = ({ iconWhiteClass }) => {
         <MenuCart />
       </div>
       <div className="same-style cart-wrap d-block d-lg-none">
-        <Link className="icon-cart" to={"/Cart"} style={{ fontSize: '38px' }}>
+        <Link className="icon-cart" to={process.env.PUBLIC_URL + "/Cart"} style={{ fontSize: '38px' }}>
           <i className="pe-7s-shopbag" />
           <span className="count-style">
             {cartItems && cartItems.length ? cartItems.length : 0}
@@ -102,5 +102,3 @@ IconGroup.propTypes = {
 
 
 export default IconGroup;
-
-

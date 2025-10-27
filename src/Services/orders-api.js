@@ -47,11 +47,9 @@ export async function cancelOrderByTracking(trackingCode) {
     try {
       const res = await fetch(url, init);
       if (res.ok || res.status === 204 || res.status === 409) {
-        // 409: already cancelled => idempotent success
         try { return await res.json(); } catch (_) { return { ok: true }; }
       }
       if (res.status === 404 || res.status === 405) {
-        // Try next pattern
         continue;
       }
       lastErrorText = await res.text();
@@ -61,6 +59,4 @@ export async function cancelOrderByTracking(trackingCode) {
   }
   throw new Error(lastErrorText || 'Unable to cancel order');
 }
-
-
 
