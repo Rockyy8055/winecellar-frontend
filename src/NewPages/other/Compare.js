@@ -27,8 +27,8 @@ const Compare = () => {
         {/* breadcrumb */}
         <Breadcrumb 
           pages={[
-            {label: "Home", path: process.env.PUBLIC_URL + "/" },
-            {label: "Compare", path: process.env.PUBLIC_URL + pathname }
+            {label: "Home", path: "/" },
+            {label: "Compare", path: pathname }
           ]} 
         />
         <div className="compare-main-area pt-90 pb-100">
@@ -59,7 +59,6 @@ const Compare = () => {
                                   </div>
                                   <Link
                                     to={
-                                      process.env.PUBLIC_URL +
                                       "/product/" +
                                       compareItem.id
                                     }
@@ -77,7 +76,6 @@ const Compare = () => {
                                   <div className="product-title">
                                     <Link
                                       to={
-                                        process.env.PUBLIC_URL +
                                         "/product/" +
                                         compareItem.id
                                       }
@@ -98,7 +96,7 @@ const Compare = () => {
                                     ) : compareItem.variation &&
                                       compareItem.variation.length >= 1 ? (
                                       <Link
-                                        to={`${process.env.PUBLIC_URL}/product/${compareItem.id}`}
+                                        to={`/product/${compareItem.id}`}
                                       >
                                         Select Option
                                       </Link>
@@ -216,7 +214,7 @@ const Compare = () => {
                     </div>
                     <div className="item-empty-area__text">
                       No items found in compare <br />{" "}
-                      <Link to={process.env.PUBLIC_URL + "/shop-grid-standard"}>
+                      <Link to={"/shop-grid-standard"}>
                         Add Items
                       </Link>
                     </div>
@@ -232,4 +230,6 @@ const Compare = () => {
 };
 
 export default Compare;
+
+
 

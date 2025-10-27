@@ -23,3 +23,5 @@ SectionTitleTwo.propTypes = {
 };
 
 export default SectionTitleTwo;
+
+

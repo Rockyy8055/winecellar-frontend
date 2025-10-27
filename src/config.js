@@ -1,5 +1,6 @@
 const config = {
-    apiBaseUrl: process.env.API_BASE_URL || 'https://mern-backend-v91h.onrender.com/api',
+    apiBaseUrl: process.env.REACT_APP_API_URL || 'https://winecellar-backend.onrender.com',
   };
   
   module.exports = config;
+

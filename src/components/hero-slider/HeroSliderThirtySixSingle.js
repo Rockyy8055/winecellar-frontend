@@ -27,7 +27,7 @@ const HeroSliderThirtySixSingle = ({ data }) => {
               <div className="valentine-btn btn-hover">
                 <Link
                   className="animated"
-                  to={process.env.PUBLIC_URL + "/shop-grid-standard"}
+                  to={"/shop-grid-standard"}
                 >
                   SHOP NOW
                 </Link>
@@ -45,3 +45,5 @@ HeroSliderThirtySixSingle.propTypes = {
 };
 
 export default HeroSliderThirtySixSingle;
+
+

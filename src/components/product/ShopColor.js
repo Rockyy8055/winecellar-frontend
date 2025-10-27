@@ -52,3 +52,5 @@ ShopColor.propTypes = {
 };
 
 export default ShopColor;
+
+

@@ -5,14 +5,14 @@ const CategoryTwoSingle = ({ data }) => {
   return (
     <div className="collection-product">
       <div className="collection-img">
-        <Link to={process.env.PUBLIC_URL + data.link}>
+        <Link to={ data.link}>
           <img src={process.env.PUBLIC_URL + data.image} alt="" />
         </Link>
       </div>
       <div className="collection-content text-center">
         <span>{data.subtitle}</span>
         <h4>
-          <Link to={process.env.PUBLIC_URL + data.link}>{data.title}</Link>
+          <Link to={ data.link}>{data.title}</Link>
         </h4>
       </div>
     </div>
@@ -24,3 +24,5 @@ CategoryTwoSingle.propTypes = {
 }
 
 export default CategoryTwoSingle;
+
+

@@ -30,7 +30,7 @@ const ProductGridSingleSix = ({
     <Fragment>
       <div className={clsx("product-wrap-6", spaceBottomClass)}>
         <div className="product-img">
-          <Link to={process.env.PUBLIC_URL + "/product/" + product.ProductId}>
+          <Link to={"/product/" + product.ProductId}>
             <img
               className="default-img img-fluid"
               src={process.env.PUBLIC_URL + product.image[0]}
@@ -52,7 +52,7 @@ const ProductGridSingleSix = ({
         </div>
         <div className="product-content">
           <h3>
-            <Link to={process.env.PUBLIC_URL + "/product/" + product.ProductId}>
+            <Link to={"/product/" + product.ProductId}>
               {product.name}
             </Link>
           </h3>
@@ -105,7 +105,7 @@ const ProductGridSingleSix = ({
                 </a>
               ) : product.variation && product.variation.length >= 1 ? (
                 <Link
-                  to={`${process.env.PUBLIC_URL}/product/${product.ProductId}`}
+                  to={`/product/${product.ProductId}`}
                   title="Select option"
                 >
                   <i className="pe-7s-cart"></i>
@@ -177,3 +177,5 @@ ProductGridSingleSix.propTypes = {
 };
 
 export default ProductGridSingleSix;
+
+

@@ -16,10 +16,10 @@ const OffcanvasMenu = ({ activeState, getActiveState }) => {
         </button>
       </div>
       <div className="side-logo">
-        <Link to={process.env.PUBLIC_URL + "/"}>
+        <Link to={"/"}>
           <img
             alt=""
-            src={process.env.PUBLIC_URL + "/assets/img/logo/NEW FINAL LOGO.jpeg"}
+            src={"/assets/img/logo/NEW FINAL LOGO.jpeg"}
           />
         </Link>
       </div>
@@ -38,3 +38,5 @@ OffcanvasMenu.propTypes = {
 };
 
 export default OffcanvasMenu;
+
+

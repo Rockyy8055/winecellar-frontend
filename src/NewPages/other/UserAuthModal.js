@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { registerUser, loginUser, saveUserToken } from '../../Services/auth-api';
+import { signup, login } from '../../Services/auth-api';
 
 const UserAuthModal = ({ show, onClose, onSuccess }) => {
   const [mode, setMode] = useState('login'); // 'login' | 'register'
-  const [form, setForm] = useState({ login: '', password: '', name: '', email: '', phone: '' });
+  const [form, setForm] = useState({ email: '', password: '', name: '', phone: '', confirmPassword: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -12,15 +12,12 @@ const UserAuthModal = ({ show, onClose, onSuccess }) => {
     setError('');
     setLoading(true);
     try {
-      let data;
       if (mode === 'register') {
-        data = await registerUser(form);
+        await signup({ name: form.name, phone: form.phone, email: form.email, password: form.password, confirmPassword: form.confirmPassword || form.password });
       } else {
-        data = await loginUser({ login: form.login, password: form.password });
+        await login({ email: form.email, password: form.password });
       }
-      const token = data.token || data.access_token;
-      if (token) saveUserToken(token);
-      if (onSuccess) onSuccess(token);
+      if (onSuccess) onSuccess();
       onClose();
     } catch (err) {
       setError(err?.message || 'Failed. Please try again.');
@@ -43,14 +40,14 @@ const UserAuthModal = ({ show, onClose, onSuccess }) => {
         </div>
         <form onSubmit={submit} style={{ marginTop:12 }}>
           <div className="mb-3">
-            <label className="form-label">User ID (name / phone / email)</label>
-            <input className="form-control" value={form.login} onChange={(e)=>setForm({ ...form, login: e.target.value })} required />
+            <label className="form-label">Email</label>
+            <input className="form-control" type="email" value={form.email} onChange={(e)=>setForm({ ...form, email: e.target.value })} required />
           </div>
           {mode === 'register' && (
             <>
               <div className="mb-3"><label className="form-label">Full Name</label><input className="form-control" value={form.name} onChange={(e)=>setForm({ ...form, name: e.target.value })} /></div>
-              <div className="mb-3"><label className="form-label">Email</label><input className="form-control" type="email" value={form.email} onChange={(e)=>setForm({ ...form, email: e.target.value })} /></div>
               <div className="mb-3"><label className="form-label">Phone</label><input className="form-control" value={form.phone} onChange={(e)=>setForm({ ...form, phone: e.target.value })} /></div>
+              <div className="mb-3"><label className="form-label">Confirm Password</label><input className="form-control" type="password" value={form.confirmPassword} onChange={(e)=>setForm({ ...form, confirmPassword: e.target.value })} required /></div>
             </>
           )}
           <div className="mb-3">
@@ -66,4 +63,6 @@ const UserAuthModal = ({ show, onClose, onSuccess }) => {
 };
 
 export default UserAuthModal;
+
+
 

@@ -23,8 +23,8 @@ const About = () => {
         {/* breadcrumb */}
         <Breadcrumb 
           pages={[
-            {label: "Home", path: process.env.PUBLIC_URL + "/" },
-            {label: "About us", path: process.env.PUBLIC_URL + pathname }
+            {label: "Home", path: "/" },
+            {label: "About us", path: pathname }
           ]} 
         />
 
@@ -55,3 +55,5 @@ const About = () => {
 };
 
 export default About;
+
+

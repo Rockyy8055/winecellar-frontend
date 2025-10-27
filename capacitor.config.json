@@ -1,0 +1,16 @@
+{
+  "appId": "com.wineseller.app",
+  "appName": "WineCellar",
+  "webDir": "build",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": [
+      "https://winecellar-backend.onrender.com"
+    ],
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

@@ -20,3 +20,5 @@ const compareSlice = createSlice({
 
 export const { addToCompare, deleteFromCompare } = compareSlice.actions;
 export default compareSlice.reducer;
+
+

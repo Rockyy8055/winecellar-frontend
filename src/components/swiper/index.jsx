@@ -92,3 +92,4 @@ SwiperSlider.defaultProps = {
 
 export { SwiperComponent as Swiper, SwiperSlide };
 export default SwiperSlider;
+

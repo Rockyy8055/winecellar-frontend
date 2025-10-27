@@ -39,7 +39,7 @@ const FooterCopyright = ({ footerLogo, spaceBottomClass, colorClass }) => {
   return (
     <div className={clsx("copyright", spaceBottomClass, colorClass)}>
       <div className="footer-logo">
-        <Link to={process.env.PUBLIC_URL + "/"}>
+        <Link to={"/"}>
           <img alt="" src={process.env.PUBLIC_URL + footerLogo} style={{ maxHeight: '200px', maxWidth: '200px', width: 'auto', height: 'auto', objectFit: 'contain', transform: 'translateY(-20px)' }} />
         </Link>
       </div>
@@ -90,3 +90,5 @@ FooterCopyright.propTypes = {
 };
 
 export default FooterCopyright;
+
+

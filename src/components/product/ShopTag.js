@@ -38,3 +38,5 @@ ShopTag.propTypes = {
 };
 
 export default ShopTag;
+
+

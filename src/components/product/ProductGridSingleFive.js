@@ -29,7 +29,7 @@ const ProductGridSingleFive = ({
     <Fragment>
       <div className={clsx("product-wrap-3 scroll-zoom", spaceBottomClass)}>
         <div className="product-img">
-          <Link to={process.env.PUBLIC_URL + "/product/" + product.ProductId}>
+          <Link to={"/product/" + product.ProductId}>
             <img
               className="default-img"
               src={process.env.PUBLIC_URL + product.image[0]}
@@ -54,7 +54,7 @@ const ProductGridSingleFive = ({
               <div className="product-title">
                 <h3>
                   <Link
-                    to={process.env.PUBLIC_URL + "/product/" + product.ProductId}
+                    to={"/product/" + product.ProductId}
                   >
                     {product.name}
                   </Link>
@@ -102,7 +102,7 @@ const ProductGridSingleFive = ({
                     </a>
                   ) : product.variation && product.variation.length >= 1 ? (
                     <Link
-                      to={`${process.env.PUBLIC_URL}/product/${product.ProductId}`}
+                      to={`/product/${product.ProductId}`}
                       title="Select options"
                     >
                       <i class="fa fa-cog"></i>
@@ -188,3 +188,5 @@ ProductGridSingleFive.propTypes = {
 };
 
 export default ProductGridSingleFive;
+
+

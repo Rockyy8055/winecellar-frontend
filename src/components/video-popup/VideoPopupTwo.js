@@ -13,7 +13,7 @@ const VideoPopupTwo = ({ spaceBottomClass }) => {
         className="video-popup-2__left bg-img"
         style={{
           backgroundImage: `url(${
-            process.env.PUBLIC_URL + "/assets/img/bg/bg-7.jpg"
+            "/assets/img/bg/bg-7.jpg"
           })`
         }}
       >
@@ -25,7 +25,7 @@ const VideoPopupTwo = ({ spaceBottomClass }) => {
             Lorem ipsum dolor sit amet consectetur adipisici elit sed do eiusm.
           </p>
           <div className="link">
-            <Link to={process.env.PUBLIC_URL + "/about"}>Shop Now</Link>
+            <Link to={"/about"}>Shop Now</Link>
           </div>
         </div>
         <ModalVideo
@@ -37,7 +37,7 @@ const VideoPopupTwo = ({ spaceBottomClass }) => {
         <div className="video-popup-2__button">
           <button onClick={() => isOpen(true)}>
             <img
-              src={process.env.PUBLIC_URL + "/assets/img/icon-img/play.png"}
+              src={"/assets/img/icon-img/play.png"}
               alt=""
             />
           </button>
@@ -47,7 +47,7 @@ const VideoPopupTwo = ({ spaceBottomClass }) => {
         className="video-popup-2__right bg-img"
         style={{
           backgroundImage: `url(${
-            process.env.PUBLIC_URL + "/assets/img/bg/bg-8.jpg"
+            "/assets/img/bg/bg-8.jpg"
           })`
         }}
       ></div>
@@ -56,3 +56,5 @@ const VideoPopupTwo = ({ spaceBottomClass }) => {
 };
 
 export default VideoPopupTwo;
+
+

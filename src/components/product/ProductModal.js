@@ -229,3 +229,5 @@ ProductModal.propTypes = {
 };
 
 export default ProductModal;
+
+

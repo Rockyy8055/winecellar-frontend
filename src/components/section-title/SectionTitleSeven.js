@@ -25,3 +25,5 @@ SectionTitleSeven.propTypes = {
 };
 
 export default SectionTitleSeven;
+
+

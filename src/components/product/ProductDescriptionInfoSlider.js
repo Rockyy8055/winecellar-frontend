@@ -233,7 +233,7 @@ const ProductDescriptionInfoSlider = ({
             {product.category.map((single, key) => {
               return (
                 <li key={key}>
-                  <Link to={process.env.PUBLIC_URL + "/shop-grid-standard"}>
+                  <Link to={"/shop-grid-standard"}>
                     {single}
                   </Link>
                 </li>
@@ -251,7 +251,7 @@ const ProductDescriptionInfoSlider = ({
             {product.tag.map((single, key) => {
               return (
                 <li key={key}>
-                  <Link to={process.env.PUBLIC_URL + "/shop-grid-standard"}>
+                  <Link to={"/shop-grid-standard"}>
                     {single}
                   </Link>
                 </li>
@@ -308,3 +308,5 @@ ProductDescriptionInfoSlider.propTypes = {
 };
 
 export default ProductDescriptionInfoSlider;
+
+

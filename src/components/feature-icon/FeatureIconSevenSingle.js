@@ -20,3 +20,5 @@ FeatureIconSevenSingle.propTypes = {
 };
 
 export default FeatureIconSevenSingle;
+
+

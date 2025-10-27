@@ -4,7 +4,7 @@ const MedicalContact = () => {
       className="medical-contact-area bg-img"
       style={{
         backgroundImage: `url(${
-          process.env.PUBLIC_URL + "/assets/img/bg/medicine-bg.jpg"
+          "/assets/img/bg/medicine-bg.jpg"
         })`
       }}
     >
@@ -22,7 +22,6 @@ const MedicalContact = () => {
                 <div className="medical-shape-img">
                   <img
                     src={
-                      process.env.PUBLIC_URL +
                       "/assets/img/icon-img/medical-contact-shape.png"
                     }
                     alt=""
@@ -34,7 +33,6 @@ const MedicalContact = () => {
                   <div className="medical-contact-img">
                     <img
                       src={
-                        process.env.PUBLIC_URL +
                         "/assets/img/icon-img/medical-contact.png"
                       }
                       alt=""
@@ -54,3 +52,5 @@ const MedicalContact = () => {
 };
 
 export default MedicalContact;
+
+

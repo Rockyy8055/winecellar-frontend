@@ -21,6 +21,12 @@ const AllProducts = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [wineHover, setWineHover] = useState(false);
 
+  // Debug logging
+  console.log('AllProducts - Products from Redux:', products);
+  console.log('AllProducts - Products length:', products ? products.length : 0);
+  console.log('AllProducts - Products type:', typeof products);
+  console.log('AllProducts - Is Array:', Array.isArray(products));
+
   // Category buttons
   const categories = [
     'BOURBON WHISKEY', 'WINE', 'WHISKY', 'VODKA', 'TEQUILA',
@@ -32,14 +38,18 @@ const AllProducts = () => {
   const spiritLike = ['WHISKY','VODKA','TEQUILA','RUM','LIQUOR','GIN','CHAMPAGNE','BRANDY','BOURBON WHISKEY'];
 
   // Filter products based on search term and selected category
-  const filteredProducts = products ? products.filter(product => {
+  const filteredProducts = (products && Array.isArray(products)) ? products.filter(product => {
+    if (!product || !product.name) return false;
+    
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || 
       (Array.isArray(product.category)
-        ? product.category.some(cat => cat.toLowerCase() === selectedCategory.toLowerCase())
+        ? product.category.some(cat => cat && cat.toLowerCase() === selectedCategory.toLowerCase())
         : (typeof product.category === 'string' && product.category.toLowerCase() === selectedCategory.toLowerCase()));
     return matchesSearch && matchesCategory;
   }) : [];
+  
+  console.log('AllProducts - Filtered products length:', filteredProducts.length);
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(selectedCategory === category ? '' : category);
@@ -205,3 +215,4 @@ const AllProducts = () => {
 };
 
 export default AllProducts; 
+

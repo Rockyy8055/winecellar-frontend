@@ -101,3 +101,4 @@ const CheckoutForm = ({ clientSecret }) => {
 };
 
 export default CheckoutForm;
+

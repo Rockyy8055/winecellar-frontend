@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from 'react';
+import { API_BASE } from '../../Services/auth-api';
 import clsx from "clsx";
 import MenuCart from "./sub-components/MenuCart";
 
@@ -18,6 +20,16 @@ const IconGroup = ({ iconWhiteClass }) => {
   /* const { compareItems } = useSelector((state) => state.compare); */
   const { wishlistItems } = useSelector((state) => state.wishlist);
   const { cartItems } = useSelector((state) => state.cart);
+  const [authed, setAuthed] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(new URL('/api/auth/me', API_BASE).toString(), { credentials: 'include' });
+        setAuthed(res.ok);
+      } catch (_) { setAuthed(false); }
+    })();
+  }, []);
 
   return (
     <div className={clsx("header-right-wrap", iconWhiteClass)} >
@@ -25,25 +37,27 @@ const IconGroup = ({ iconWhiteClass }) => {
         <button
           className="account-setting-active"
           onClick={e => handleClick(e)}
-          style={{ fontSize: '38px' }}
+          style={{ fontSize: '38px', background:'#fffef1', border:'2px solid #350008', borderRadius:8, color:'#350008' }}
         >
-          <i className="pe-7s-user-female" />
+          <i className="pe-7s-user-female" style={{ color:'#350008' }} />
         </button>
-        <div className="account-dropdown">
+        <div className="account-dropdown" style={{ background:'#fffef1', border:'2px solid #350008' }}>
           <ul>
-            <li>
-              <Link to={process.env.PUBLIC_URL + "/"}>Login</Link>
-            </li>
-            <li>
-              <Link to={process.env.PUBLIC_URL + "/"}>
-                Register
-              </Link>
-            </li>
+            {!authed ? (
+              <>
+                <li><Link to={"/login"} style={{ color:'#350008' }}>Login</Link></li>
+                <li><Link to={"/signup"} style={{ color:'#350008' }}>Sign Up</Link></li>
+              </>
+            ) : (
+              <li>
+                <a href="#" style={{ color:'#350008' }} onClick={async (e)=>{ e.preventDefault(); try { await fetch(new URL('/api/auth/logout', API_BASE).toString(), { method:'POST', credentials:'include' }); } catch(_){} window.location.reload(); }}>Logout</a>
+              </li>
+            )}
           </ul>
         </div>
       </div>
       <div className="same-style header-wishlist">
-        <Link to={process.env.PUBLIC_URL + "/Wishlist"} style={{ fontSize: '38px' }}>
+        <Link to={"/Wishlist"} style={{ fontSize: '38px' }}>
           <i className="pe-7s-like" />
           <span className="count-style">
             {wishlistItems && wishlistItems.length ? wishlistItems.length : 0}
@@ -61,7 +75,7 @@ const IconGroup = ({ iconWhiteClass }) => {
         <MenuCart />
       </div>
       <div className="same-style cart-wrap d-block d-lg-none">
-        <Link className="icon-cart" to={process.env.PUBLIC_URL + "/Cart"} style={{ fontSize: '38px' }}>
+        <Link className="icon-cart" to={"/Cart"} style={{ fontSize: '38px' }}>
           <i className="pe-7s-shopbag" />
           <span className="count-style">
             {cartItems && cartItems.length ? cartItems.length : 0}
@@ -88,3 +102,5 @@ IconGroup.propTypes = {
 
 
 export default IconGroup;
+
+

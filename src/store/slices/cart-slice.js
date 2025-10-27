@@ -10,7 +10,6 @@ const cartSlice = createSlice({
     reducers: {
         addToCart(state, action) {
             const product = action.payload;
-            const maxStock = typeof product.stock === 'number' ? product.stock : (typeof product.Stock === 'number' ? product.Stock : undefined);
             if(!product.variation){
                 // Treat different sizes as unique items
                 const cartItem = state.cartItems.find(item => 
@@ -18,22 +17,18 @@ const cartSlice = createSlice({
                     (item.selectedProductSize || null) === (product.selectedProductSize || null)
                 );
                 if(!cartItem){
-                    const initialQty = product.quantity ? product.quantity : 1;
-                    if (maxStock !== undefined && initialQty > maxStock) {
-                        cogoToast.warn("Only limited stock available", { position: "bottom-left" });
-                        state.cartItems.push({ ...product, quantity: maxStock, cartItemId: uuidv4() });
-                    } else {
-                        state.cartItems.push({ ...product, quantity: initialQty, cartItemId: uuidv4() });
-                    }
+                    state.cartItems.push({
+                        ...product,
+                        quantity: product.quantity ? product.quantity : 1,
+                        cartItemId: uuidv4()
+                    });
                 } else {
                     state.cartItems = state.cartItems.map(item => {
                         if(item.cartItemId === cartItem.cartItemId){
-                            const requested = product.quantity ? item.quantity + product.quantity : item.quantity + 1;
-                            if (maxStock !== undefined && requested > maxStock) {
-                                cogoToast.warn("Out of stock for this item", { position: "bottom-left" });
-                                return { ...item, quantity: maxStock };
+                            return {
+                                ...item,
+                                quantity: product.quantity ? item.quantity + product.quantity : item.quantity + 1
                             }
-                            return { ...item, quantity: requested };
                         }
                         return item;
                     })
@@ -67,12 +62,12 @@ const cartSlice = createSlice({
                 } else {
                     state.cartItems = state.cartItems.map(item => {
                         if(item.cartItemId === cartItem.cartItemId){
-                            const requested = product.quantity ? item.quantity + product.quantity : item.quantity + 1;
-                            if (maxStock !== undefined && requested > maxStock) {
-                                cogoToast.warn("Out of stock for this item", { position: "bottom-left" });
-                                return { ...item, quantity: maxStock, selectedProductColor: product.selectedProductColor, selectedProductSize: product.selectedProductSize };
+                            return {
+                                ...item,
+                                quantity: product.quantity ? item.quantity + product.quantity : item.quantity + 1,
+                                selectedProductColor: product.selectedProductColor,
+                                selectedProductSize: product.selectedProductSize
                             }
-                            return { ...item, quantity: requested, selectedProductColor: product.selectedProductColor, selectedProductSize: product.selectedProductSize };
                         }
                         return item;
                     });
@@ -107,3 +102,5 @@ const cartSlice = createSlice({
 
 export const { addToCart, deleteFromCart, decreaseQuantity, deleteAllFromCart } = cartSlice.actions;
 export default cartSlice.reducer;
+
+

@@ -50,3 +50,5 @@ ProductImageGallerySlider.propTypes = {
 };
 
 export default ProductImageGallerySlider;
+
+

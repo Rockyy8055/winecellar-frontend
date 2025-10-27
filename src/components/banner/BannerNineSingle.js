@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const BannerNineSingle = ({ data, spaceBottomClass }) => {
   return (
     <div className={clsx("single-banner-2", spaceBottomClass)}>
-      <Link to={process.env.PUBLIC_URL + data.link}>
+      <Link to={ data.link}>
         <img src={process.env.PUBLIC_URL + data.image} alt="" />
       </Link>
       <div className="banner-content-2">
@@ -13,7 +13,7 @@ const BannerNineSingle = ({ data, spaceBottomClass }) => {
         <h4>
           {data.subtitle} <span>{data.price}</span>
         </h4>
-        <Link to={process.env.PUBLIC_URL + data.link}>
+        <Link to={ data.link}>
           <i className="fa fa-long-arrow-right" />
         </Link>
       </div>
@@ -27,3 +27,5 @@ BannerNineSingle.propTypes = {
 };
 
 export default BannerNineSingle;
+
+

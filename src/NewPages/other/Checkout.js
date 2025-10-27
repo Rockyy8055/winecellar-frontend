@@ -134,7 +134,8 @@ const Checkout = () => {
   useEffect(() => {
     let sub = 0;
     cartItems.forEach(item => { sub += item.price * item.quantity; });
-    const shippingFee = sub >= 100 ? 0 : 4.99;
+    // For Pick & Pay (cod), shipping is always £0
+    const shippingFee = paymentMethod === 'cod' ? 0 : (sub >= 100 ? 0 : 4.99);
     const discount = isTradeCustomer ? sub * 0.20 : 0; // 20% off for trade customers
     const vat = isTradeCustomer ? sub * 0.20 : 0;      // 20% VAT for trade customers
     const total = sub - discount + vat + shippingFee;
@@ -143,7 +144,7 @@ const Checkout = () => {
     setDiscountAmount(discount);
     setVatAmount(vat);
     setTotalAmount(total);
-  }, [cartItems, isTradeCustomer]);
+  }, [cartItems, isTradeCustomer, paymentMethod]);
 
   useEffect(() => {
     if (totalAmount > 0 && paymentMethod === 'card') {
@@ -169,6 +170,11 @@ const Checkout = () => {
   }, [totalAmount, paymentMethod]);
 
   const handlePlaceOrderCOD = async () => {
+    // Require login (server also enforces; client UX guard)
+    try {
+      const meRes = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, { credentials: 'include' });
+      if (!meRes.ok) { window.location.href = '/login'; return; }
+    } catch (_) { window.location.href = '/login'; return; }
     if (!isBillingComplete) {
       alert('Please fill the Billing Details.');
       return;
@@ -405,7 +411,7 @@ const Checkout = () => {
                     </div>
                     <div className="item-empty-area__text">
                       No items found in cart to checkout <br />{" "}
-                      <Link to={process.env.PUBLIC_URL + "/shop-grid-standard"}>
+                      <Link to={"/shop-grid-standard"}>
                         Shop Now
                       </Link>
                     </div>
@@ -421,3 +427,5 @@ const Checkout = () => {
 };
 
 export default Checkout;
+
+

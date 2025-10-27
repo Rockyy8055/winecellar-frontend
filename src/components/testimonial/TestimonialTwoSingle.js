@@ -20,3 +20,5 @@ TestimonialTwoSingle.propTypes = {
 };
 
 export default TestimonialTwoSingle;
+
+

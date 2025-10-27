@@ -18,8 +18,8 @@ const MyAccount = () => {
         {/* breadcrumb */}
         <Breadcrumb 
           pages={[
-            {label: "Home", path: process.env.PUBLIC_URL + "/" },
-            {label: "My Account", path: process.env.PUBLIC_URL + pathname }
+            {label: "Home", path: "/" },
+            {label: "My Account", path: pathname }
           ]} 
         />
         
@@ -162,3 +162,5 @@ const MyAccount = () => {
 };
 
 export default MyAccount;
+
+

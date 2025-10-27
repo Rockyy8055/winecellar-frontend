@@ -39,4 +39,5 @@ GoogleMap.defaultProps = {
 
 export default GoogleMap;
 
-const Marker = ({ text }) => <div className="map-marker"><img src={`${process.env.PUBLIC_URL + "/assets/img/icon-img/2.png"}`} alt={text}/></div>;
+const Marker = ({ text }) => <div className="map-marker"><img src={`${"/assets/img/icon-img/2.png"}`} alt={text}/></div>;
+

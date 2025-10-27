@@ -27,8 +27,8 @@ const Wishlist = () => {
         {/* breadcrumb */}
         <Breadcrumb 
           pages={[
-            {label: "Home", path: process.env.PUBLIC_URL + "/" },
-            {label: "Wishlist", path: process.env.PUBLIC_URL + pathname }
+            {label: "Home", path: "/" },
+            {label: "Wishlist", path: pathname }
           ]} 
         />
         <div className="cart-main-area pt-90 pb-100">
@@ -69,7 +69,6 @@ const Wishlist = () => {
                                 <td className="product-thumbnail">
                                   <Link
                                     to={
-                                      process.env.PUBLIC_URL +
                                       "/product/" +
                                       wishlistItem.ProductId
                                     }
@@ -88,7 +87,6 @@ const Wishlist = () => {
                                 <td className="product-name text-center">
                                   <Link
                                     to={
-                                      process.env.PUBLIC_URL +
                                       "/product/" +
                                       wishlistItem.ProductId
                                     }
@@ -130,7 +128,7 @@ const Wishlist = () => {
                                   ) : wishlistItem.variation &&
                                     wishlistItem.variation.length >= 1 ? (
                                     <Link
-                                      to={`${process.env.PUBLIC_URL}/product/${wishlistItem.ProductId}`}
+                                      to={`/product/${wishlistItem.ProductId}`}
                                     >
                                       Select option
                                     </Link>
@@ -191,7 +189,7 @@ const Wishlist = () => {
                     <div className="cart-shiping-update-wrapper">
                       <div className="cart-shiping-update">
                         <Link
-                          to={process.env.PUBLIC_URL + "/shop-grid-standard"}
+                          to={"/shop-grid-standard"}
                         >
                           Continue Shopping
                         </Link>
@@ -214,7 +212,7 @@ const Wishlist = () => {
                     </div>
                     <div className="item-empty-area__text">
                       No items found in wishlist <br />{" "}
-                      <Link to={process.env.PUBLIC_URL + "/shop-grid-standard"}>
+                      <Link to={"/shop-grid-standard"}>
                         Add Items
                       </Link>
                     </div>
@@ -230,3 +228,5 @@ const Wishlist = () => {
 };
 
 export default Wishlist;
+
+

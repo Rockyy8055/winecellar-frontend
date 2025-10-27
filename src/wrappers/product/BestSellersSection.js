@@ -1,0 +1,94 @@
+import React, { Fragment, useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import SectionTitle from "../../components/section-title/SectionTitle";
+import ProductGridSingleTwo from "../../components/product/ProductGridSingleTwo";
+
+const BestSellersSection = () => {
+  const { products } = useSelector((state) => state.product);
+  const currency = useSelector((state) => state.currency);
+  const { cartItems } = useSelector((state) => state.cart);
+  const { wishlistItems } = useSelector((state) => state.wishlist);
+  const { compareItems } = useSelector((state) => state.compare);
+  const [bestSellers, setBestSellers] = useState([]);
+
+  const apiBase = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE)
+    || process.env.REACT_APP_API_URL
+    || 'https://winecellar-backend.onrender.com';
+
+  useEffect(() => {
+    console.log('BestSellers - Products from Redux:', products);
+    console.log('BestSellers - Products length:', products ? products.length : 0);
+    console.log('BestSellers - Is Array:', Array.isArray(products));
+    
+    // Use products from Redux directly (already fetched in index.js)
+    if (products && Array.isArray(products) && products.length > 0) {
+      // Take first 15 products as best sellers
+      const first15 = products.slice(0, 15);
+      console.log('BestSellers - Setting bestSellers:', first15.length);
+      setBestSellers(first15);
+    } else {
+      console.log('BestSellers - No products available');
+    }
+  }, [products]);
+
+  const items = useMemo(() => (Array.isArray(bestSellers) ? bestSellers.slice(0, 15) : []), [bestSellers]);
+
+  return (
+    <div className="product-area pb-100">
+      <div className="container">
+        <SectionTitle titleText="BEST SELLERS OF THE WEEK" positionClass="text-center" />
+        <div className="product-grid-5">
+          {items && items.length > 0 ? (
+            items.map((product) => (
+              <div key={product.ProductId || product.id || product._id}>
+                <ProductGridSingleTwo
+                  product={product}
+                  currency={currency}
+                  cartItem={cartItems.find((c) => (c.ProductId || c.id) === (product.ProductId || product.id || product._id))}
+                  wishlistItem={wishlistItems.find((w) => (w.ProductId || w.id) === (product.ProductId || product.id || product._id))}
+                  compareItem={compareItems.find((cm) => (cm.ProductId || cm.id) === (product.ProductId || product.id || product._id))}
+                  spaceBottomClass="mb-25"
+                />
+              </div>
+            ))
+          ) : (
+            <div className="col-12 text-center">
+              <p>No products found.</p>
+            </div>
+          )}
+        </div>
+        <div className="view-more text-center mt-20 toggle-btn6 col-12">
+          <Link
+            className="view-more-products-btn"
+            to="/shop-grid-standard"
+            style={{
+              display: 'inline-block',
+              background: '#111',
+              color: '#fffef1',
+              fontWeight: 700,
+              fontSize: '1.35rem',
+              padding: '22px 60px',
+              borderRadius: '32px',
+              border: 'none',
+              letterSpacing: '1px',
+              margin: '18px 0 0 0',
+              boxShadow: '0 4px 18px rgba(0,0,0,0.08)',
+              transition: 'transform 0.18s cubic-bezier(.23,1.02,.64,.97), background 0.18s',
+              textDecoration: 'none'
+            }}
+            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.08)'}
+            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            VIEW MORE PRODUCTS
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BestSellersSection;
+
+
+

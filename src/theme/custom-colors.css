@@ -227,6 +227,29 @@ span[class*="notification"] {
   background-color: #350008 !important;
 }
 
+/* User/account icon and dropdown theme: burgundy icon on cream */
+.header-right-wrap .account-setting .account-setting-active,
+.header-right-wrap .account-setting-active {
+  background: #fffef1 !important;
+  border: 2px solid #350008 !important;
+  color: #350008 !important;
+  border-radius: 8px !important;
+}
+.header-right-wrap .account-setting-active i,
+.header-right-wrap .pe-7s-user-female {
+  color: #350008 !important;
+}
+
+.header-right-wrap .account-dropdown {
+  background: #fffef1 !important;
+  border: 2px solid #350008 !important;
+}
+.header-right-wrap .account-dropdown a,
+.header-right-wrap .account-dropdown li,
+.header-right-wrap .account-dropdown * {
+  color: #350008 !important;
+}
+
 /* Specific button styling for View More Products and Add to Cart */
 .view-more-products-btn,
 [class*="view-more-products"],

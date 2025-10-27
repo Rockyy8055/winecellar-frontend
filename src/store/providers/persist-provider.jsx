@@ -15,3 +15,4 @@ PersistProvider.propTypes = {
 }
 
 export default PersistProvider;
+

@@ -55,3 +55,5 @@ ShopSize.propTypes = {
 };
 
 export default ShopSize;
+
+

@@ -29,7 +29,7 @@ const ProductGridSingleThree = ({
     <Fragment>
       <div className={clsx("product-wrap-2 pro-glaucous-color", spaceBottomClass)}>
         <div className="product-img">
-          <Link to={process.env.PUBLIC_URL + "/product/" + product.ProductId}>
+          <Link to={"/product/" + product.ProductId}>
             <img
               className="default-img"
               src={process.env.PUBLIC_URL + product.image[0]}
@@ -71,7 +71,7 @@ const ProductGridSingleThree = ({
               </a>
             ) : product.variation && product.variation.length >= 1 ? (
               <Link
-                to={`${process.env.PUBLIC_URL}/product/${product.ProductId}`}
+                to={`/product/${product.ProductId}`}
                 title="Select options"
               >
                 <i class="fa fa-cog"></i>
@@ -119,7 +119,7 @@ const ProductGridSingleThree = ({
         <div className="product-content-2">
           <div className="title-price-wrap-2">
             <h3>
-              <Link to={process.env.PUBLIC_URL + "/product/" + product.ProductId}>
+              <Link to={"/product/" + product.ProductId}>
                 {product.name}
               </Link>
             </h3>
@@ -180,3 +180,5 @@ ProductGridSingleThree.propTypes = {
 };
 
 export default ProductGridSingleThree;
+
+

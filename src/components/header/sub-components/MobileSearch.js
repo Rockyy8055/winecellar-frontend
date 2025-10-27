@@ -12,3 +12,5 @@ const MobileSearch = () => {
 };
 
 export default MobileSearch;
+
+

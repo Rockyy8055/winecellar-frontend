@@ -28,3 +28,5 @@ FeatureIconThreeSingle.propTypes = {
 };
 
 export default FeatureIconThreeSingle;
+
+

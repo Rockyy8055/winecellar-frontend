@@ -19,7 +19,7 @@ const HeroSliderTwentyThreeSingle = ({ data }) => {
               <div className="slider-btn slider-btn--style2 btn-hover">
                 <Link
                   className="animated rounden-btn"
-                  to={process.env.PUBLIC_URL + data.url}
+                  to={ data.url}
                 >
                   SHOP NOW
                 </Link>
@@ -37,3 +37,5 @@ HeroSliderTwentyThreeSingle.propTypes = {
 };
 
 export default HeroSliderTwentyThreeSingle;
+
+

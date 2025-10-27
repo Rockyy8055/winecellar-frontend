@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import Layout from '../../layouts/Layout';
 import UserAuthModal from './UserAuthModal';
-import { getUserToken } from '../../Services/auth-api';
 
 function useQuery() {
   const { search } = useLocation();
@@ -18,7 +17,10 @@ const OrderStatus = () => {
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
-  const userToken = getUserToken();
+  const [authed, setAuthed] = useState(false);
+  const [items, setItems] = useState([]);
+  const [orderedDate, setOrderedDate] = useState('');
+  const [eta, setEta] = useState('');
 
   useEffect(() => {
     if (!trackingCode || trackingCode === 'N/A' || status === 'CANCELLED') return;
@@ -26,11 +28,23 @@ const OrderStatus = () => {
     const fetchStatus = async () => {
       try {
         setLoading(true);
-        const headers = userToken ? { Authorization: `Bearer ${userToken}` } : {};
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/track/${encodeURIComponent(trackingCode)}`, { headers });
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/track/${encodeURIComponent(trackingCode)}`, { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           if (data && data.status) setStatus(data.status);
+          // Owner view returns items, createdAt, estimatedDelivery
+          if (Array.isArray(data?.items)) setItems(data.items);
+          if (data?.createdAt) {
+            const d = new Date(data.createdAt);
+            setOrderedDate(d.toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' }));
+          }
+          if (data?.estimatedDelivery) {
+            const d2 = new Date(data.estimatedDelivery);
+            setEta(d2.toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' }));
+          } else if (data?.estimatedDeliveryDate) {
+            const d3 = new Date(data.estimatedDeliveryDate);
+            setEta(d3.toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' }));
+          }
         }
       } catch (_) {}
       finally { setLoading(false); }
@@ -38,7 +52,17 @@ const OrderStatus = () => {
     fetchStatus();
     timer = setInterval(fetchStatus, 25000);
     return () => clearInterval(timer);
-  }, [trackingCode, status, userToken]);
+  }, [trackingCode, status]);
+
+  useEffect(() => {
+    // Check auth status for showing login CTA
+    (async () => {
+      try {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, { credentials: 'include' });
+        setAuthed(res.ok);
+      } catch (_) { setAuthed(false); }
+    })();
+  }, []);
 
   const cancelOrder = async () => {
     setCancelling(true);
@@ -74,9 +98,25 @@ const OrderStatus = () => {
           <div style={{ fontSize: '1.1rem' }}>
             <div><strong>Tracking Code:</strong> {trackingCode}</div>
             <div><strong>Status:</strong> {status} {loading ? '(updating...)' : ''}</div>
+            {orderedDate && (
+              <div><strong>Order placed on</strong> {orderedDate}</div>
+            )}
+            {eta && (
+              <div><strong>Estimated delivery</strong> {eta}</div>
+            )}
           </div>
+          {items && items.length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <h5 style={{ fontWeight: 800, color: '#350008' }}>Items</h5>
+              <ul style={{ marginBottom: 0 }}>
+                {items.map((it, idx) => (
+                  <li key={idx} style={{ lineHeight: 1.6 }}>{it.name} × {it.qty || it.quantity || 1}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div style={{ marginTop: 14 }}>
-            <Link to={process.env.PUBLIC_URL + '/shop-grid-standard'} style={{ background: '#350008', color: '#fffef1', padding: '10px 16px', borderRadius: 6, textDecoration: 'none' }}>Continue Shopping</Link>
+            <Link to="/shop-grid-standard" style={{ background: '#350008', color: '#fffef1', padding: '10px 16px', borderRadius: 6, textDecoration: 'none' }}>Continue Shopping</Link>
           </div>
           {status !== 'CANCELLED' && (
             <div style={{ marginTop: 10 }}>
@@ -99,7 +139,7 @@ const OrderStatus = () => {
             </div>
           )}
         </div>
-        {!userToken && (
+        {!authed && (
           <div style={{ marginTop: 12 }}>
             <button className="btn btn-outline-dark" onClick={()=>setShowAuth(true)}>Login to see full order history</button>
           </div>
@@ -111,4 +151,6 @@ const OrderStatus = () => {
 };
 
 export default OrderStatus;
+
+
 

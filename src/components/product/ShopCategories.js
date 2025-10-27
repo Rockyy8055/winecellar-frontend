@@ -53,3 +53,5 @@ ShopCategories.propTypes = {
 };
 
 export default ShopCategories;
+
+

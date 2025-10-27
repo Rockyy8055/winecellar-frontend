@@ -28,3 +28,4 @@ SEO.defaultProps = {
 };
 
 export default SEO;
+

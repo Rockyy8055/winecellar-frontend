@@ -30,3 +30,5 @@ FeatureIconSix.propTypes = {
 };
 
 export default FeatureIconSix;
+
+

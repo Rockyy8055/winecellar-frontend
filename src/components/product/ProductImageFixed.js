@@ -37,3 +37,5 @@ ProductImageFixed.propTypes = {
 };
 
 export default ProductImageFixed;
+
+

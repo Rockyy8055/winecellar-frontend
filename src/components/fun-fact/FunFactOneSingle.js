@@ -38,3 +38,5 @@ FunFactOneSingle.propTypes = {
 };
 
 export default FunFactOneSingle;
+
+

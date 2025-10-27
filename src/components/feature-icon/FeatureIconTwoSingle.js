@@ -24,3 +24,5 @@ FeatureIconTwoSingle.propTypes = {
 };
 
 export default FeatureIconTwoSingle;
+
+

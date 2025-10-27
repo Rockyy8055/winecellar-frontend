@@ -29,8 +29,8 @@ const Cart = () => {
         {/* breadcrumb */}
         <Breadcrumb 
           pages={[
-            {label: "Home", path: process.env.PUBLIC_URL + "/" },
-            {label: "Cart", path: process.env.PUBLIC_URL + pathname }
+            {label: "Home", path: "/" },
+            {label: "Cart", path: pathname }
           ]} 
         />
         <div className="cart-main-area pt-90 pb-100">
@@ -75,7 +75,6 @@ const Cart = () => {
                                 <td className="product-thumbnail" style={{ padding: '26px' }}>
                                   <Link
                                     to={
-                                      process.env.PUBLIC_URL +
                                       "/product/" +
                                       cartItem.ProductId
                                     }
@@ -95,13 +94,19 @@ const Cart = () => {
                                 <td className="product-name" style={{ fontSize: '1.3rem', padding: '26px' }}>
                                   <Link
                                     to={
-                                      process.env.PUBLIC_URL +
                                       "/product/" +
                                       cartItem.ProductId
                                     }
                                   >
                                     {cartItem.name}
                                   </Link>
+                                  {cartItem.description || cartItem.desc ? (
+                                    <div className="cart-item-description" style={{ fontSize: '0.9rem', color: '#666', marginTop: '8px', maxWidth: '300px' }}>
+                                      {cartItem.description || cartItem.desc}
+                                    </div>
+                                  ) : (
+                                    ""
+                                  )}
                                   {cartItem.selectedProductSize ? (
                                     <div className="cart-item-variation">
                                       <span style={{ fontWeight: 700 }}>Size: {cartItem.selectedProductSize}</span>
@@ -206,7 +211,7 @@ const Cart = () => {
                     <div className="cart-shiping-update-wrapper">
                       <div className="cart-shiping-update">
                         <Link
-                          to={process.env.PUBLIC_URL + "/shop-grid-standard"}
+                          to={"/shop-grid-standard"}
                           style={{
                             display: 'inline-block',
                             fontSize: '1.4rem',
@@ -263,7 +268,7 @@ const Cart = () => {
                           {currency.currencySymbol + cartTotalPrice.toFixed(2)}
                         </span>
                       </h4>
-                      <Link to={process.env.PUBLIC_URL + "/checkout"}>
+                      <Link to={"/checkout"}>
                         Proceed to Checkout
                       </Link>
                     </div>
@@ -279,7 +284,7 @@ const Cart = () => {
                     </div>
                     <div className="item-empty-area__text">
                       No items found in cart <br />{" "}
-                      <Link to={process.env.PUBLIC_URL + "/shop-grid-standard"}>
+                      <Link to={"/shop-grid-standard"}>
                         Shop Now
                       </Link>
                     </div>
@@ -295,3 +300,5 @@ const Cart = () => {
 };
 
 export default Cart;
+
+

@@ -19,7 +19,7 @@ const HeroSliderTwentyFiveSingle = ({ data }) => {
               <div className="slider-btn-medical btn-hover">
                 <Link
                   className="animated"
-                  to={process.env.PUBLIC_URL + data.url}
+                  to={ data.url}
                 >
                   SHOP NOW
                 </Link>
@@ -37,3 +37,5 @@ HeroSliderTwentyFiveSingle.propTypes = {
 };
 
 export default HeroSliderTwentyFiveSingle;
+
+

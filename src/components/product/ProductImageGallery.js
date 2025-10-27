@@ -106,3 +106,5 @@ ProductImageGallery.propTypes = {
 };
 
 export default ProductImageGallery;
+
+

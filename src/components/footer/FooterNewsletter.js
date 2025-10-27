@@ -31,3 +31,5 @@ FooterNewsletter.propTypes = {
 };
 
 export default FooterNewsletter;
+
+

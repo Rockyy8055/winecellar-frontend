@@ -22,7 +22,7 @@ const HeroSliderTwentyNineSingle = ({ data }) => {
               <div className="slider-btn-brown btn-hover">
                 <Link
                   className="animated"
-                  to={process.env.PUBLIC_URL + data.url}
+                  to={ data.url}
                 >
                   Shop Now
                 </Link>
@@ -40,3 +40,5 @@ HeroSliderTwentyNineSingle.propTypes = {
 };
 
 export default HeroSliderTwentyNineSingle;
+
+

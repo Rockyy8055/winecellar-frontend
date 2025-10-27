@@ -2,7 +2,7 @@
 
 export const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE)
   || process.env.REACT_APP_API_URL
-  || 'http://localhost:5001';
+  || 'https://winecellar-backend.onrender.com';
 
 export const formatGBP = (n) => new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(Number(n || 0));
 
@@ -40,4 +40,6 @@ export async function setOrderStatus(id, status, note = 'Admin update', token) {
   if (!r.ok) throw new Error(`setOrderStatus failed: ${r.status}`);
   return r.json();
 }
+
+
 

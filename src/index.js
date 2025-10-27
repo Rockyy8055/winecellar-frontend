@@ -15,26 +15,55 @@ import { store } from "./store/store";
 import { setProducts } from "./store/slices/product-slice";
 //import products from "./data/products.json";
 import { Provider } from 'react-redux';
+import { API_URL } from './utils/apiConfig';
+import { Capacitor } from '@capacitor/core';
 
 const fetchProducts = async () => {
-  try {
-    const apiUrl = process.env.REACT_APP_API_URL || (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE) || '';
-    if (!apiUrl) throw new Error('API base URL not set. Set REACT_APP_API_URL or VITE_API_BASE');
-    console.log('Fetching products from:', `${apiUrl}/api/product/get`);
-    
-    const response = await fetch(`${apiUrl}/api/product/get`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  const apiUrl = API_URL;
+  const fullUrl = `${apiUrl}/api/product/get`;
+  
+  console.log('Fetching products from:', fullUrl);
+  
+  // Use XMLHttpRequest for better WebView compatibility
+  const xhr = new XMLHttpRequest();
+  
+  xhr.onload = function() {
+    try {
+      if (xhr.status === 200) {
+        const products = JSON.parse(xhr.responseText);
+        console.log('✅ Products loaded from backend:', products.length);
+        console.log('✅ Dispatching to Redux store...');
+        store.dispatch(setProducts(products));
+        console.log('✅ Products dispatched to Redux!');
+        
+        // Verify products are in store
+        setTimeout(() => {
+          const state = store.getState();
+          console.log('✅ Redux state after dispatch:', state.product.products.length);
+        }, 100);
+      } else {
+        throw new Error(`HTTP ${xhr.status}: ${xhr.statusText}`);
+      }
+    } catch (error) {
+      console.error('❌ Parse error:', error);
     }
-    
-    const products = await response.json();
-    console.log('Products fetched successfully:', products.length, 'products');
-    store.dispatch(setProducts(products));
+  };
+  
+  xhr.onerror = function() {
+    console.error('Network error');
+  };
+  
+  xhr.ontimeout = function() {
+    console.error('Request timeout');
+  };
+  
+  try {
+    xhr.open('GET', fullUrl, true);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.timeout = 30000; // 30 second timeout
+    xhr.send();
   } catch (error) {
-    console.error('Failed to fetch products from backend:', error);
-    console.log('Using fallback local products...');
-    // You can add fallback to local products here if needed
+    console.error('XHR error:', error);
   }
 };
 
@@ -50,3 +79,5 @@ root.render(
   </Provider>
 );
 reportWebVitals();
+
+

@@ -7,13 +7,13 @@ const BannerThirtyFourSingle = ({ data, spaceBottomClass }) => {
       <div
         className={clsx("single-banner", spaceBottomClass)}
       >
-        <Link to={process.env.PUBLIC_URL + data.url}>
+        <Link to={ data.url}>
           <img src={process.env.PUBLIC_URL + data.image} alt="" />
         </Link>
         <div className="banner-content-5 banner-content-5-white">
           <span>{data.title}</span>
           <h3>{data.subtitle}</h3>
-          <Link to={process.env.PUBLIC_URL + data.url}>
+          <Link to={ data.url}>
             <i className="fa fa-long-arrow-right" />
           </Link>
         </div>
@@ -27,3 +27,5 @@ BannerThirtyFourSingle.propTypes = {
 };
 
 export default BannerThirtyFourSingle;
+
+

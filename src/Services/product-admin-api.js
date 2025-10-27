@@ -22,7 +22,9 @@ export async function listProducts({ page = 1, limit = 20, search = '' } = {}, t
         img: p.img || p.image || p.imageUrl,
         imageUrl: p.imageUrl || p.img || p.image,
         category: p.category,
-        stock: p.stock
+        stock: p.stock,
+        description: p.description || p.desc || p.Description || '',
+        desc: p.desc || p.description || p.Description || ''
       }));
       return { items: normalized, total: (d.total || normalized.length) };
     }
@@ -39,7 +41,9 @@ export async function listProducts({ page = 1, limit = 20, search = '' } = {}, t
       img: p.img || p.image || p.imageUrl,
       imageUrl: p.imageUrl || p.img || p.image,
       category: p.category,
-      stock: p.stock
+      stock: p.stock,
+      description: p.description || p.desc || p.Description || '',
+      desc: p.desc || p.description || p.Description || ''
     }));
     return { items: normalized, total: normalized.length };
   } catch (e) {
@@ -53,7 +57,9 @@ export async function listProducts({ page = 1, limit = 20, search = '' } = {}, t
         img: p.img || p.image || p.imageUrl || p.ImageUrl,
         imageUrl: p.imageUrl || p.img || p.image || p.ImageUrl,
         category: p.category || p.Category,
-        stock: p.stock || p.Stock
+        stock: p.stock || p.Stock,
+        description: p.description || p.desc || p.Description || '',
+        desc: p.desc || p.description || p.Description || ''
       }));
       return { items: normalized, total: normalized.length };
     } catch (_) {
@@ -87,9 +93,34 @@ export async function updateProduct(id, fields = {}, token) {
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken(token)}` },
     body: JSON.stringify(body)
   });
-  if (!r.ok) throw new Error(`updateProduct failed: ${r.status}`);
+  if (!r.ok) {
+    let message = `updateProduct failed: ${r.status}`;
+    try {
+      const data = await r.json();
+      message = data?.message || data?.error || (Array.isArray(data?.errors) ? data.errors.join(', ') : message);
+    } catch (_) { /* ignore JSON parse errors */ }
+    throw new Error(message);
+  }
   return r.json();
 }
 
+export async function deleteProduct(id, token) {
+  const r = await fetch(`${API_BASE}/api/admin/products/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${getToken(token)}` }
+  });
+  if (!r.ok) {
+    let message = `deleteProduct failed: ${r.status}`;
+    try {
+      const data = await r.json();
+      message = data?.message || data?.error || message;
+    } catch (_) {}
+    throw new Error(message);
+  }
+  return r.json?.() || { ok: true };
+}
+
 // Image changes are sent via updateProduct with img URL
+
+
 

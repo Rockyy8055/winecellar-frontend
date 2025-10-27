@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const BannerFourteenSingle = ({ data, spaceBottomClass }) => {
   return (
       <div className={clsx("single-banner", spaceBottomClass)}>
-        <Link to={process.env.PUBLIC_URL + data.link}>
+        <Link to={ data.link}>
           <img src={process.env.PUBLIC_URL + data.image} alt="" />
         </Link>
         <div className="banner-content banner-pink">
@@ -27,3 +27,5 @@ BannerFourteenSingle.propTypes = {
 };
 
 export default BannerFourteenSingle;
+
+

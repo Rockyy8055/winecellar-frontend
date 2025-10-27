@@ -30,3 +30,5 @@ HeroSliderSevenSingle.propTypes = {
 };
 
 export default HeroSliderSevenSingle;
+
+

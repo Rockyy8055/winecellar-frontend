@@ -51,3 +51,5 @@ TeamMemberOneSingle.propTypes = {
 };
 
 export default TeamMemberOneSingle;
+
+

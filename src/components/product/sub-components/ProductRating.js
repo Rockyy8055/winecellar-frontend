@@ -20,3 +20,5 @@ ProductRating.propTypes = {
 };
 
 export default ProductRating;
+
+

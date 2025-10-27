@@ -15,3 +15,5 @@ BrandLogoOneSingle.propTypes = {
 };
 
 export default BrandLogoOneSingle;
+
+

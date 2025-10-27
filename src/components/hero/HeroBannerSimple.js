@@ -68,7 +68,7 @@ const HeroBannerSimple = () => {
                 Browse our selection of high-quality liquors, craft beers, and fine wines.
               </p>
               <Link 
-                to={process.env.PUBLIC_URL + "/shop-grid-standard"} 
+                to={"/shop-grid-standard"} 
                 className="shop-now-btn"
                 style={{
                   display: 'inline-block',
@@ -136,3 +136,4 @@ const HeroBannerSimple = () => {
 };
 
 export default HeroBannerSimple;
+

@@ -15,29 +15,29 @@ const NavMenu = ({ menuWhiteClass, sidebarMenu }) => {
       <nav style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', padding: '6px 0', paddingRight: 'min(36vw, 480px)' }}>
         <ul style={{ display: 'flex', alignItems: 'center', margin: 0, padding: 0, listStyle: 'none', gap: 16, whiteSpace: 'nowrap' }}>
           <li>
-            <Link to={process.env.PUBLIC_URL + "/"} style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>
+            <Link to="/" style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>
               {t("Home")}
             </Link>
           </li>
           <li>
-            <Link to={process.env.PUBLIC_URL + "/shop-grid-standard"} style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>
+            <Link to="/shop-grid-standard" style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>
               {t("Shop")}
             </Link>
           </li>
           <li>
-            <Link to={process.env.PUBLIC_URL + "/about-us"} style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>
+            <Link to="/about-us" style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>
               {t("About Us")}
             </Link>
           </li>
           <li>
-            <Link to={process.env.PUBLIC_URL + "/contact-us"} style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>
+            <Link to="/contact-us" style={{ fontSize: '18px', fontWeight: '700', marginTop: '6px' }}>
               {t("Contact Us")}
             </Link>
           </li>
         </ul>
         <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, display: 'flex', alignItems: 'center', gap: 8, paddingRight: 10, whiteSpace: 'nowrap' }}>
           <Link 
-            to={process.env.PUBLIC_URL + "/trade-customer"} 
+            to="/trade-customer" 
             style={{ 
               fontSize: '14px', 
               fontWeight: '700', 
@@ -53,7 +53,7 @@ const NavMenu = ({ menuWhiteClass, sidebarMenu }) => {
             TRADE CUSTOMERS CLICK HERE
           </Link>
           <Link 
-            to={process.env.PUBLIC_URL + "/order-status"}
+            to="/order-status"
             style={{ 
               fontSize: '14px', 
               fontWeight: '700', 
@@ -80,3 +80,5 @@ NavMenu.propTypes = {
 };
 
 export default NavMenu;
+
+

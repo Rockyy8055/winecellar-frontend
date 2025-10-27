@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Layout from '../../layouts/Layout';
-import { listProducts, createProduct, updateProduct } from '../../Services/product-admin-api';
+import { listProducts, createProduct, updateProduct, deleteProduct } from '../../Services/product-admin-api';
 import { formatGBP } from '../../Services/admin-api';
 
 const AdminProducts = () => {
@@ -14,10 +14,10 @@ const AdminProducts = () => {
 
   const token = useMemo(() => { try { return localStorage.getItem('admin_token') || ''; } catch (_) { return ''; } }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (opts = {}) => {
     try {
       setLoading(true);
-      const data = await listProducts({ page, limit: 20, search: q }, token);
+      const data = await listProducts({ page, limit: opts.limit ?? 20, search: q }, token);
       setRows(data.items || data.rows || []);
       setTotal(data.total || 0);
     } catch (e) { console.error(e); }
@@ -39,20 +39,31 @@ const AdminProducts = () => {
       }, token);
       setNewProd({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', stock: '' });
       await fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      alert(e?.message || 'Failed to add product');
+      console.error(e);
+    }
   };
 
   const onQuickPrice = async (id, value) => {
-    try { await updateProduct(id, { price: Number(value) }, token); await fetchData(); } catch (e) { console.error(e); }
+    try { await updateProduct(id, { price: Number(value) }, token); await fetchData(); } catch (e) { alert(e?.message || 'Update failed'); console.error(e); }
+  };
+
+  const onQuickName = async (id, value) => {
+    try { await updateProduct(id, { name: String(value || '').trim() }, token); await fetchData(); } catch (e) { alert(e?.message || 'Update failed'); console.error(e); }
+  };
+
+  const onQuickDesc = async (id, value) => {
+    try { await updateProduct(id, { description: String(value || '').trim() }, token); await fetchData(); } catch (e) { alert(e?.message || 'Update failed'); console.error(e); }
   };
 
   const onSaveEdit = async () => {
     try {
       const { id, name, desc, img, category, subCategory, stock, price } = showEdit;
-      await updateProduct(id, { price: Number(price), description: desc, img, category, subCategory, stock: Number(stock) }, token);
+      await updateProduct(id, { name, price: Number(price), description: desc, img, category, subCategory, stock: Number(stock) }, token);
       setShowEdit(null);
       await fetchData();
-    } catch (e) { console.error(e); }
+    } catch (e) { alert(e?.message || 'Save failed'); console.error(e); }
   };
 
   return (
@@ -63,8 +74,9 @@ const AdminProducts = () => {
           <div className="col-md-6">
             <input className="form-control" placeholder="Search products" value={q} onChange={(e)=>setQ(e.target.value)} onKeyDown={(e)=>{ if (e.key==='Enter') fetchData(); }} />
           </div>
-          <div className="col-md-2">
-            <button className="btn btn-dark" onClick={fetchData}>Search</button>
+          <div className="col-md-3" style={{ display:'flex', gap:8 }}>
+            <button className="btn btn-dark" onClick={()=>fetchData()}>Search</button>
+            <button className="btn btn-outline-secondary" onClick={()=>{ setPage(1); fetchData({ limit: 5000 }); }}>Load All</button>
           </div>
         </div>
 
@@ -84,14 +96,29 @@ const AdminProducts = () => {
             <h5>Products</h5>
             <div className="table-responsive" style={{ maxHeight: 500, overflow:'auto' }}>
               <table className="table table-sm">
-                <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Category</th><th>Stock</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Description</th><th>Category</th><th>Stock</th><th>Actions</th></tr></thead>
                 <tbody>
                   {rows.map(p => (
                     <tr key={p.id}>
                       <td>{p.img || p.imageUrl ? <img src={p.img || p.imageUrl} alt={p.name} style={{ width:40, height:40, objectFit:'cover' }} /> : '-'}</td>
-                      <td>{p.name}</td>
+                      <td>
+                        <input
+                          type="text"
+                          defaultValue={p.name}
+                          className="form-control form-control-sm"
+                          onBlur={(e)=>onQuickName(p.id, e.target.value)}
+                        />
+                      </td>
                       <td>
                         <input type="number" step="0.01" defaultValue={p.price} className="form-control form-control-sm" onBlur={(e)=>onQuickPrice(p.id, e.target.value)} />
+                      </td>
+                      <td>
+                        <textarea 
+                          className="form-control form-control-sm" 
+                          defaultValue={p.description || p.desc || ''} 
+                          onBlur={(e) => onQuickDesc(p.id, e.target.value)}
+                          style={{ minWidth: '200px', maxWidth: '300px', minHeight: '60px' }}
+                        />
                       </td>
                       <td>{Array.isArray(p.category) ? p.category.join(', ') : p.category}</td>
                       <td style={{ minWidth: 120 }}>
@@ -100,7 +127,13 @@ const AdminProducts = () => {
                           <button className="btn btn-sm btn-dark" onClick={async ()=>{ const el = document.activeElement; const value = (el && el.tagName==='INPUT') ? el.value : p.stock; try { await updateProduct(p.id, { stock: Number(value) }, token); await fetchData(); } catch (er) { console.error(er); } }}>Save</button>
                         </div>
                       </td>
-                      <td><button className="btn btn-sm btn-outline-secondary" onClick={()=>setShowEdit({ ...p })}>Edit</button></td>
+                      <td style={{ whiteSpace:'nowrap', display:'flex', gap:6 }}>
+                        <button className="btn btn-sm btn-outline-secondary" onClick={()=>setShowEdit({ ...p })}>Edit</button>
+                        <button className="btn btn-sm btn-outline-danger" onClick={async ()=>{
+                          if (!window.confirm(`Delete product "${p.name}"? This cannot be undone.`)) return;
+                          try { await deleteProduct(p.id, token); await fetchData(); } catch(e){ alert(e?.message||'Delete failed'); }
+                        }}>Delete</button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -135,4 +168,6 @@ const AdminProducts = () => {
 };
 
 export default AdminProducts;
+
+
 

@@ -1,17 +1,23 @@
 import products from '../assets/JesonSet/Product.json';
+import { API_URL } from '../utils/apiConfig';
 
-const apiUrl = process.env.REACT_APP_API_URL;
+const apiUrl = API_URL;
   
   class ProductService {
 
 
     static async getProducts() {
       try {
+        console.log('API URL:', apiUrl);
+        console.log('Full endpoint:', `${apiUrl}/api/product/get`);
         const response = await fetch(`${apiUrl}/api/product/get`);
+        console.log('Response status:', response.status);
         const products = await response.json();
+        console.log('Products fetched:', products.length);
         return products;
       } catch (error) {
         console.error('Failed to fetch products from backend:', error);
+        console.error('Error details:', error.message);
         // Fallback to local data if API fails
         if (JSON.stringify(products) !== JSON.stringify(JSON.parse(localStorage.getItem('products')))) {
           localStorage.setItem('products', JSON.stringify(products));
@@ -129,3 +135,4 @@ const apiUrl = process.env.REACT_APP_API_URL;
   
 
   export default ProductService;
+

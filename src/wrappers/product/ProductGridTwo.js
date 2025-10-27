@@ -75,3 +75,5 @@ ProductGridTwo.propTypes = {
 };
 
 export default ProductGridTwo;
+
+

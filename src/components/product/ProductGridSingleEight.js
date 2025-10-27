@@ -31,7 +31,7 @@ const ProductGridSingleEight = ({
     <Fragment>
       <div className={clsx("product-wrap-8", spaceBottomClass, colorClass)}>
         <div className="product-img">
-          <Link to={process.env.PUBLIC_URL + "/product/" + product.ProductId}>
+          <Link to={"/product/" + product.ProductId}>
             <img
               className="default-img img-fluid"
               src={process.env.PUBLIC_URL + product.image[0]}
@@ -53,7 +53,7 @@ const ProductGridSingleEight = ({
         </div>
         <div className="product-content">
           <h3>
-            <Link to={process.env.PUBLIC_URL + "/product/" + product.ProductId}>
+            <Link to={"/product/" + product.ProductId}>
               {product.name}
             </Link>
           </h3>
@@ -106,7 +106,7 @@ const ProductGridSingleEight = ({
                 </a>
               ) : product.variation && product.variation.length >= 1 ? (
                 <Link
-                  to={`${process.env.PUBLIC_URL}/product/${product.ProductId}`}
+                  to={`/product/${product.ProductId}`}
                   title="Select option"
                 >
                   <i className="pe-7s-cart"></i>
@@ -177,3 +177,5 @@ ProductGridSingleEight.propTypes = {
 };
 
 export default ProductGridSingleEight;
+
+

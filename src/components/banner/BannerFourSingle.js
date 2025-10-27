@@ -7,7 +7,7 @@ const BannerFourSingle = ({ data, spaceBottomClass }) => {
       <div
         className={clsx("single-banner banner-shape banner-green-color", spaceBottomClass)}
       >
-        <Link to={process.env.PUBLIC_URL + data.link}>
+        <Link to={ data.link}>
           <img src={process.env.PUBLIC_URL + data.image} alt="" />
         </Link>
         <div className="banner-content">
@@ -15,7 +15,7 @@ const BannerFourSingle = ({ data, spaceBottomClass }) => {
           <h4>
             {data.subtitle} <span>{data.price}</span>
           </h4>
-          <Link to={process.env.PUBLIC_URL + data.link}>
+          <Link to={ data.link}>
             <i className="fa fa-long-arrow-right" />
           </Link>
         </div>
@@ -29,3 +29,5 @@ BannerFourSingle.propTypes = {
 };
 
 export default BannerFourSingle;
+
+

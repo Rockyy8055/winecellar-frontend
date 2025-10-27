@@ -19,7 +19,7 @@ const HeroSliderTwentyFourSingle = ({ data }) => {
               <div className="slider-btn btn-hover">
                 <Link
                   className="animated rounden-btn"
-                  to={process.env.PUBLIC_URL + data.url}
+                  to={ data.url}
                 >
                   SHOP NOW
                 </Link>
@@ -37,3 +37,5 @@ HeroSliderTwentyFourSingle.propTypes = {
 };
 
 export default HeroSliderTwentyFourSingle;
+
+

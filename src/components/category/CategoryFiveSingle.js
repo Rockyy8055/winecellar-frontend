@@ -5,7 +5,7 @@ const CategoryFiveSingle = ({ data }) => {
   return (
       <div className="category-grid">
         <div className="category-grid__image">
-          <Link to={process.env.PUBLIC_URL + data.url}>
+          <Link to={ data.url}>
             <img
               src={process.env.PUBLIC_URL + data.image}
               alt=""
@@ -14,7 +14,7 @@ const CategoryFiveSingle = ({ data }) => {
           </Link>
         </div>
         <div className="category-grid__content">
-          <Link to={process.env.PUBLIC_URL + data.url}>{data.title}</Link>
+          <Link to={ data.url}>{data.title}</Link>
         </div>
       </div>
   );
@@ -25,3 +25,5 @@ CategoryFiveSingle.propTypes = {
 };
 
 export default CategoryFiveSingle;
+
+

@@ -34,7 +34,7 @@ const MenuCart = () => {
               return (
                 <li className="single-shopping-cart" key={item.cartItemId}>
                   <div className="shopping-cart-img">
-                    <Link to={process.env.PUBLIC_URL + "/product/" + item.ProductId}>
+                    <Link to={"/product/" + item.ProductId}>
                       <img
                         alt=""
                         src={process.env.PUBLIC_URL + item.img}
@@ -45,7 +45,7 @@ const MenuCart = () => {
                   <div className="shopping-cart-title">
                     <h4>
                       <Link
-                        to={process.env.PUBLIC_URL + "/product/" + item.ProductId}
+                        to={"/product/" + item.ProductId}
                       >
                         {" "}
                         {item.name}{" "}
@@ -85,12 +85,12 @@ const MenuCart = () => {
             </h4>
           </div>
           <div className="shopping-cart-btn btn-hover text-center">
-            <Link className="default-btn" to={process.env.PUBLIC_URL + "/Cart"}>
+            <Link className="default-btn" to={"/Cart"}>
               view cart
             </Link>
             <Link
               className="default-btn"
-              to={process.env.PUBLIC_URL + "/checkout"}
+              to={"/checkout"}
             >
               checkout
             </Link>
@@ -104,3 +104,5 @@ const MenuCart = () => {
 };
 
 export default MenuCart;
+
+

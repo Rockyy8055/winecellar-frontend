@@ -31,7 +31,7 @@ const ProductGridSingleEleven = ({
     <Fragment>
         <div className={clsx("product-wrap-10", spaceBottomClass, colorClass, productGridStyleClass)}>
           <div className="product-img">
-            <Link to={process.env.PUBLIC_URL + "/product/" + product.ProductId}>
+            <Link to={"/product/" + product.ProductId}>
               <img
                 className="default-img img-fluid"
                 src={process.env.PUBLIC_URL + product.image[0]}
@@ -69,7 +69,7 @@ const ProductGridSingleEleven = ({
                 </a>
               ) : product.variation && product.variation.length >= 1 ? (
                 <Link
-                  to={`${process.env.PUBLIC_URL}/product/${product.ProductId}`}
+                  to={`/product/${product.ProductId}`}
                   title="Select options"
                 >
                   <i className="fa fa-cog"></i>
@@ -129,7 +129,7 @@ const ProductGridSingleEleven = ({
           <div className="product-content-2">
             <div className="title-price-wrap-2">
               <h3>
-                <Link to={process.env.PUBLIC_URL + "/product/" + product.ProductId}>
+                <Link to={"/product/" + product.ProductId}>
                   {product.name}
                 </Link>
               </h3>
@@ -177,3 +177,5 @@ ProductGridSingleEleven.propTypes = {
 };
 
 export default ProductGridSingleEleven;
+
+

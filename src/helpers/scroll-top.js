@@ -10,3 +10,4 @@ const ScrollToTop = ({children}) => {
 };
 
 export default ScrollToTop;
+

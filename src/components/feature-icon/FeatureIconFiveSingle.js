@@ -25,3 +25,5 @@ FeatureIconFiveSingle.propTypes = {
 };
 
 export default FeatureIconFiveSingle;
+
+

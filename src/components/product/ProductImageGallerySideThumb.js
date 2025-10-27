@@ -143,3 +143,5 @@ ProductImageGalleryLeftThumb.propTypes = {
 };
 
 export default ProductImageGalleryLeftThumb;
+
+
