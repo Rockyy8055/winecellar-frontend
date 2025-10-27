@@ -273,7 +273,7 @@ const AdminOrders = () => {
             </div>
             <div className="table-responsive" style={{ maxHeight: 420, overflow:'auto' }}>
               <table className="table table-sm">
-                <thead style={{ fontSize: '1.05rem' }}><tr><th>Image</th><th>Name</th><th>Price</th><th>Category</th><th>Stock</th><th>Update</th></tr></thead>
+                <thead style={{ fontSize: '1.05rem' }}><tr><th>Image</th><th>Name</th><th>Price</th><th>Description</th><th>Category</th><th>Stock</th><th>Update</th></tr></thead>
                 <tbody>
                   {displayedProducts.map(p => (
                     <tr key={p.id}>
@@ -281,6 +281,14 @@ const AdminOrders = () => {
                       <td style={{ fontWeight: 600 }}>{p.name}</td>
                       <td style={{ minWidth: 140 }}>
                         <input type="number" step="0.01" className="form-control form-control-sm" defaultValue={p.price} onBlur={(e)=>quickUpdatePrice(p.id, e.target.value)} />
+                      </td>
+                      <td style={{ minWidth: 200 }}>
+                        <textarea 
+                          className="form-control form-control-sm" 
+                          defaultValue={p.description || p.desc || ''} 
+                          onBlur={async (e)=>{ try { await updateProduct(p.id, { description: e.target.value }, token); await fetchData(); } catch (er) { console.error(er); } }}
+                          style={{ minHeight: '60px', fontSize: '0.9rem' }}
+                        />
                       </td>
                       <td>{Array.isArray(p.category) ? p.category.join(', ') : p.category}</td>
                       <td style={{ minWidth: 120 }}>
