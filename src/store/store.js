@@ -20,7 +20,7 @@ const persistConfig = {
     key: "flone",
     version: 1.1,
     storage,
-    blacklist: []
+    blacklist: ["product"]
 }
 
 export const rootReducer = combineReducers({
