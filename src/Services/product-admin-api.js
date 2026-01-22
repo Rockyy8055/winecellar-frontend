@@ -68,30 +68,70 @@ export async function listProducts({ page = 1, limit = 20, search = '' } = {}, t
   }
 }
 
-export async function createProduct({ name, price, desc, category = [], subCategory = '', img = '', stock = 0 }, token) {
+export async function createProduct({ name, price, desc, category = [], subCategory = '', img = '', stock = 0, imageFile }, token) {
+  const hasFile = imageFile instanceof File;
+  const headers = { Authorization: `Bearer ${getToken(token)}` };
+  let body;
+
+  if (hasFile) {
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('price', price);
+    formData.append('desc', desc);
+    formData.append('category', JSON.stringify(category));
+    formData.append('subCategory', subCategory);
+    formData.append('stock', stock);
+    if (img) formData.append('img', img);
+    formData.append('image', imageFile);
+    body = formData;
+  } else {
+    headers['Content-Type'] = 'application/json';
+    body = JSON.stringify({ name, price, desc, category, subCategory, img, stock });
+  }
+
   const r = await fetch(`${API_BASE}/api/product/add`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken(token)}` },
-    body: JSON.stringify({ name, price, desc, category, subCategory, img, stock })
+    headers,
+    body
   });
   if (!r.ok) throw new Error(`createProduct failed: ${r.status}`);
   return r.json();
 }
 
 export async function updateProduct(id, fields = {}, token) {
-  const body = {};
-  if (fields.price !== undefined) body.price = fields.price;
-  if (fields.description !== undefined) body.desc = fields.description; // map to desc per backend
-  if (fields.desc !== undefined) body.desc = fields.desc;
-  if (fields.img !== undefined) body.img = fields.img;
-  if (fields.category !== undefined) body.category = fields.category;
-  if (fields.subCategory !== undefined) body.subCategory = fields.subCategory;
-  if (fields.stock !== undefined) body.stock = fields.stock;
-  if (fields.name !== undefined) body.name = fields.name;
+  const headers = { Authorization: `Bearer ${getToken(token)}` };
+  const hasFile = fields.imageFile instanceof File;
+  let body;
+
+  if (hasFile) {
+    const formData = new FormData();
+    if (fields.name !== undefined) formData.append('name', fields.name);
+    if (fields.price !== undefined) formData.append('price', fields.price);
+    if (fields.description !== undefined || fields.desc !== undefined) formData.append('desc', fields.description ?? fields.desc ?? '');
+    if (fields.category !== undefined) formData.append('category', JSON.stringify(fields.category));
+    if (fields.subCategory !== undefined) formData.append('subCategory', fields.subCategory);
+    if (fields.stock !== undefined) formData.append('stock', fields.stock);
+    if (fields.img !== undefined) formData.append('img', fields.img);
+    formData.append('image', fields.imageFile);
+    body = formData;
+  } else {
+    const payload = {};
+    if (fields.price !== undefined) payload.price = fields.price;
+    if (fields.description !== undefined) payload.desc = fields.description; // map to desc per backend
+    if (fields.desc !== undefined) payload.desc = fields.desc;
+    if (fields.img !== undefined) payload.img = fields.img;
+    if (fields.category !== undefined) payload.category = fields.category;
+    if (fields.subCategory !== undefined) payload.subCategory = fields.subCategory;
+    if (fields.stock !== undefined) payload.stock = fields.stock;
+    if (fields.name !== undefined) payload.name = fields.name;
+    headers['Content-Type'] = 'application/json';
+    body = JSON.stringify(payload);
+  }
+
   const r = await fetch(`${API_BASE}/api/admin/products/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken(token)}` },
-    body: JSON.stringify(body)
+    headers,
+    body
   });
   if (!r.ok) {
     let message = `updateProduct failed: ${r.status}`;

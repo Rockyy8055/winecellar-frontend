@@ -1,5 +1,5 @@
 // filepath: /d:/WineCeller/wineseller_website_frontend/src/pages/Payment/CheckoutForm.js
-import React, { useState,useEffect } from 'react';
+import React, { useState } from 'react';
 import { useStripe,useElements, PaymentElement } from '@stripe/react-stripe-js';
 import { useNavigate } from 'react-router-dom';
 import './CheckoutForm.css';
@@ -12,23 +12,12 @@ const CheckoutForm = ({ clientSecret }) => {
   const [processing, setProcessing] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
 
-
-  useEffect(() => {
-    const validatePaymentIntent = async () => {
-      if (!stripe || !clientSecret) {
-        return;
-      }
-
-      if (error) {
-        setError(`Failed to retrieve payment intent: ${error.message}`);
-      }
-    };
-
-    validatePaymentIntent();
-  }, [stripe, clientSecret]);
-
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!stripe || !elements) {
+      setError('Payment service is unavailable. Please try again.');
+      return;
+    }
     setProcessing(true);
     const shippingDetails = JSON.parse(localStorage.getItem('shippingDetails'));
 

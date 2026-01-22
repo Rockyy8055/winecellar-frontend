@@ -1,14 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Layout from '../../layouts/Layout';
 import { listProducts, createProduct, updateProduct, deleteProduct } from '../../Services/product-admin-api';
-import { formatGBP } from '../../Services/admin-api';
 
 const AdminProducts = () => {
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [showEdit, setShowEdit] = useState(null); // product to edit
   const [newProd, setNewProd] = useState({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', stock: '' });
 
@@ -16,12 +13,9 @@ const AdminProducts = () => {
 
   const fetchData = async (opts = {}) => {
     try {
-      setLoading(true);
       const data = await listProducts({ page, limit: opts.limit ?? 20, search: q }, token);
       setRows(data.items || data.rows || []);
-      setTotal(data.total || 0);
     } catch (e) { console.error(e); }
-    finally { setLoading(false); }
   };
 
   useEffect(() => { fetchData(); }, [page]); // eslint-disable-line

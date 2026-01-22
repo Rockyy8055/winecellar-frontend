@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import Layout from '../../layouts/Layout';
 import ProductGridSingleTwo from '../../components/product/ProductGridSingleTwo';
-
-const wineSubcategories = [
-  'WHITE WINE',
-  'RED WINE',
-  'ORANGE WINE',
-  'ROSE WINE'
-];
 
 const AllProducts = () => {
   const { products } = useSelector((state) => state.product);
@@ -19,13 +11,6 @@ const AllProducts = () => {
   const { compareItems } = useSelector((state) => state.compare);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [wineHover, setWineHover] = useState(false);
-
-  // Debug logging
-  console.log('AllProducts - Products from Redux:', products);
-  console.log('AllProducts - Products length:', products ? products.length : 0);
-  console.log('AllProducts - Products type:', typeof products);
-  console.log('AllProducts - Is Array:', Array.isArray(products));
 
   // Category buttons
   const categories = [
@@ -33,14 +18,10 @@ const AllProducts = () => {
     'RUM', 'LIQUOR', 'GIN', 'CHAMPAGNE', 'BRANDY'
   ];
 
-  // Normalize and map friendly category size defaults
-  const wineLike = ['WINE'];
-  const spiritLike = ['WHISKY','VODKA','TEQUILA','RUM','LIQUOR','GIN','CHAMPAGNE','BRANDY','BOURBON WHISKEY'];
-
   // Filter products based on search term and selected category
   const filteredProducts = (products && Array.isArray(products)) ? products.filter(product => {
     if (!product || !product.name) return false;
-    
+
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || 
       (Array.isArray(product.category)
@@ -48,16 +29,9 @@ const AllProducts = () => {
         : (typeof product.category === 'string' && product.category.toLowerCase() === selectedCategory.toLowerCase()));
     return matchesSearch && matchesCategory;
   }) : [];
-  
-  console.log('AllProducts - Filtered products length:', filteredProducts.length);
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(selectedCategory === category ? '' : category);
-  };
-
-  const handleWineSubcategoryClick = (subcategory) => {
-    setSelectedCategory(subcategory);
-    setWineHover(false);
   };
 
   return (

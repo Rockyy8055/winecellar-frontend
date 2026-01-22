@@ -50,7 +50,13 @@ const IconGroup = ({ iconWhiteClass }) => {
               </>
             ) : (
               <li>
-                <a href="#" style={{ color:'#350008' }} onClick={async (e)=>{ e.preventDefault(); try { await fetch(new URL('/api/auth/logout', API_BASE).toString(), { method:'POST', credentials:'include' }); } catch(_){} window.location.reload(); }}>Logout</a>
+                <button
+                  type="button"
+                  style={{ color:'#350008', background:'transparent', border:'none', padding:0, cursor:'pointer' }}
+                  onClick={async ()=>{ try { await fetch(new URL('/api/auth/logout', API_BASE).toString(), { method:'POST', credentials:'include' }); } catch(_){} window.location.reload(); }}
+                >
+                  Logout
+                </button>
               </li>
             )}
           </ul>

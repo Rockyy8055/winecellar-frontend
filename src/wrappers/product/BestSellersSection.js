@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import SectionTitle from "../../components/section-title/SectionTitle";
 import ProductGridSingleTwo from "../../components/product/ProductGridSingleTwo";

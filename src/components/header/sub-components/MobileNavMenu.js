@@ -46,7 +46,15 @@ const MobileNavMenu = () => {
           <li><Link to={process.env.PUBLIC_URL + "/signup"} onClick={closeMobileMenu}>Sign Up</Link></li>
           </>
         ) : (
-          <li><a href="#" onClick={async (e)=>{ e.preventDefault(); try { await fetch(new URL('/api/auth/logout', API_BASE).toString(), { method:'POST', credentials:'include' }); } catch(_){} closeMobileMenu(); window.location.reload(); }}>Logout</a></li>
+          <li>
+            <button
+              type="button"
+              onClick={async ()=>{ try { await fetch(new URL('/api/auth/logout', API_BASE).toString(), { method:'POST', credentials:'include' }); } catch(_){} closeMobileMenu(); window.location.reload(); }}
+              style={{ background:'transparent', border:'none', padding:0, cursor:'pointer', color:'inherit' }}
+            >
+              Logout
+            </button>
+          </li>
         )}
         <li>
           <Link to={process.env.PUBLIC_URL + "/order-status"} onClick={closeMobileMenu}>

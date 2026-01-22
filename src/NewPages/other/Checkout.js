@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Layout from "../../layouts/Layout";
@@ -71,40 +71,6 @@ const StripePaymentForm = ({ onSuccess, canPay }) => {
     </form>
   );
 };
-
-const CODForm = ({ onPlaceOrder }) => (
-  <div style={{ padding: '20px', border: '1px solid #ddd', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
-    <p style={{ fontWeight: 600, marginBottom: 16 }}>You have selected <b>Cash on Delivery</b>.</p>
-    <button
-      onClick={onPlaceOrder}
-      style={{
-        background: '#111',
-        color: '#fff',
-        padding: '12px 24px',
-        border: 'none',
-        borderRadius: '6px',
-        fontSize: '16px',
-        cursor: 'pointer',
-        width: '100%'
-      }}
-    >
-      Place Order (COD)
-    </button>
-  </div>
-);
-
-const NEFTForm = () => (
-  <div style={{ padding: '20px', border: '1px solid #ddd', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
-    <p style={{ fontWeight: 600, marginBottom: 16 }}>You have selected <b>NEFT/IMPS Bank Transfer</b>.</p>
-    <div style={{ marginBottom: 12 }}>
-      <b>Bank Name:</b> HDFC Bank<br />
-      <b>Account Number:</b> 1234567890<br />
-      <b>IFSC:</b> HDFC0001234<br />
-      <b>Account Holder:</b> Wine Seller Pvt Ltd<br />
-    </div>
-    <p style={{ color: '#666', fontSize: 14 }}>After payment, please email your transaction details to <b>info@wineseller.com</b> for order confirmation.</p>
-  </div>
-);
 
 const Checkout = () => {
   const { cartItems } = useSelector((state) => state.cart);
@@ -209,7 +175,6 @@ const Checkout = () => {
   const PAYPAL_CLIENT_ID = process.env.REACT_APP_PAYPAL_CLIENT_ID || "test";
 
   return (
-    <Fragment>
       <Layout headerContainerClass="container-fluid" headerPaddingClass="header-padding-2" headerTop="visible">
         <div className="checkout-area pt-95 pb-100">
           <div className="container-fluid" style={{ paddingLeft: 40, paddingRight: 40 }}>
@@ -410,10 +375,7 @@ const Checkout = () => {
                       <i className="pe-7s-cash"></i>
                     </div>
                     <div className="item-empty-area__text">
-                      No items found in cart to checkout <br />{" "}
-                      <Link to={"/shop-grid-standard"}>
-                        Shop Now
-                      </Link>
+                      No items found in cart to checkout.
                     </div>
                   </div>
                 </div>
@@ -422,7 +384,6 @@ const Checkout = () => {
           </div>
         </div>
       </Layout>
-    </Fragment>
   );
 };
 

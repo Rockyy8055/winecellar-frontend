@@ -121,8 +121,7 @@ const ProductGridSingleTwo = ({ product }) => {
         alignItems: 'center',
         justifyContent: 'flex-start',
         cursor: 'pointer',
-        transition: 'box-shadow 0.3s',
-        boxShadow: hovered ? '0 6px 24px rgba(0,0,0,0.13)' : '0 2px 8px rgba(0,0,0,0.06)'
+        transition: 'box-shadow 0.3s'
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setShowQty(false); setQty(1); setShowStockMsg(false); }}

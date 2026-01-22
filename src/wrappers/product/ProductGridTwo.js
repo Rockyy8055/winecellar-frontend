@@ -1,8 +1,6 @@
 
-import { Fragment } from "react";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
-import { getProducts } from "../../helpers/product";
 import ProductGridSingleTwo from "../../components/product/ProductGridSingleTwo";
 
 const ProductGridTwo = ({
@@ -27,7 +25,7 @@ const ProductGridTwo = ({
   console.log('ProductGridTwo - Products to display:', displayProducts);
   
   return (
-    <Fragment>
+    <>
       {displayProducts && displayProducts.length > 0 ? (
         displayProducts.map((product) => {
           return (
@@ -60,7 +58,7 @@ const ProductGridTwo = ({
           <p>No products found. Total products in store: {products ? products.length : 0}</p>
         </div>
       )}
-    </Fragment>
+    </>
   );
 };
 
