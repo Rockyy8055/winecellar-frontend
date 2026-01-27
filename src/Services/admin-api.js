@@ -19,10 +19,7 @@ export async function listOrders({ page = 1, limit = 20, status = '' } = {}, tok
   const r = await fetch(`${API_BASE}/api/admin/orders?status=${encodeURIComponent(status)}&page=${page}&limit=${limit}`, {
     headers: {
       Authorization: `Bearer ${getToken(token)}`,
-      'Accept': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      'Accept': 'application/json'
     },
     credentials: 'include'
   });
@@ -39,10 +36,7 @@ export async function listUsers({ page = 1, limit = 100, search = '' } = {}, tok
   const r = await fetch(`${API_BASE}/api/admin/users?${params.toString()}`, {
     headers: {
       Authorization: `Bearer ${getToken(token)}`,
-      'Accept': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      'Accept': 'application/json'
     },
     credentials: 'include'
   });
@@ -54,10 +48,7 @@ export async function getOrder(id, token) {
   const r = await fetch(`${API_BASE}/api/admin/orders/${id}`, {
     headers: {
       Authorization: `Bearer ${getToken(token)}`,
-      'Accept': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      'Accept': 'application/json'
     },
     credentials: 'include'
   });
@@ -71,10 +62,7 @@ export async function setOrderStatus(id, status, note = 'Admin update', token) {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${getToken(token)}`,
-      'Accept': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      'Accept': 'application/json'
     },
     credentials: 'include',
     body: JSON.stringify({ status, note })

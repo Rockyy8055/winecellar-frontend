@@ -18,6 +18,12 @@ const normalizeCandidate = (value) => {
 
 const isAbsoluteUrl = (value) => /^https?:\/\//i.test(value) || value.startsWith('data:');
 
+const stripLocalhost = (value = '') => {
+  if (!value) return '';
+  const trimmed = String(value).trim();
+  return trimmed.replace(/^https?:\/\/localhost:\d+/i, '');
+};
+
 const shouldUsePublicBase = (value) => {
   return (
     value.startsWith('/assets/') ||
@@ -29,9 +35,10 @@ const shouldUsePublicBase = (value) => {
 
 export const buildAbsoluteImageUrl = (value = '') => {
   if (!value) return '';
-  if (isAbsoluteUrl(value)) return value;
+  const sanitized = stripLocalhost(value);
+  if (isAbsoluteUrl(sanitized)) return sanitized;
 
-  const prefixed = value.startsWith('/') ? value : `/${value}`;
+  const prefixed = sanitized.startsWith('/') ? sanitized : `/${sanitized}`;
 
   if (shouldUsePublicBase(prefixed)) {
     const publicBase = getPublicBase();

@@ -81,10 +81,7 @@ export async function listProducts({ page = 1, limit = 20, search = '' } = {}, t
     const r = await fetch(`${API_BASE}/api/admin/products?q=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
       headers: {
         Authorization: `Bearer ${getToken(token)}`,
-        'Accept': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        'Accept': 'application/json'
       },
       credentials: 'include'
     });
@@ -156,10 +153,7 @@ export async function createProduct({ name, price, desc, category = [], subCateg
     method: 'POST',
     headers: {
       ...headers,
-      'Accept': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      'Accept': 'application/json'
     },
     body,
     credentials: 'include'
@@ -218,10 +212,7 @@ export async function updateProduct(id, fields = {}, token) {
     method: 'PATCH',
     headers: {
       ...headers,
-      'Accept': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      'Accept': 'application/json'
     },
     body,
     credentials: 'include'
@@ -242,11 +233,9 @@ export async function deleteProduct(id, token) {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${getToken(token)}`,
-      'Accept': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-    }
+      'Accept': 'application/json'
+    },
+    credentials: 'include'
   });
   if (!r.ok) {
     let message = `deleteProduct failed: ${r.status}`;
