@@ -278,7 +278,7 @@ const Checkout = () => {
                         </div>
                         {paymentMethod === 'cod' && !orderPlaced && (
                           <div style={{ textAlign: 'left', marginTop: 8 }}>
-                            <button onClick={handlePlaceOrderCOD} style={{ background: '#111', color: '#fff', padding: '16px 28px', border: 'none', borderRadius: 8, fontSize: 18, cursor: 'pointer', width: '100%' }}>
+                            <button type="button" onClick={handlePlaceOrderCOD} style={{ background: '#111', color: '#fff', padding: '16px 28px', border: 'none', borderRadius: 8, fontSize: 18, cursor: 'pointer', width: '100%' }}>
                               Place Order (Pick and Pay)
                             </button>
                           </div>
