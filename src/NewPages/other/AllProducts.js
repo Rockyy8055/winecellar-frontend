@@ -24,10 +24,10 @@ const AllProducts = () => {
   });
 
   // Category buttons
-  const categories = [
+  const categories = useMemo(() => [
     'BOURBON WHISKEY', 'WINE', 'WHISKY', 'VODKA', 'TEQUILA',
     'RUM', 'LIQUOR', 'GIN', 'CHAMPAGNE', 'BRANDY'
-  ];
+  ], []);
 
   const mergedCategories = useMemo(() => {
     const dynamic = getIndividualCategories(products || []);
