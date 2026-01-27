@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import Header from "../wrappers/header/Header";
 import Footer from "../wrappers/footer/Footer";
 import ScrollToTop from "../components/scroll-to-top"
+import CartBottomBar from "../components/cart/CartBottomBar";
 
 const Layout = ({
   children,
@@ -25,6 +26,7 @@ const Layout = ({
         spaceTopClass="pt-100"
         spaceBottomClass="pb-70"
       />
+      <CartBottomBar />
       <ScrollToTop/>
     </Fragment>
   );

@@ -1,6 +1,75 @@
 import { API_BASE } from './admin-api';
 import localProducts from '../assets/JesonSet/Product.json';
 
+const SIZE_KEYS = [
+  '1.5LTR',
+  '1LTR',
+  '75CL',
+  '70CL',
+  '35CL',
+  '20CL',
+  '10CL',
+  '5CL'
+];
+
+const SIZE_CANONICAL_MAP = SIZE_KEYS.reduce((acc, key) => {
+  const normalized = key.toUpperCase().replace(/\s+/g, '').replace(/\./g, '');
+  acc[normalized] = key;
+  return acc;
+}, {});
+
+const normalizeQuantityKey = (value) => {
+  if (value === undefined || value === null) return null;
+  const normalized = String(value)
+    .toUpperCase()
+    .replace(/LITRES?/g, 'LTR')
+    .replace(/LITERS?/g, 'LTR')
+    .replace(/\s+/g, '')
+    .replace(/\./g, '');
+  return SIZE_CANONICAL_MAP[normalized] || normalized;
+};
+
+const cleanSizeStocks = (raw) => {
+  if (!raw || typeof raw !== 'object') return {};
+  return Object.entries(raw).reduce((acc, [key, value]) => {
+    const canonical = normalizeQuantityKey(key);
+    const num = Number(value);
+    if (!canonical || Number.isNaN(num) || num < 0) return acc;
+    acc[canonical] = num;
+    return acc;
+  }, {});
+};
+
+const sumSizeStocks = (map = {}) => {
+  return Object.values(map).reduce((total, qty) => total + (Number.isFinite(Number(qty)) ? Number(qty) : 0), 0);
+};
+
+const mapProductPayload = (p) => {
+  const sizeStocks = cleanSizeStocks(
+    p?.sizeStocks ||
+    p?.stockBySize ||
+    p?.inventoryBySize ||
+    p?.sizeInventory ||
+    p?.sizes ||
+    {}
+  );
+  const numericStock = Number(p?.stock ?? p?.Stock);
+  const resolvedStock = Number.isFinite(numericStock) ? numericStock : sumSizeStocks(sizeStocks);
+
+  return {
+    id: p.id || p._id || p.ProductId || p.productId || String(Math.random()).slice(2),
+    name: p.name || p.ProductName || p.title,
+    price: p.price || p.Price || p.cost || 0,
+    img: p.img || p.image || p.imageUrl,
+    imageUrl: p.imageUrl || p.img || p.image,
+    category: p.category,
+    stock: resolvedStock,
+    sizeStocks,
+    description: p.description || p.desc || p.Description || '',
+    desc: p.desc || p.description || p.Description || ''
+  };
+};
+
 function getToken(token) {
   if (token) return token;
   try { return localStorage.getItem('admin_token') || ''; } catch (_) { return ''; }
@@ -15,17 +84,7 @@ export async function listProducts({ page = 1, limit = 20, search = '' } = {}, t
     if (r.ok) {
       const d = await r.json();
       const arr = Array.isArray(d) ? d : (d.items || d.rows || d.products || d.data || d.result || []);
-      const normalized = arr.map((p) => ({
-        id: p.id || p._id || p.ProductId || p.productId || String(Math.random()).slice(2),
-        name: p.name || p.ProductName || p.title,
-        price: p.price || p.Price || p.cost || 0,
-        img: p.img || p.image || p.imageUrl,
-        imageUrl: p.imageUrl || p.img || p.image,
-        category: p.category,
-        stock: p.stock,
-        description: p.description || p.desc || p.Description || '',
-        desc: p.desc || p.description || p.Description || ''
-      }));
+      const normalized = arr.map(mapProductPayload);
       return { items: normalized, total: (d.total || normalized.length) };
     }
   } catch (_) {}
@@ -34,33 +93,13 @@ export async function listProducts({ page = 1, limit = 20, search = '' } = {}, t
     const r2 = await fetch(`${API_BASE}/api/product/get`);
     const data = await r2.json();
     const arr = Array.isArray(data) ? data : (data.items || data.rows || data.products || data.data || []);
-    const normalized = arr.map((p) => ({
-      id: p.id || p._id || p.ProductId || p.productId || String(Math.random()).slice(2),
-      name: p.name || p.ProductName || p.title,
-      price: p.price || p.Price || p.cost || 0,
-      img: p.img || p.image || p.imageUrl,
-      imageUrl: p.imageUrl || p.img || p.image,
-      category: p.category,
-      stock: p.stock,
-      description: p.description || p.desc || p.Description || '',
-      desc: p.desc || p.description || p.Description || ''
-    }));
+    const normalized = arr.map(mapProductPayload);
     return { items: normalized, total: normalized.length };
   } catch (e) {
     // Last resort: local dataset
     try {
       const arr = Array.isArray(localProducts) ? localProducts : (localProducts.items || localProducts.rows || []);
-      const normalized = arr.map((p) => ({
-        id: p.ProductId || p.id || p._id || String(Math.random()).slice(2),
-        name: p.ProductName || p.name || p.title,
-        price: p.Price || p.price || 0,
-        img: p.img || p.image || p.imageUrl || p.ImageUrl,
-        imageUrl: p.imageUrl || p.img || p.image || p.ImageUrl,
-        category: p.category || p.Category,
-        stock: p.stock || p.Stock,
-        description: p.description || p.desc || p.Description || '',
-        desc: p.desc || p.description || p.Description || ''
-      }));
+      const normalized = arr.map(mapProductPayload);
       return { items: normalized, total: normalized.length };
     } catch (_) {
       throw new Error(`listProducts failed: ${e.message}`);
@@ -68,10 +107,12 @@ export async function listProducts({ page = 1, limit = 20, search = '' } = {}, t
   }
 }
 
-export async function createProduct({ name, price, desc, category = [], subCategory = '', img = '', stock = 0, imageFile }, token) {
+export async function createProduct({ name, price, desc, category = [], subCategory = '', img = '', stock = 0, sizeStocks = {}, imageFile }, token) {
   const hasFile = imageFile instanceof File;
   const headers = { Authorization: `Bearer ${getToken(token)}` };
   let body;
+  const cleanedSizeStocks = cleanSizeStocks(sizeStocks);
+  const derivedStock = sumSizeStocks(cleanedSizeStocks);
 
   if (hasFile) {
     const formData = new FormData();
@@ -80,13 +121,28 @@ export async function createProduct({ name, price, desc, category = [], subCateg
     formData.append('desc', desc);
     formData.append('category', JSON.stringify(category));
     formData.append('subCategory', subCategory);
-    formData.append('stock', stock);
+    formData.append('stock', Number.isFinite(Number(stock)) ? stock : derivedStock);
+    if (Object.keys(cleanedSizeStocks).length) {
+      formData.append('sizeStocks', JSON.stringify(cleanedSizeStocks));
+    }
     if (img) formData.append('img', img);
     formData.append('image', imageFile);
     body = formData;
   } else {
     headers['Content-Type'] = 'application/json';
-    body = JSON.stringify({ name, price, desc, category, subCategory, img, stock });
+    const payload = {
+      name,
+      price,
+      desc,
+      category,
+      subCategory,
+      img,
+      stock: Number.isFinite(Number(stock)) ? Number(stock) : derivedStock
+    };
+    if (Object.keys(cleanedSizeStocks).length) {
+      payload.sizeStocks = cleanedSizeStocks;
+    }
+    body = JSON.stringify(payload);
   }
 
   const r = await fetch(`${API_BASE}/api/product/add`, {
@@ -102,6 +158,8 @@ export async function updateProduct(id, fields = {}, token) {
   const headers = { Authorization: `Bearer ${getToken(token)}` };
   const hasFile = fields.imageFile instanceof File;
   let body;
+  const cleanedSizeStocks = cleanSizeStocks(fields.sizeStocks);
+  const derivedStock = Object.keys(cleanedSizeStocks).length ? sumSizeStocks(cleanedSizeStocks) : undefined;
 
   if (hasFile) {
     const formData = new FormData();
@@ -110,7 +168,14 @@ export async function updateProduct(id, fields = {}, token) {
     if (fields.description !== undefined || fields.desc !== undefined) formData.append('desc', fields.description ?? fields.desc ?? '');
     if (fields.category !== undefined) formData.append('category', JSON.stringify(fields.category));
     if (fields.subCategory !== undefined) formData.append('subCategory', fields.subCategory);
-    if (fields.stock !== undefined) formData.append('stock', fields.stock);
+    if (fields.stock !== undefined) {
+      formData.append('stock', fields.stock);
+    } else if (derivedStock !== undefined) {
+      formData.append('stock', derivedStock);
+    }
+    if (Object.keys(cleanedSizeStocks).length) {
+      formData.append('sizeStocks', JSON.stringify(cleanedSizeStocks));
+    }
     if (fields.img !== undefined) formData.append('img', fields.img);
     formData.append('image', fields.imageFile);
     body = formData;
@@ -122,7 +187,14 @@ export async function updateProduct(id, fields = {}, token) {
     if (fields.img !== undefined) payload.img = fields.img;
     if (fields.category !== undefined) payload.category = fields.category;
     if (fields.subCategory !== undefined) payload.subCategory = fields.subCategory;
-    if (fields.stock !== undefined) payload.stock = fields.stock;
+    if (fields.stock !== undefined) {
+      payload.stock = fields.stock;
+    } else if (derivedStock !== undefined) {
+      payload.stock = derivedStock;
+    }
+    if (Object.keys(cleanedSizeStocks).length) {
+      payload.sizeStocks = cleanedSizeStocks;
+    }
     if (fields.name !== undefined) payload.name = fields.name;
     headers['Content-Type'] = 'application/json';
     body = JSON.stringify(payload);

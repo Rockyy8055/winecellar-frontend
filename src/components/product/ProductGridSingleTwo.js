@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from '../../store/slices/cart-slice';
 import { addToWishlist, deleteFromWishlist } from '../../store/slices/wishlist-slice';
@@ -30,11 +30,36 @@ const ProductGridSingleTwo = ({ product }) => {
     "1.5LTR", "1LTR", "75CL", "70CL", "35CL", "20CL", "10CL", "5CL"
   ], []);
 
+  const sizeStockMap = useMemo(() => {
+    const raw = product?.sizeStocks || {};
+    const normalized = {};
+    displaySizes.forEach((size) => {
+      const val = Number(raw[size]);
+      normalized[size] = Number.isFinite(val) && val >= 0 ? val : 0;
+    });
+    return normalized;
+  }, [product, displaySizes]);
+
   // Latest requirement: For wine, only 70CL is selectable; for all other drinks, all sizes are selectable
   const allowedSizes = useMemo(() => (isWineCategory ? ["70CL"] : displaySizes), [isWineCategory, displaySizes]);
   const sizeOptions = displaySizes;
 
-  const [selectedSize, setSelectedSize] = useState(sizeOptions[0]);
+  const inStockSizes = useMemo(() => allowedSizes.filter((size) => sizeStockMap[size] > 0), [allowedSizes, sizeStockMap]);
+
+  const preferredSize = useMemo(() => {
+    if (inStockSizes.length) return inStockSizes[0];
+    if (allowedSizes.length) return allowedSizes[0];
+    return sizeOptions[0];
+  }, [inStockSizes, allowedSizes, sizeOptions]);
+
+  const [selectedSize, setSelectedSize] = useState(preferredSize);
+  useEffect(() => {
+    setSelectedSize((prev) => {
+      if (prev && allowedSizes.includes(prev) && sizeStockMap[prev] > 0) return prev;
+      return preferredSize;
+    });
+  }, [allowedSizes, sizeStockMap, preferredSize]);
+
   const dispatch = useDispatch();
   const wishlistItems = useSelector((state) => state.wishlist.wishlistItems || []);
   const isWishlisted = wishlistItems.some(item => item.ProductId === product.ProductId);
@@ -52,11 +77,20 @@ const ProductGridSingleTwo = ({ product }) => {
     setShowQty(true);
   };
 
+  const availableStock = useMemo(() => {
+    if (selectedSize && Number.isFinite(Number(sizeStockMap[selectedSize]))) {
+      return Number(sizeStockMap[selectedSize]);
+    }
+    return Number(product.stock) || 0;
+  }, [selectedSize, sizeStockMap, product.stock]);
+
+  const isOutOfStock = availableStock <= 0;
+
   const handleQtyChange = (delta) => {
     let newQty = qty + delta;
     if (newQty < 1) newQty = 1;
-    if (newQty > product.stock) {
-      newQty = product.stock;
+    if (availableStock > 0 && newQty > availableStock) {
+      newQty = availableStock;
       setShowStockMsg(true);
       setTimeout(() => setShowStockMsg(false), 1800);
     } else {
@@ -66,27 +100,33 @@ const ProductGridSingleTwo = ({ product }) => {
   };
 
   const handleConfirmAdd = () => {
-    if (typeof product.stock === 'number' && qty > product.stock) {
+    if (isOutOfStock || qty > availableStock) {
       setShowStockMsg(true);
+      if (availableStock > 0) {
+        setQty(availableStock);
+      }
       return;
     }
-    if (qty > product.stock) {
-      setShowStockMsg(true);
-      setTimeout(() => setShowStockMsg(false), 1800);
-      return;
-    }
-    dispatch(addToCart({ ...product, quantity: qty, selectedProductSize: selectedSize }));
+    dispatch(addToCart({
+      ...product,
+      quantity: qty,
+      selectedProductSize: selectedSize,
+      sizeStocks: product.sizeStocks || sizeStockMap
+    }));
     setShowQty(false);
     setQty(1);
     setShowStockMsg(false);
   };
 
   const handleQuickConfirmAdd = () => {
-    if (typeof product.stock === 'number' && qty > product.stock) {
+    const quickLimit = Number.isFinite(Number(product.stock)) ? Number(product.stock) : availableStock;
+    if (quickLimit > 0 && qty > quickLimit) {
       setShowStockMsg(true);
+      setTimeout(() => setShowStockMsg(false), 1800);
+      setQty(quickLimit);
       return;
     }
-    dispatch(addToCart({ ...product, quantity: qty }));
+    dispatch(addToCart({ ...product, quantity: qty, sizeStocks: product.sizeStocks || sizeStockMap }));
     setQty(1);
     setShowStockMsg(false);
   };
@@ -301,7 +341,8 @@ const ProductGridSingleTwo = ({ product }) => {
             </div>
             <div className="popup-size-selector" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginBottom: '16px' }}>
               {sizeOptions.map((size) => {
-                const enabled = allowedSizes.includes(size);
+                const stockAvailable = sizeStockMap[size] || 0;
+                const enabled = allowedSizes.includes(size) && stockAvailable > 0;
                 return (
                 <button
                   key={size}
@@ -320,6 +361,7 @@ const ProductGridSingleTwo = ({ product }) => {
                   }}
                 >
                   {size}
+                  <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>{stockAvailable} in stock</span>
                 </button>
               );})}
             </div>
@@ -364,9 +406,13 @@ const ProductGridSingleTwo = ({ product }) => {
               </button>
               <button
                 onClick={handleConfirmAdd}
+                disabled={isOutOfStock}
                 style={{
-                  background: '#350008', color: '#fffef1', border: 'none',
-                  borderRadius: '20px', padding: '8px 22px', fontWeight: 800, cursor: 'pointer'
+                  background: isOutOfStock ? '#999' : '#350008',
+                  color: '#fffef1', border: 'none',
+                  borderRadius: '20px', padding: '8px 22px', fontWeight: 800,
+                  cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                  opacity: isOutOfStock ? 0.6 : 1
                 }}
               >
                 Confirm
