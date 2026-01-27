@@ -61,7 +61,14 @@ export const resolveImageSource = (img, imageUrl) => {
 
 export const resolveProductImage = (product) => {
   if (!product) return '';
-  return resolveImageSource(product.img, product.imageUrl);
+  const candidate =
+    normalizeCandidate(product.imageUrl) ||
+    normalizeCandidate(product.img) ||
+    normalizeCandidate(product.image) ||
+    normalizeCandidate(product.images) ||
+    normalizeCandidate(product.gallery) ||
+    normalizeCandidate(product.media);
+  return buildAbsoluteImageUrl(candidate);
 };
 
 export const extractProductImages = (product) => {
