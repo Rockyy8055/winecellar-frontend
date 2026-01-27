@@ -146,7 +146,7 @@ const AllProducts = () => {
                     className="filter-trigger-btn"
                     onClick={() => setDrawerOpen(true)}
                   >
-                    Filters
+                    <span className="filter-trigger-btn__text">Filters</span>
                     {activeFilterCount > 0 && (
                       <span className="filter-trigger-btn__badge">{activeFilterCount}</span>
                     )}
