@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Layout from '../../layouts/Layout';
 import { listProducts, createProduct, updateProduct, deleteProduct } from '../../Services/product-admin-api';
@@ -8,6 +8,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const SIZE_OPTIONS = ['1.5LTR', '1LTR', '75CL', '70CL', '35CL', '20CL', '10CL', '5CL'];
+
+const fileToDataUrl = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+  reader.onerror = () => reject(new Error('Failed to read image file'));
+  reader.readAsDataURL(file);
+});
 
 const createEmptySizeStocks = () => SIZE_OPTIONS.reduce((acc, size) => {
   acc[size] = '';
@@ -34,10 +41,13 @@ const AdminProducts = () => {
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState([]);
   const [showEdit, setShowEdit] = useState(null); // product to edit
-  const [newProd, setNewProd] = useState({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', stock: '', sizeStocks: createEmptySizeStocks() });
+  const [newProd, setNewProd] = useState({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', previewUrl: '', stock: '', sizeStocks: createEmptySizeStocks() });
 
   const dispatch = useDispatch();
   const token = useMemo(() => { try { return localStorage.getItem('admin_token') || ''; } catch (_) { return ''; } }, []);
+
+  const newProdFileInputRef = useRef(null);
+  const editFileInputsRef = useRef({});
 
   const TOAST_PRESET = {
     style: {
@@ -75,7 +85,8 @@ const AdminProducts = () => {
         return {
           ...item,
           stock: resolvedStock,
-          sizeStocks: sanitizedSizes
+          sizeStocks: sanitizedSizes,
+          previewUrl: item.img || item.imageUrl || ''
         };
       });
       setRows(normalizedRows);
@@ -86,6 +97,32 @@ const AdminProducts = () => {
   };
 
   useEffect(() => { fetchData(); }, [page]); // eslint-disable-line
+
+  const handleNewProductFile = async (file) => {
+    if (!file) {
+      setNewProd((prev) => ({ ...prev, img: '', previewUrl: '' }));
+      if (newProdFileInputRef.current) newProdFileInputRef.current.value = '';
+      return;
+    }
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setNewProd((prev) => ({ ...prev, img: dataUrl, previewUrl: dataUrl }));
+    } catch (err) {
+      console.error(err);
+      toast.error('Unable to read image file', TOAST_PRESET);
+    }
+  };
+
+  const handleNewProductImageUrl = (value) => {
+    if (newProdFileInputRef.current) newProdFileInputRef.current.value = '';
+    const trimmed = value.trim();
+    setNewProd((prev) => ({ ...prev, img: trimmed, previewUrl: trimmed }));
+  };
+
+  const resetNewProduct = () => {
+    if (newProdFileInputRef.current) newProdFileInputRef.current.value = '';
+    setNewProd({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', previewUrl: '', stock: '', sizeStocks: createEmptySizeStocks() });
+  };
 
   const onAdd = async () => {
     try {
@@ -101,7 +138,7 @@ const AdminProducts = () => {
         stock: newProd.stock !== '' ? Number(newProd.stock || 0) : fallbackStock,
         sizeStocks
       }, token);
-      setNewProd({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', stock: '', sizeStocks: createEmptySizeStocks() });
+      resetNewProduct();
       toast.success('Product added', TOAST_PRESET);
       await fetchData({ syncCatalog: true });
     } catch (e) {
@@ -175,8 +212,35 @@ const AdminProducts = () => {
             <div className="mb-2"><input className="form-control" placeholder="Name" value={newProd.name} onChange={(e)=>setNewProd({ ...newProd, name: e.target.value })} /></div>
             <div className="mb-2"><input type="number" step="0.01" className="form-control" placeholder="Price" value={newProd.price} onChange={(e)=>setNewProd({ ...newProd, price: e.target.value })} /></div>
             <div className="mb-2"><input className="form-control" placeholder="Category (e.g. SPIRITS)" value={newProd.category} onChange={(e)=>setNewProd({ ...newProd, category: e.target.value })} /></div>
+            <div className="mb-3">
+              <label className="form-label" style={{ fontWeight:600 }}>Product Image</label>
+              <div style={{ display:'flex', gap:12, alignItems:'center' }}>
+                {newProd.previewUrl ? (
+                  <img src={newProd.previewUrl} alt={newProd.name || 'Preview'} style={{ width:64, height:64, objectFit:'cover', borderRadius:8 }} />
+                ) : (
+                  <div style={{ width:64, height:64, borderRadius:8, background:'#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, color:'#777' }}>No image</div>
+                )}
+                <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="form-control form-control-sm"
+                    ref={newProdFileInputRef}
+                    onChange={(e)=>handleNewProductFile(e.target.files?.[0] || null)}
+                  />
+                  {newProd.previewUrl && (
+                    <button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>handleNewProductFile(null)}>Remove image</button>
+                  )}
+                  <input
+                    className="form-control form-control-sm"
+                    placeholder="Or paste image URL"
+                    value={newProd.img}
+                    onChange={(e)=>handleNewProductImageUrl(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
             <div className="mb-2"><input className="form-control" placeholder="Subcategory" value={newProd.subCategory} onChange={(e)=>setNewProd({ ...newProd, subCategory: e.target.value })} /></div>
-            <div className="mb-2"><input className="form-control" placeholder="Image URL" value={newProd.img} onChange={(e)=>setNewProd({ ...newProd, img: e.target.value })} /></div>
             <div className="mb-2"><input type="number" className="form-control" placeholder="Total Stock (auto from sizes if blank)" value={newProd.stock} onChange={(e)=>setNewProd({ ...newProd, stock: e.target.value })} /></div>
             <div className="mb-3" style={{ background:'#fff8f3', borderRadius:12, padding:12 }}>
               <div style={{ fontWeight:700, marginBottom:6 }}>Per-Size Stock</div>
@@ -285,7 +349,8 @@ const AdminProducts = () => {
                             category: Array.isArray(p.category) ? p.category[0] : (p.category || ''),
                             subCategory: p.subCategory || '',
                             stock: p.stock ?? '',
-                            sizeStocks: normalizedSizes
+                            sizeStocks: normalizedSizes,
+                            previewUrl: p.img || p.imageUrl || ''
                           });
                         }}>Edit</button>
                         <button className="btn btn-sm btn-outline-danger" onClick={async ()=>{
@@ -319,6 +384,47 @@ const AdminProducts = () => {
                 </div>
                 <div className="col-md-6">
                   <div className="mb-2"><label className="form-label">Stock</label><input type="number" className="form-control" value={showEdit.stock||0} onChange={(e)=>setShowEdit({ ...showEdit, stock: e.target.value })} /></div>
+                  <div className="mb-3">
+                    <label className="form-label" style={{ fontWeight:600 }}>Product Image</label>
+                    <div style={{ display:'flex', gap:12, alignItems:'center' }}>
+                      {showEdit.previewUrl ? (
+                        <img src={showEdit.previewUrl} alt={showEdit.name || 'Preview'} style={{ width:64, height:64, objectFit:'cover', borderRadius:8 }} />
+                      ) : (
+                        <div style={{ width:64, height:64, borderRadius:8, background:'#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, color:'#777' }}>No image</div>
+                      )}
+                      <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="form-control form-control-sm"
+                          ref={(el)=>{ if (el && showEdit?.id) editFileInputsRef.current[showEdit.id] = el; }}
+                          onChange={async (e)=>{
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const dataUrl = await fileToDataUrl(file);
+                              setShowEdit((prev) => ({ ...prev, img: dataUrl, previewUrl: dataUrl }));
+                            } catch (err) {
+                              console.error(err);
+                              toast.error('Unable to read image file', TOAST_PRESET);
+                            }
+                          }}
+                        />
+                        {showEdit.previewUrl && (
+                          <button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>{
+                            if (showEdit?.id && editFileInputsRef.current[showEdit.id]) editFileInputsRef.current[showEdit.id].value = '';
+                            setShowEdit((prev) => ({ ...prev, img: '', previewUrl: '' }));
+                          }}>Remove image</button>
+                        )}
+                        <input
+                          className="form-control form-control-sm"
+                          placeholder="Or paste image URL"
+                          value={showEdit.img || ''}
+                          onChange={(e)=>setShowEdit((prev) => ({ ...prev, img: e.target.value, previewUrl: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
                   <div className="mb-3" style={{ background:'#fff8f3', borderRadius:12, padding:12 }}>
                     <div style={{ fontWeight:700, marginBottom:6 }}>Per-Size Stock</div>
                     <div className="row">
@@ -356,7 +462,7 @@ const AdminProducts = () => {
                   </div>
                 </div>
               </div>
-              <div className="mb-2"><label className="form-label">Image URL</label><input className="form-control" value={showEdit.img||''} onChange={(e)=>setShowEdit({ ...showEdit, img: e.target.value })} /></div>
+              <div className="mb-2"><label className="form-label">Image URL</label><input className="form-control" value={showEdit.img||''} onChange={(e)=>setShowEdit({ ...showEdit, img: e.target.value, previewUrl: e.target.value })} /></div>
               <div className="mb-2"><label className="form-label">Description</label><textarea className="form-control" rows={3} value={showEdit.desc||''} onChange={(e)=>setShowEdit({ ...showEdit, desc: e.target.value })} /></div>
               <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
                 <button className="btn btn-dark" onClick={onSaveEdit}>Save</button>

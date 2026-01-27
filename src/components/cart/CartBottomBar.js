@@ -1,14 +1,31 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
 import { resolveImageSource } from '../../utils/image';
+import { deleteAllFromCart } from '../../store/slices/cart-slice';
 import './cart-bottom-bar.css';
 
 const CartBottomBar = () => {
   const { cartItems } = useSelector((state) => state.cart);
   const currency = useSelector((state) => state.currency);
   const [expanded, setExpanded] = useState(false);
+  const location = useLocation();
+
+  const dispatch = useDispatch();
+
+  const ALLOWED_PATHS = useMemo(() => ([
+    '',
+    '/',
+    '/home',
+    '/shop-grid-standard'
+  ]), []);
+
+  const isAllowedRoute = useMemo(() => {
+    const raw = location?.pathname || '';
+    const normalized = raw.replace(/\/+/g, '/').toLowerCase();
+    return ALLOWED_PATHS.includes(normalized);
+  }, [ALLOWED_PATHS, location?.pathname]);
 
   const hasItems = cartItems && cartItems.length > 0;
   const firstItem = hasItems ? cartItems[0] : null;
@@ -48,20 +65,21 @@ const CartBottomBar = () => {
   }, [hasItems]);
 
   useEffect(() => {
-    if (!hasItems) return undefined;
-    const handleRoute = () => setExpanded(false);
-    window.addEventListener('hashchange', handleRoute);
-    window.addEventListener('popstate', handleRoute);
-    return () => {
-      window.removeEventListener('hashchange', handleRoute);
-      window.removeEventListener('popstate', handleRoute);
-    };
-  }, [hasItems]);
+    const normalized = (location?.pathname || '').replace(/\/+/g, '/').toLowerCase();
+    if (normalized === '/cart' || normalized === '/checkout') {
+      setExpanded(false);
+    }
+  }, [location?.pathname]);
 
-  if (!hasItems || !firstItem) return null;
+  if (!hasItems || !firstItem || !isAllowedRoute) return null;
 
   const moreCount = restItems.length;
   const displaySize = firstItem.selectedProductSize || firstItem.size || '';
+
+  const handleClearCart = () => {
+    dispatch(deleteAllFromCart());
+    setExpanded(false);
+  };
 
   return (
     <div className={clsx('cart-bottom-bar', expanded && 'cart-bottom-bar--expanded')}>
@@ -95,6 +113,14 @@ const CartBottomBar = () => {
           )}
         </div>
         <div className="cart-bottom-bar__right">
+          <button
+            type="button"
+            className="cart-bottom-bar__clear"
+            onClick={handleClearCart}
+            aria-label="Clear cart"
+          >
+            ×
+          </button>
           <div className="cart-bottom-bar__summary">
             <span>{summary.totalQuantity} item{summary.totalQuantity === 1 ? '' : 's'}</span>
             <span>{currency?.currencySymbol || ''}{summary.totalPrice}</span>

@@ -18,6 +18,13 @@ const StatusSelect = ({ value, onChange, disabled }) => {
   );
 };
 
+const fileToDataUrl = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+  reader.onerror = () => reject(new Error('Failed to read image file'));
+  reader.readAsDataURL(file);
+});
+
 const EMPTY_NEW_PRODUCT = {
   name: '',
   price: '',
@@ -26,7 +33,6 @@ const EMPTY_NEW_PRODUCT = {
   subCategory: '',
   stock: '',
   img: '',
-  imageFile: null,
   previewUrl: ''
 };
 
@@ -117,9 +123,7 @@ const AdminOrders = () => {
   const [userRows, setUserRows] = useState([]);
 
   const fileInputsRef = useRef({});
-  const blobUrlsRef = useRef(new Set());
   const newProdFileInputRef = useRef(null);
-  const newProdBlobUrlRef = useRef(null);
 
   const reduxDispatch = useDispatch();
   const token = useMemo(() => {
@@ -139,48 +143,38 @@ const AdminOrders = () => {
   }, [reduxDispatch]);
 
   const resetNewProduct = React.useCallback(() => {
-    if (newProdBlobUrlRef.current) {
-      URL.revokeObjectURL(newProdBlobUrlRef.current);
-      newProdBlobUrlRef.current = null;
-    }
     if (newProdFileInputRef.current) {
       newProdFileInputRef.current.value = '';
     }
     setNewProd({ ...EMPTY_NEW_PRODUCT });
   }, []);
 
-  const handleNewProductFile = (file) => {
-    if (newProdBlobUrlRef.current) {
-      URL.revokeObjectURL(newProdBlobUrlRef.current);
-      newProdBlobUrlRef.current = null;
-    }
-
-    if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      newProdBlobUrlRef.current = previewUrl;
-      setNewProd((prev) => ({ ...prev, imageFile: file, previewUrl, img: '' }));
-    } else {
-      setNewProd((prev) => ({ ...prev, imageFile: null, previewUrl: '', img: '' }));
+  const handleNewProductFile = async (file) => {
+    if (!file) {
+      setNewProd((prev) => ({ ...prev, img: '', previewUrl: '' }));
       if (newProdFileInputRef.current) {
         newProdFileInputRef.current.value = '';
       }
+      return;
+    }
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setNewProd((prev) => ({ ...prev, img: dataUrl, previewUrl: dataUrl }));
+    } catch (err) {
+      console.error(err);
+      toast.error('Unable to read image file', TOAST_PRESET);
     }
   };
 
   const handleNewProductUrlChange = (value) => {
-    if (newProdBlobUrlRef.current) {
-      URL.revokeObjectURL(newProdBlobUrlRef.current);
-      newProdBlobUrlRef.current = null;
-    }
     if (newProdFileInputRef.current) {
       newProdFileInputRef.current.value = '';
     }
     const trimmed = value.trim();
     setNewProd((prev) => ({
       ...prev,
-      img: value,
-      imageFile: null,
-      previewUrl: trimmed ? trimmed : '',
+      img: trimmed,
+      previewUrl: trimmed,
     }));
   };
 
@@ -293,36 +287,11 @@ const AdminOrders = () => {
           next[p.id] = existing;
           return;
         }
-        if (existing && existing.previewUrl && blobUrlsRef.current.has(existing.previewUrl)) {
-          URL.revokeObjectURL(existing.previewUrl);
-          blobUrlsRef.current.delete(existing.previewUrl);
-        }
         next[p.id] = buildDraft(p);
-      });
-      Object.keys(prev).forEach((id) => {
-        if (!seen.has(id)) {
-          const entry = prev[id];
-          if (entry?.previewUrl && blobUrlsRef.current.has(entry.previewUrl)) {
-            URL.revokeObjectURL(entry.previewUrl);
-            blobUrlsRef.current.delete(entry.previewUrl);
-          }
-        }
       });
       return next;
     });
   }, [displayedProducts, buildDraft]);
-
-  useEffect(() => () => {
-    blobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-    blobUrlsRef.current.clear();
-  }, []);
-
-  useEffect(() => () => {
-    if (newProdBlobUrlRef.current) {
-      URL.revokeObjectURL(newProdBlobUrlRef.current);
-      newProdBlobUrlRef.current = null;
-    }
-  }, []);
 
   const updateDraft = (id, updates) => {
     setEditingProducts((prev) => ({
@@ -331,40 +300,35 @@ const AdminOrders = () => {
     }));
   };
 
-  const handleImageSelect = (id, file) => {
+  const handleImageSelect = async (id, file) => {
     if (!file) return;
-    setEditingProducts((prev) => {
-      const draft = prev[id];
-      if (!draft) return prev;
-      if (draft.previewUrl && blobUrlsRef.current.has(draft.previewUrl)) {
-        URL.revokeObjectURL(draft.previewUrl);
-        blobUrlsRef.current.delete(draft.previewUrl);
-      }
-      const previewUrl = URL.createObjectURL(file);
-      blobUrlsRef.current.add(previewUrl);
-      return {
-        ...prev,
-        [id]: { ...draft, imageFile: file, previewUrl, img: '', isDirty: true },
-      };
-    });
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setEditingProducts((prev) => {
+        const draft = prev[id];
+        if (!draft) return prev;
+        return {
+          ...prev,
+          [id]: { ...draft, img: dataUrl, previewUrl: dataUrl, isDirty: true },
+        };
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error('Unable to read image file', TOAST_PRESET);
+    }
   };
 
   const handleImageUrlChange = (id, value) => {
     setEditingProducts((prev) => {
       const draft = prev[id];
       if (!draft) return prev;
-      if (draft.previewUrl && blobUrlsRef.current.has(draft.previewUrl)) {
-        URL.revokeObjectURL(draft.previewUrl);
-        blobUrlsRef.current.delete(draft.previewUrl);
-      }
       const trimmed = value.trim();
       const nextPreview = trimmed ? trimmed : '';
       return {
         ...prev,
         [id]: {
           ...draft,
-          img: value,
-          imageFile: null,
+          img: trimmed,
           previewUrl: nextPreview,
           isDirty: true,
         },
@@ -385,9 +349,8 @@ const AdminOrders = () => {
       category: categoryString,
       subCategory: draft.subCategory || '',
       stock: draft.stockInput === '' ? '' : String(draft.stockInput),
-      imageFile: draft.imageFile ? 'file' : '',
-      img: (draft.imageFile ? '' : (draft.img || '').trim()),
-      previewUrl: draft.imageFile ? 'file-preview' : ((draft.img || '').trim() || ''),
+      img: (draft.img || '').trim(),
+      previewUrl: (draft.previewUrl || '').trim(),
     });
   };
 
@@ -413,13 +376,9 @@ const AdminOrders = () => {
     setEditingProducts((prev) => {
       const draft = prev[id];
       if (!draft) return prev;
-      if (draft.previewUrl && blobUrlsRef.current.has(draft.previewUrl)) {
-        URL.revokeObjectURL(draft.previewUrl);
-        blobUrlsRef.current.delete(draft.previewUrl);
-      }
       return {
         ...prev,
-        [id]: { ...draft, imageFile: null, previewUrl: '', img: '', isDirty: true },
+        [id]: { ...draft, previewUrl: '', img: '', isDirty: true },
       };
     });
     if (fileInputsRef.current[id]) fileInputsRef.current[id].value = '';
@@ -430,10 +389,6 @@ const AdminOrders = () => {
     if (!product) return;
     setEditingProducts((prev) => {
       const draft = prev[id];
-      if (draft?.previewUrl && blobUrlsRef.current.has(draft.previewUrl)) {
-        URL.revokeObjectURL(draft.previewUrl);
-        blobUrlsRef.current.delete(draft.previewUrl);
-      }
       return { ...prev, [id]: buildDraft(product) };
     });
     if (fileInputsRef.current[id]) fileInputsRef.current[id].value = '';
@@ -457,9 +412,7 @@ const AdminOrders = () => {
       subCategory: draft.subCategory,
       stock,
     };
-    if (draft.imageFile) {
-      payload.imageFile = draft.imageFile;
-    } else if (draft.img) {
+    if (draft.img) {
       payload.img = draft.img;
     }
 
@@ -470,16 +423,11 @@ const AdminOrders = () => {
       setEditingProducts((prev) => {
         const draft = prev[id];
         if (!draft) return prev;
-        if (draft.imageFile && draft.previewUrl && blobUrlsRef.current.has(draft.previewUrl)) {
-          URL.revokeObjectURL(draft.previewUrl);
-          blobUrlsRef.current.delete(draft.previewUrl);
-        }
         return {
           ...prev,
           [id]: {
             ...draft,
-            imageFile: null,
-            previewUrl: draft.imageFile ? '' : draft.previewUrl,
+            previewUrl: draft.previewUrl,
             isDirty: false,
           },
         };
@@ -542,9 +490,7 @@ const AdminOrders = () => {
       stock,
     };
 
-    if (newProd.imageFile) {
-      payload.imageFile = newProd.imageFile;
-    } else if (newProd.img) {
+    if (newProd.img) {
       payload.img = newProd.img;
     }
 
