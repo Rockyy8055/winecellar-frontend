@@ -6,6 +6,7 @@ import { API_BASE } from '../../Services/admin-api';
 import { setProducts as setProductsAction } from '../../store/slices/product-slice';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { resolveImageSource } from '../../utils/image';
 
 const SIZE_OPTIONS = ['1.5LTR', '1LTR', '75CL', '70CL', '35CL', '20CL', '10CL', '5CL'];
 
@@ -36,12 +37,87 @@ const sanitizeSizeStocks = (source = {}) => {
 
 const computeTotalStock = (map = {}) => Object.values(map).reduce((sum, qty) => sum + (Number.isFinite(Number(qty)) ? Number(qty) : 0), 0);
 
+const createEmptySizeEntries = () => SIZE_OPTIONS.reduce((acc, size) => {
+  acc[size] = [];
+  return acc;
+}, {});
+
+const sumSizeEntries = (entries = []) => entries.reduce((total, entry) => {
+  const num = Number(entry);
+  return total + (Number.isFinite(num) && num > 0 ? num : 0);
+}, 0);
+
+const buildEntriesFromStocks = (stocks = {}) => {
+  const entries = createEmptySizeEntries();
+  SIZE_OPTIONS.forEach((size) => {
+    const qty = Number(stocks[size]);
+    if (!Number.isNaN(qty) && qty > 0) {
+      entries[size] = [qty];
+    }
+  });
+  return entries;
+};
+
+const entriesToSizeStocks = (entries = {}) => {
+  const map = {};
+  SIZE_OPTIONS.forEach((size) => {
+    const total = sumSizeEntries(entries[size] || []);
+    if (total > 0) {
+      map[size] = total;
+    }
+  });
+  return map;
+};
+
+const upsertSizeEntry = (existingEntries, size, updater) => {
+  const nextEntries = { ...existingEntries };
+  const currentList = Array.isArray(nextEntries[size]) ? [...nextEntries[size]] : [];
+  const updatedList = updater(currentList);
+  nextEntries[size] = updatedList;
+  return nextEntries;
+};
+
+const SIZE_CARD_STYLE = {
+  border: '1px solid rgba(53,0,8,0.12)',
+  borderRadius: 14,
+  background: '#fffef8',
+  padding: 12,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 10
+};
+
+const SIZE_CARD_HEADER_STYLE = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  fontWeight: 700,
+  color: '#350008'
+};
+
+const SIZE_CARD_LIST_STYLE = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8
+};
+
+const SIZE_CARD_ENTRY_STYLE = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8
+};
+
+const SIZE_CARD_EMPTY_STYLE = {
+  fontSize: '0.85rem',
+  color: 'rgba(53,0,8,0.6)'
+};
+
 const AdminProducts = () => {
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState([]);
   const [showEdit, setShowEdit] = useState(null); // product to edit
-  const [newProd, setNewProd] = useState({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', previewUrl: '', stock: '', sizeStocks: createEmptySizeStocks() });
+  const [newProd, setNewProd] = useState({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', previewUrl: '', stock: '', sizeStocks: createEmptySizeStocks(), sizeEntries: createEmptySizeEntries() });
 
   const dispatch = useDispatch();
   const token = useMemo(() => { try { return localStorage.getItem('admin_token') || ''; } catch (_) { return ''; } }, []);
@@ -82,11 +158,16 @@ const AdminProducts = () => {
         const resolvedStock = item.stock !== undefined && item.stock !== null
           ? Number(item.stock)
           : computeTotalStock(sanitizedSizes);
+        const rawImage = item.img || item.imageUrl || item.image || '';
+        const preview = resolveImageSource(rawImage, item.imageUrl || item.previewUrl || rawImage);
         return {
           ...item,
+          img: rawImage,
+          imageUrl: item.imageUrl || rawImage,
           stock: resolvedStock,
           sizeStocks: sanitizedSizes,
-          previewUrl: item.img || item.imageUrl || ''
+          sizeEntries: buildEntriesFromStocks(sanitizedSizes),
+          previewUrl: preview
         };
       });
       setRows(normalizedRows);
@@ -106,7 +187,7 @@ const AdminProducts = () => {
     }
     try {
       const dataUrl = await fileToDataUrl(file);
-      setNewProd((prev) => ({ ...prev, img: dataUrl, previewUrl: dataUrl }));
+      setNewProd((prev) => ({ ...prev, img: dataUrl, previewUrl: resolveImageSource(dataUrl) }));
     } catch (err) {
       console.error(err);
       toast.error('Unable to read image file', TOAST_PRESET);
@@ -116,18 +197,23 @@ const AdminProducts = () => {
   const handleNewProductImageUrl = (value) => {
     if (newProdFileInputRef.current) newProdFileInputRef.current.value = '';
     const trimmed = value.trim();
-    setNewProd((prev) => ({ ...prev, img: trimmed, previewUrl: trimmed }));
+    const preview = trimmed ? resolveImageSource(trimmed) : '';
+    setNewProd((prev) => ({ ...prev, img: trimmed, previewUrl: preview }));
   };
 
   const resetNewProduct = () => {
     if (newProdFileInputRef.current) newProdFileInputRef.current.value = '';
-    setNewProd({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', previewUrl: '', stock: '', sizeStocks: createEmptySizeStocks() });
+    setNewProd({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', previewUrl: '', stock: '', sizeStocks: createEmptySizeStocks(), sizeEntries: createEmptySizeEntries() });
   };
 
   const onAdd = async () => {
     try {
       const sizeStocks = sanitizeSizeStocks(newProd.sizeStocks);
       const fallbackStock = computeTotalStock(sizeStocks);
+      const entries = newProd.sizeEntries || createEmptySizeEntries();
+      const mergedStocks = entriesToSizeStocks(entries);
+      const mergedSizeStocks = Object.keys(mergedStocks).length ? mergedStocks : sizeStocks;
+      const mergedStockTotal = computeTotalStock(mergedSizeStocks);
       await createProduct({
         name: newProd.name,
         price: Number(newProd.price),
@@ -135,8 +221,8 @@ const AdminProducts = () => {
         category: newProd.category ? [newProd.category] : [],
         subCategory: newProd.subCategory || '',
         img: newProd.img || '',
-        stock: newProd.stock !== '' ? Number(newProd.stock || 0) : fallbackStock,
-        sizeStocks
+        stock: newProd.stock !== '' ? Number(newProd.stock || 0) : mergedStockTotal || fallbackStock,
+        sizeStocks: mergedSizeStocks
       }, token);
       resetNewProduct();
       toast.success('Product added', TOAST_PRESET);
@@ -176,6 +262,7 @@ const AdminProducts = () => {
       const { id, name, desc, img, category, subCategory, stock, price, sizeStocks } = showEdit;
       const cleanedSizeStocks = sanitizeSizeStocks(sizeStocks);
       const fallbackStock = computeTotalStock(cleanedSizeStocks);
+      const entries = buildEntriesFromStocks(cleanedSizeStocks);
       await updateProduct(id, {
         name,
         price: Number(price),
@@ -184,7 +271,8 @@ const AdminProducts = () => {
         category,
         subCategory,
         stock: stock !== '' && stock !== undefined ? Number(stock) : fallbackStock,
-        sizeStocks: cleanedSizeStocks
+        sizeStocks: cleanedSizeStocks,
+        sizeEntries: entries
       }, token);
       setShowEdit(null);
       toast.success('Product saved', TOAST_PRESET);
@@ -255,13 +343,98 @@ const AdminProducts = () => {
                       value={newProd.sizeStocks[size]}
                       onChange={(e)=>setNewProd({
                         ...newProd,
-                        sizeStocks: { ...newProd.sizeStocks, [size]: e.target.value }
+                        sizeStocks: { ...newProd.sizeStocks, [size]: e.target.value },
+                        sizeEntries: {
+                          ...newProd.sizeEntries,
+                          [size]: e.target.value ? [Number(e.target.value)] : []
+                        }
                       })}
                     />
                   </div>
                 ))}
               </div>
               <div style={{ fontSize:12, fontWeight:600, marginTop:4 }}>Computed total: {computeTotalStock(newProd.sizeStocks)}</div>
+            </div>
+            <div style={{ marginBottom:24 }}>
+              <h6 style={{ fontWeight:800, color:'#350008', marginBottom:12 }}>Detailed Quantity Entries</h6>
+              <p style={{ fontSize:'0.9rem', color:'rgba(53,0,8,0.7)', marginBottom:16 }}>Add individual stock batches per size. These will sum into the totals above.</p>
+              <div className="row" style={{ gap:16 }}>
+                {SIZE_OPTIONS.map((size) => {
+                  const entries = newProd.sizeEntries?.[size] || [];
+                  const total = sumSizeEntries(entries);
+                  return (
+                    <div key={`new-${size}`} className="col-12" style={{ maxWidth: '100%' }}>
+                      <div style={SIZE_CARD_STYLE}>
+                        <div style={SIZE_CARD_HEADER_STYLE}>
+                          <span>{size}</span>
+                          <span style={{ fontSize:'0.85rem', color:'rgba(53,0,8,0.7)' }}>{total} in stock</span>
+                        </div>
+                        <div style={SIZE_CARD_LIST_STYLE}>
+                          {entries.length ? entries.map((value, idx) => (
+                            <div key={`${size}-entry-${idx}`} style={SIZE_CARD_ENTRY_STYLE}>
+                              <input
+                                type="number"
+                                min="0"
+                                className="form-control form-control-sm"
+                                style={{ maxWidth:120 }}
+                                value={value}
+                                onChange={(e)=>{
+                                  const nextValue = Number(e.target.value);
+                                  setNewProd((prev) => {
+                                    const currentEntries = prev.sizeEntries?.[size] ? [...prev.sizeEntries[size]] : [];
+                                    currentEntries[idx] = nextValue >= 0 ? nextValue : 0;
+                                    return {
+                                      ...prev,
+                                      sizeEntries: { ...prev.sizeEntries, [size]: currentEntries },
+                                      sizeStocks: { ...prev.sizeStocks, [size]: sumSizeEntries(currentEntries) }
+                                    };
+                                  });
+                                }}
+                              />
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={()=>{
+                                  setNewProd((prev) => {
+                                    const currentEntries = prev.sizeEntries?.[size] ? [...prev.sizeEntries[size]] : [];
+                                    currentEntries.splice(idx, 1);
+                                    const nextEntries = currentEntries;
+                                    return {
+                                      ...prev,
+                                      sizeEntries: { ...prev.sizeEntries, [size]: nextEntries },
+                                      sizeStocks: { ...prev.sizeStocks, [size]: sumSizeEntries(nextEntries) }
+                                    };
+                                  });
+                                }}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          )) : (
+                            <div style={SIZE_CARD_EMPTY_STYLE}>No entries yet. Add the first batch below.</div>
+                          )}
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary"
+                            onClick={()=>{
+                              setNewProd((prev) => {
+                                const currentEntries = prev.sizeEntries?.[size] ? [...prev.sizeEntries[size]] : [];
+                                currentEntries.push(0);
+                                return {
+                                  ...prev,
+                                  sizeEntries: { ...prev.sizeEntries, [size]: currentEntries }
+                                };
+                              });
+                            }}
+                          >
+                            Add batch
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
             <div className="mb-2"><textarea className="form-control" placeholder="Description" rows={3} value={newProd.desc} onChange={(e)=>setNewProd({ ...newProd, desc: e.target.value })} /></div>
             <button className="btn btn-dark" onClick={onAdd}>Add</button>
@@ -274,7 +447,7 @@ const AdminProducts = () => {
                 <tbody>
                   {rows.map(p => (
                     <tr key={p.id}>
-                      <td>{p.img || p.imageUrl ? <img src={p.img || p.imageUrl} alt={p.name} style={{ width:40, height:40, objectFit:'cover' }} /> : '-'}</td>
+                      <td>{p.img || p.imageUrl || p.previewUrl ? <img src={resolveImageSource(p.img, p.imageUrl || p.previewUrl)} alt={p.name} style={{ width:40, height:40, objectFit:'cover' }} /> : '-'}</td>
                       <td>
                         <input
                           type="text"
@@ -344,13 +517,15 @@ const AdminProducts = () => {
                           Object.entries(cleaned).forEach(([key, value]) => {
                             normalizedSizes[key] = value;
                           });
+                          const preview = resolveImageSource(p.img, p.imageUrl || p.previewUrl);
                           setShowEdit({
                             ...p,
                             category: Array.isArray(p.category) ? p.category[0] : (p.category || ''),
                             subCategory: p.subCategory || '',
                             stock: p.stock ?? '',
                             sizeStocks: normalizedSizes,
-                            previewUrl: p.img || p.imageUrl || ''
+                            sizeEntries: buildEntriesFromStocks(normalizedSizes),
+                            previewUrl: preview
                           });
                         }}>Edit</button>
                         <button className="btn btn-sm btn-outline-danger" onClick={async ()=>{
@@ -403,7 +578,7 @@ const AdminProducts = () => {
                             if (!file) return;
                             try {
                               const dataUrl = await fileToDataUrl(file);
-                              setShowEdit((prev) => ({ ...prev, img: dataUrl, previewUrl: dataUrl }));
+                              setShowEdit((prev) => ({ ...prev, img: dataUrl, previewUrl: resolveImageSource(dataUrl) }));
                             } catch (err) {
                               console.error(err);
                               toast.error('Unable to read image file', TOAST_PRESET);
@@ -420,7 +595,10 @@ const AdminProducts = () => {
                           className="form-control form-control-sm"
                           placeholder="Or paste image URL"
                           value={showEdit.img || ''}
-                          onChange={(e)=>setShowEdit((prev) => ({ ...prev, img: e.target.value, previewUrl: e.target.value }))}
+                          onChange={(e)=>{
+                            const next = e.target.value;
+                            setShowEdit((prev) => ({ ...prev, img: next, previewUrl: next ? resolveImageSource(next) : '' }));
+                          }}
                         />
                       </div>
                     </div>
@@ -440,16 +618,21 @@ const AdminProducts = () => {
                               const value = e.target.value;
                               setShowEdit((prev) => {
                                 const nextSizeStocks = { ...(prev.sizeStocks || {}) };
+                                const nextEntries = { ...(prev.sizeEntries || {}) };
                                 if (value === '') {
                                   delete nextSizeStocks[size];
+                                  nextEntries[size] = [];
                                 } else {
-                                  nextSizeStocks[size] = value;
+                                  const numeric = Number(value);
+                                  nextSizeStocks[size] = numeric;
+                                  nextEntries[size] = [numeric];
                                 }
                                 const cleaned = sanitizeSizeStocks(nextSizeStocks);
                                 const total = computeTotalStock(cleaned);
                                 return {
                                   ...prev,
                                   sizeStocks: { ...createEmptySizeStocks(), ...nextSizeStocks },
+                                  sizeEntries: { ...createEmptySizeEntries(), ...nextEntries },
                                   stock: prev.stock === '' || prev.stock === null || prev.stock === undefined ? total : prev.stock
                                 };
                               });
@@ -459,6 +642,88 @@ const AdminProducts = () => {
                       ))}
                     </div>
                     <div style={{ fontSize:12, fontWeight:600, marginTop:4 }}>Computed total: {computeTotalStock(showEdit.sizeStocks)}</div>
+                  </div>
+                  <div style={{ marginBottom:24 }}>
+                    <h6 style={{ fontWeight:800, color:'#350008', marginBottom:12 }}>Detailed Quantity Entries</h6>
+                    <p style={{ fontSize:'0.9rem', color:'rgba(53,0,8,0.7)', marginBottom:16 }}>Manage individual stock batches per size.</p>
+                    <div className="row" style={{ gap:16 }}>
+                      {SIZE_OPTIONS.map((size) => {
+                        const entries = showEdit.sizeEntries?.[size] || [];
+                        const total = sumSizeEntries(entries);
+                        return (
+                          <div key={`edit-${size}`} className="col-12" style={{ maxWidth: '100%' }}>
+                            <div style={SIZE_CARD_STYLE}>
+                              <div style={SIZE_CARD_HEADER_STYLE}>
+                                <span>{size}</span>
+                                <span style={{ fontSize:'0.85rem', color:'rgba(53,0,8,0.7)' }}>{total} in stock</span>
+                              </div>
+                              <div style={SIZE_CARD_LIST_STYLE}>
+                                {entries.length ? entries.map((value, idx) => (
+                                  <div key={`${size}-edit-entry-${idx}`} style={SIZE_CARD_ENTRY_STYLE}>
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      className="form-control form-control-sm"
+                                      style={{ maxWidth:120 }}
+                                      value={value}
+                                      onChange={(e)=>{
+                                        const nextValue = Number(e.target.value);
+                                        setShowEdit((prev) => {
+                                          const currentEntries = prev.sizeEntries?.[size] ? [...prev.sizeEntries[size]] : [];
+                                          currentEntries[idx] = nextValue >= 0 ? nextValue : 0;
+                                          const updatedEntries = { ...prev.sizeEntries, [size]: currentEntries };
+                                          return {
+                                            ...prev,
+                                            sizeEntries: updatedEntries,
+                                            sizeStocks: { ...prev.sizeStocks, [size]: sumSizeEntries(currentEntries) }
+                                          };
+                                        });
+                                      }}
+                                    />
+                                    <button
+                                      type="button"
+                                      className="btn btn-sm btn-outline-danger"
+                                      onClick={()=>{
+                                        setShowEdit((prev) => {
+                                          const currentEntries = prev.sizeEntries?.[size] ? [...prev.sizeEntries[size]] : [];
+                                          currentEntries.splice(idx, 1);
+                                          const nextEntries = currentEntries;
+                                          return {
+                                            ...prev,
+                                            sizeEntries: { ...prev.sizeEntries, [size]: nextEntries },
+                                            sizeStocks: { ...prev.sizeStocks, [size]: sumSizeEntries(nextEntries) }
+                                          };
+                                        });
+                                      }}
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                )) : (
+                                  <div style={SIZE_CARD_EMPTY_STYLE}>No entries yet. Add the first batch below.</div>
+                                )}
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-outline-secondary"
+                                  onClick={()=>{
+                                    setShowEdit((prev) => {
+                                      const currentEntries = prev.sizeEntries?.[size] ? [...prev.sizeEntries[size]] : [];
+                                      currentEntries.push(0);
+                                      return {
+                                        ...prev,
+                                        sizeEntries: { ...prev.sizeEntries, [size]: currentEntries }
+                                      };
+                                    });
+                                  }}
+                                >
+                                  Add batch
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>

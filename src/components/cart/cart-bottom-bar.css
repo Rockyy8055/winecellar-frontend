@@ -161,7 +161,7 @@ body {
 
 .cart-bottom-bar__cta {
   background: #350008;
-  color: #fffef1;
+  color: #ffffff;
   font-weight: 800;
   padding: 10px 24px;
   border-radius: 999px;
@@ -172,6 +172,7 @@ body {
 .cart-bottom-bar__cta:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 30px rgba(53, 0, 8, 0.35);
+  color: #ffffff;
 }
 
 .cart-bottom-bar__drawer {

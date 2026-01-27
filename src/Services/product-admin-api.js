@@ -79,7 +79,13 @@ export async function listProducts({ page = 1, limit = 20, search = '' } = {}, t
   // Try admin endpoint first
   try {
     const r = await fetch(`${API_BASE}/api/admin/products?q=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
-      headers: { Authorization: `Bearer ${getToken(token)}` }
+      headers: {
+        Authorization: `Bearer ${getToken(token)}`,
+        'Accept': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      }
     });
     if (r.ok) {
       const d = await r.json();
@@ -147,7 +153,13 @@ export async function createProduct({ name, price, desc, category = [], subCateg
 
   const r = await fetch(`${API_BASE}/api/product/add`, {
     method: 'POST',
-    headers,
+    headers: {
+      ...headers,
+      'Accept': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    },
     body
   });
   if (!r.ok) throw new Error(`createProduct failed: ${r.status}`);
@@ -202,7 +214,13 @@ export async function updateProduct(id, fields = {}, token) {
 
   const r = await fetch(`${API_BASE}/api/admin/products/${id}`, {
     method: 'PATCH',
-    headers,
+    headers: {
+      ...headers,
+      'Accept': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    },
     body
   });
   if (!r.ok) {
@@ -219,7 +237,13 @@ export async function updateProduct(id, fields = {}, token) {
 export async function deleteProduct(id, token) {
   const r = await fetch(`${API_BASE}/api/admin/products/${id}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${getToken(token)}` }
+    headers: {
+      Authorization: `Bearer ${getToken(token)}`,
+      'Accept': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    }
   });
   if (!r.ok) {
     let message = `deleteProduct failed: ${r.status}`;
