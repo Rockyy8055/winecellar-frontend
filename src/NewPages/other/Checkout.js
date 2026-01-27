@@ -469,11 +469,11 @@ const Checkout = () => {
             style={{
               position:'relative',
               background:'#fffdf6',
-              maxWidth:440,
-              width:'100%',
-              borderRadius:16,
-              boxShadow:'0 22px 45px rgba(0,0,0,0.2)',
-              padding:'28px 26px 24px'
+              maxWidth:620,
+              width:'min(620px, 92vw)',
+              borderRadius:18,
+              boxShadow:'0 22px 45px rgba(0,0,0,0.22)',
+              padding:'24px 28px 26px'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -495,11 +495,17 @@ const Checkout = () => {
             >
               ×
             </button>
-            <h3 style={{ margin:'0 0 8px', textAlign:'center', color:'#2c040a', fontSize:'1.6rem', fontWeight:800 }}>Pick your collection store</h3>
-            <p style={{ margin:'0 0 20px', textAlign:'center', color:'#6b5a5c', fontSize:'0.95rem' }}>
+            <h3 style={{ margin:'0 0 12px', textAlign:'center', color:'#2c040a', fontSize:'1.6rem', fontWeight:800 }}>Pick your collection store</h3>
+            <p style={{ margin:'0 0 18px', textAlign:'center', color:'#6b5a5c', fontSize:'0.95rem' }}>
               Choose the location where you’d like to collect your order.
             </p>
-            <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+            <div
+              style={{
+                display:'grid',
+                gap:16,
+                gridTemplateColumns:'repeat(auto-fit, minmax(255px, 1fr))'
+              }}
+            >
               {STORE_LOCATIONS.map((location) => {
                 const isActive = selectedStoreId === location.id;
                 return (
@@ -510,12 +516,12 @@ const Checkout = () => {
                       display:'flex',
                       alignItems:'flex-start',
                       gap:14,
-                      padding:'16px 18px',
-                      borderRadius:12,
+                      padding:'18px 20px',
+                      borderRadius:14,
                       border:isActive ? '2px solid #2c040a' : '1px solid #e1d8d0',
                       background:isActive ? 'linear-gradient(130deg, #fff6ea 0%, #ffe8d8 100%)' : '#ffffff',
-                      boxShadow:isActive ? '0 12px 24px rgba(44,4,10,0.18)' : '0 4px 12px rgba(0,0,0,0.06)',
-                      transition:'all 0.2s ease',
+                      boxShadow:isActive ? '0 12px 24px rgba(44,4,10,0.18)' : '0 6px 18px rgba(0,0,0,0.08)',
+                      transition:'all 0.24s ease',
                       cursor:'pointer'
                     }}
                   >
@@ -527,13 +533,13 @@ const Checkout = () => {
                       style={{ marginTop:4, accentColor:'#2c040a' }}
                     />
                     <div>
-                      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
                         <strong style={{ fontSize:'1.05rem', color:'#2c040a' }}>{location.name}</strong>
                         {isActive && (
                           <span style={{ fontSize:'0.7rem', fontWeight:700, color:'#2c040a', background:'#fde5cf', padding:'3px 8px', borderRadius:999 }}>Selected</span>
                         )}
                       </div>
-                      <div style={{ color:'#5c4a4d', fontSize:'0.95rem', lineHeight:1.5 }}>
+                      <div style={{ color:'#5c4a4d', fontSize:'0.92rem', lineHeight:1.45 }}>
                         {location.addressLine1}<br/>
                         {location.city}<br/>
                         {location.postcode}, {location.country}<br/>
@@ -544,26 +550,27 @@ const Checkout = () => {
                 );
               })}
             </div>
-            <button
-              type="button"
-              onClick={handleConfirmStorePickup}
-              style={{
-                marginTop:22,
-                width:'100%',
-                padding:'14px 20px',
-                border:'none',
-                borderRadius:999,
-                background:'#2c040a',
-                color:'#fffef6',
-                fontSize:'1rem',
-                fontWeight:700,
-                letterSpacing:0.4,
-                cursor:'pointer',
-                boxShadow:'0 16px 28px rgba(44,4,10,0.35)'
-              }}
-            >
-              Collect from this store
-            </button>
+            <div style={{ marginTop:22, display:'flex', justifyContent:'center' }}>
+              <button
+                type="button"
+                onClick={handleConfirmStorePickup}
+                style={{
+                  padding:'12px 28px',
+                  minWidth:240,
+                  border:'none',
+                  borderRadius:999,
+                  background:'#2c040a',
+                  color:'#fffef6',
+                  fontSize:'1rem',
+                  fontWeight:700,
+                  letterSpacing:0.35,
+                  cursor:'pointer',
+                  boxShadow:'0 16px 24px rgba(44,4,10,0.25)'
+                }}
+              >
+                Collect from this store
+              </button>
+            </div>
           </div>
         </div>
       )}
