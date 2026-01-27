@@ -4,6 +4,17 @@ import { addToCart } from '../../store/slices/cart-slice';
 import { addToWishlist, deleteFromWishlist } from '../../store/slices/wishlist-slice';
 import { resolveProductImage } from "../../utils/image";
 
+const FALLBACK_IMAGE =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280" viewBox="0 0 280 280">' +
+      '<rect width="100%" height="100%" fill="#f7f7f7"/>' +
+      '<path d="M84 172l36-44 32 38 22-26 38 48H84z" fill="#d9d9d9"/>' +
+      '<circle cx="114" cy="110" r="14" fill="#d9d9d9"/>' +
+      '<text x="50%" y="88%" text-anchor="middle" font-family="Arial" font-size="14" fill="#777">Image unavailable</text>' +
+    '</svg>'
+  );
+
 const ProductGridSingleTwo = ({ product }) => {
   const [hovered, setHovered] = useState(false);
   const [showQty, setShowQty] = useState(false);
@@ -154,6 +165,12 @@ const ProductGridSingleTwo = ({ product }) => {
       imageUrl: product?.imageUrl || variationImg || extrasImg,
     });
   }, [product]);
+
+  const [imgSrc, setImgSrc] = useState(primaryImage || FALLBACK_IMAGE);
+  useEffect(() => {
+    setImgSrc(primaryImage || FALLBACK_IMAGE);
+  }, [primaryImage]);
+
   return (
     <div
       className="product-card-simple"
@@ -204,8 +221,11 @@ const ProductGridSingleTwo = ({ product }) => {
       {/* Product Image */}
       <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
         <img
-          src={primaryImage}
+          src={imgSrc}
           alt={product.name}
+          onError={() => {
+            setImgSrc(FALLBACK_IMAGE);
+          }}
           style={{
             width: '100%',
             maxWidth: '280px',
