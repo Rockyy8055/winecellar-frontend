@@ -184,7 +184,7 @@
 .filter-pill.active,
 .filter-pill:hover {
   background: #350008;
-  color: #fffef8;
+  color: #fffef8 !important;
   border-color: #350008;
 }
 
