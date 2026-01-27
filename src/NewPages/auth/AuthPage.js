@@ -148,6 +148,9 @@ const AuthPage = ({ initialMode = 'login' }) => {
     );
   }
 
+  // Debug render
+  console.log('AuthPage render mode:', mode, 'form:', form);
+
   return (
     <Layout headerContainerClass="container-fluid" headerPaddingClass="header-padding-2" headerTop="visible">
       <div
