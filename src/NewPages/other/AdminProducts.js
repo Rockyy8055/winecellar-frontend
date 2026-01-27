@@ -69,14 +69,6 @@ const entriesToSizeStocks = (entries = {}) => {
   return map;
 };
 
-const upsertSizeEntry = (existingEntries, size, updater) => {
-  const nextEntries = { ...existingEntries };
-  const currentList = Array.isArray(nextEntries[size]) ? [...nextEntries[size]] : [];
-  const updatedList = updater(currentList);
-  nextEntries[size] = updatedList;
-  return nextEntries;
-};
-
 const SIZE_CARD_STYLE = {
   border: '1px solid rgba(53,0,8,0.12)',
   borderRadius: 14,
