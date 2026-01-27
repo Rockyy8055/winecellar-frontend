@@ -7,6 +7,7 @@ import Layout from "../../layouts/Layout";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import { addToCart, decreaseQuantity, deleteFromCart, deleteAllFromCart } from "../../store/slices/cart-slice";
 import { cartItemStock } from "../../helpers/product";
+import { resolveImageSource } from "../../utils/image";
 
 const Cart = () => {
   let cartTotalPrice = 0;
@@ -81,10 +82,7 @@ const Cart = () => {
                                   >
                                     <img
                                       className="img-fluid"
-                                      src={
-                                        process.env.PUBLIC_URL +
-                                        cartItem.img
-                                      }
+                                      src={resolveImageSource(cartItem.img, cartItem.imageUrl)}
                                       alt=""
                                       style={{ width: 140, height: 140, objectFit: 'contain' }}
                                     />

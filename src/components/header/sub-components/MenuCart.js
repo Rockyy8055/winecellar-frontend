@@ -2,7 +2,8 @@ import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getDiscountPrice } from "../../../helpers/product";
-import { deleteFromCart } from "../../../store/slices/cart-slice"
+import { deleteFromCart } from "../../../store/slices/cart-slice";
+import { resolveImageSource } from "../../../utils/image";
 
 const MenuCart = () => {
   const dispatch = useDispatch();
@@ -37,7 +38,7 @@ const MenuCart = () => {
                     <Link to={"/product/" + item.ProductId}>
                       <img
                         alt=""
-                        src={process.env.PUBLIC_URL + item.img}
+                        src={resolveImageSource(item.img, item.imageUrl)}
                         className="img-fluid"
                       />
                     </Link>

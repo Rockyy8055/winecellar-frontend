@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import Layout from '../../layouts/Layout';
-import { listOrders, getOrder, setOrderStatus, formatGBP } from '../../Services/admin-api';
+import { listOrders, getOrder, setOrderStatus, formatGBP, API_BASE } from '../../Services/admin-api';
 import { listProducts, createProduct, updateProduct } from '../../Services/product-admin-api';
+import { setProducts as setProductsAction } from '../../store/slices/product-slice';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -28,6 +30,18 @@ const EMPTY_NEW_PRODUCT = {
   previewUrl: ''
 };
 
+const TOAST_PRESET = {
+  style: {
+    background: '#fffef1',
+    color: '#350008',
+    borderRadius: 12,
+    border: '1px solid #350008',
+    fontWeight: 600
+  },
+  progressStyle: { background: '#350008' },
+  iconTheme: { primary: '#350008', secondary: '#fffef1' }
+};
+
 const AdminOrders = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [rows, setRows] = useState([]);
@@ -35,7 +49,7 @@ const AdminOrders = () => {
   const [selected, setSelected] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
   // products
-  const [products, setProducts] = useState([]);
+  const [productRows, setProductRows] = useState([]);
   const [prodQ, setProdQ] = useState("");
   const [prodQInput, setProdQInput] = useState("");
   const [newProd, setNewProd] = useState({ ...EMPTY_NEW_PRODUCT });
@@ -48,9 +62,22 @@ const AdminOrders = () => {
   const newProdFileInputRef = useRef(null);
   const newProdBlobUrlRef = useRef(null);
 
+  const reduxDispatch = useDispatch();
   const token = useMemo(() => {
     try { return localStorage.getItem('admin_token') || localStorage.getItem('token') || ''; } catch (_) { return ''; }
   }, []);
+
+  const syncGlobalProducts = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/product/get`, { credentials: 'include' });
+      if (!res.ok) throw new Error(`Product sync failed (${res.status})`);
+      const payload = await res.json();
+      const catalog = Array.isArray(payload) ? payload : (payload.items || payload.rows || payload.products || payload.data || []);
+      reduxDispatch(setProductsAction(catalog));
+    } catch (err) {
+      console.warn('Failed to refresh storefront catalog after admin update:', err);
+    }
+  }, [reduxDispatch]);
 
   const resetNewProduct = React.useCallback(() => {
     if (newProdBlobUrlRef.current) {
@@ -100,7 +127,7 @@ const AdminOrders = () => {
 
   const page = 1;
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async ({ syncCatalog = false } = {}) => {
     setLoading(true);
     try {
       const [ordersRes, prodsRes] = await Promise.allSettled([
@@ -118,17 +145,20 @@ const AdminOrders = () => {
 
       if (prodsRes.status === 'fulfilled') {
         const p = prodsRes.value || {};
-        setProducts(p.items || p.rows || p.products || []);
+        setProductRows(p.items || p.rows || p.products || []);
+        if (syncCatalog) {
+          await syncGlobalProducts();
+        }
       } else {
         console.warn('Products fetch failed:', prodsRes.reason);
-        setProducts([]);
+        setProductRows([]);
       }
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  }, [page, prodQ, statusFilter, token]);
+  }, [page, prodQ, statusFilter, token, syncGlobalProducts]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
   useEffect(() => {
@@ -138,7 +168,7 @@ const AdminOrders = () => {
 
   const displayedProducts = React.useMemo(() => {
     const q = (prodQInput || '').trim().toLowerCase();
-    if (!q) return products;
+    if (!q) return productRows;
     const rank = (p) => {
       const name = (p.name || '').toLowerCase();
       const cat = (Array.isArray(p.category) ? p.category.join(' ') : (p.category || '')).toLowerCase();
@@ -149,8 +179,8 @@ const AdminOrders = () => {
       if (idxCat !== -1) score = Math.min(score, idxCat + 1000); // prefer name matches over category
       return score;
     };
-    return [...products].sort((a, b) => rank(a) - rank(b));
-  }, [products, prodQInput]);
+    return [...productRows].sort((a, b) => rank(a) - rank(b));
+  }, [productRows, prodQInput]);
 
   const buildDraft = useCallback((p) => {
     const category = Array.isArray(p.category) ? p.category.filter(Boolean).join(', ') : (p.category || '');
@@ -335,11 +365,11 @@ const AdminOrders = () => {
     const draft = editingProducts[id];
     if (!draft) return;
     const name = draft.name.trim();
-    if (!name) { toast.error('Name is required'); return; }
+    if (!name) { toast.error('Name is required', TOAST_PRESET); return; }
     const price = draft.priceInput === '' ? NaN : Number(draft.priceInput);
-    if (Number.isNaN(price)) { toast.error('Enter a valid price'); return; }
+    if (Number.isNaN(price)) { toast.error('Enter a valid price', TOAST_PRESET); return; }
     const stock = draft.stockInput === '' ? NaN : Number(draft.stockInput);
-    if (Number.isNaN(stock)) { toast.error('Enter valid stock'); return; }
+    if (Number.isNaN(stock)) { toast.error('Enter valid stock', TOAST_PRESET); return; }
 
     const payload = {
       name,
@@ -358,7 +388,7 @@ const AdminOrders = () => {
     setSavingRow(id);
     try {
       await updateProduct(id, payload, token);
-      toast.success('Changes saved');
+      toast.success('Changes saved', TOAST_PRESET);
       setEditingProducts((prev) => {
         const draft = prev[id];
         if (!draft) return prev;
@@ -377,10 +407,10 @@ const AdminOrders = () => {
         };
       });
       if (fileInputsRef.current[id]) fileInputsRef.current[id].value = '';
-      await fetchData();
+      await fetchData({ syncCatalog: true });
     } catch (err) {
       console.error(err);
-      toast.error(err?.message || 'Update failed');
+      toast.error(err?.message || 'Update failed', TOAST_PRESET);
     } finally {
       setSavingRow(null);
     }
@@ -407,19 +437,19 @@ const AdminOrders = () => {
   const addProduct = async () => {
     const name = newProd.name.trim();
     if (!name) {
-      toast.error('Name is required');
+      toast.error('Name is required', TOAST_PRESET);
       return;
     }
 
     const price = newProd.price === '' ? NaN : Number(newProd.price);
     if (Number.isNaN(price)) {
-      toast.error('Enter a valid price');
+      toast.error('Enter a valid price', TOAST_PRESET);
       return;
     }
 
     const stock = newProd.stock === '' ? NaN : Number(newProd.stock);
     if (Number.isNaN(stock)) {
-      toast.error('Enter valid stock');
+      toast.error('Enter valid stock', TOAST_PRESET);
       return;
     }
 
@@ -443,12 +473,12 @@ const AdminOrders = () => {
     setSavingProd(true);
     try {
       await createProduct(payload, token);
-      toast.success('Product added');
+      toast.success('Product added', TOAST_PRESET);
       resetNewProduct();
-      await fetchData();
+      await fetchData({ syncCatalog: true });
     } catch (e) {
       console.error(e);
-      toast.error(e?.message || 'Failed to add product');
+      toast.error(e?.message || 'Failed to add product', TOAST_PRESET);
     } finally {
       setSavingProd(false);
     }

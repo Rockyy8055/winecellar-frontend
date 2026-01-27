@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Layout from '../../layouts/Layout';
 import ProductGridSingleTwo from '../../components/product/ProductGridSingleTwo';
+import FilterDrawer from '../../components/product/FilterDrawer';
+import {
+  filterProductsByQuantityAndSort,
+  getIndividualCategories,
+} from '../../helpers/product';
 
 const AllProducts = () => {
   const { products } = useSelector((state) => state.product);
@@ -11,6 +16,12 @@ const AllProducts = () => {
   const { compareItems } = useSelector((state) => state.compare);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    categories: [],
+    sizes: [],
+    sort: 'default',
+  });
 
   // Category buttons
   const categories = [
@@ -18,21 +29,72 @@ const AllProducts = () => {
     'RUM', 'LIQUOR', 'GIN', 'CHAMPAGNE', 'BRANDY'
   ];
 
-  // Filter products based on search term and selected category
-  const filteredProducts = (products && Array.isArray(products)) ? products.filter(product => {
-    if (!product || !product.name) return false;
+  const mergedCategories = useMemo(() => {
+    const dynamic = getIndividualCategories(products || []);
+    return Array.from(new Set([...(categories || []), ...(dynamic || [])])).filter(Boolean);
+  }, [categories, products]);
 
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || 
-      (Array.isArray(product.category)
-        ? product.category.some(cat => cat && cat.toLowerCase() === selectedCategory.toLowerCase())
-        : (typeof product.category === 'string' && product.category.toLowerCase() === selectedCategory.toLowerCase()));
-    return matchesSearch && matchesCategory;
-  }) : [];
+  const effectiveCategories = useMemo(() => {
+    const manual = selectedCategory ? [selectedCategory] : [];
+    return Array.from(new Set([...(filters.categories || []), ...manual])).filter(Boolean);
+  }, [filters.categories, selectedCategory]);
+
+  // Filter products based on search term and selected category
+  const filteredProducts = useMemo(() => {
+    let working = Array.isArray(products) ? [...products] : [];
+
+    if (searchTerm.trim()) {
+      const lower = searchTerm.toLowerCase();
+      working = working.filter((product) =>
+        product?.name?.toLowerCase().includes(lower)
+      );
+    }
+
+    if (effectiveCategories.length) {
+      working = working.filter((product) => {
+        if (!product) return false;
+        const raw = product.category;
+        const normalized = Array.isArray(raw)
+          ? raw
+          : typeof raw === 'string'
+          ? [raw]
+          : [];
+        if (!normalized.length) return false;
+        return normalized.some((cat) =>
+          effectiveCategories.includes(String(cat))
+        );
+      });
+    }
+
+    return filterProductsByQuantityAndSort(working, {
+      sizes: filters.sizes || [],
+      sort: filters.sort || 'default',
+    });
+  }, [products, searchTerm, effectiveCategories, filters.sizes, filters.sort]);
 
   const handleCategoryClick = (category) => {
-    setSelectedCategory(selectedCategory === category ? '' : category);
+    setSelectedCategory((prev) => (prev === category ? '' : category));
   };
+
+  const handleApplyFilters = (next = {}) => {
+    setFilters({
+      categories: next.categories || [],
+      sizes: next.sizes || [],
+      sort: next.sort || 'default',
+    });
+    setDrawerOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({ categories: [], sizes: [], sort: 'default' });
+    setSelectedCategory('');
+  };
+
+  const activeFilterCount =
+    (filters.categories?.length || 0) +
+    (filters.sizes?.length || 0) +
+    (filters.sort !== 'default' ? 1 : 0) +
+    (selectedCategory ? 1 : 0);
 
   return (
     <Layout
@@ -77,9 +139,19 @@ const AllProducts = () => {
                 marginBottom: '30px',
                 position: 'relative'
               }}>
-                <h4 style={{ textAlign: 'center', marginBottom: '20px', color: '#350008' }}>
-                  Filter by Category
-                </h4>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <h4 style={{ margin: 0, color: '#350008' }}>Filter by Category</h4>
+                  <button
+                    type="button"
+                    className="filter-trigger-btn"
+                    onClick={() => setDrawerOpen(true)}
+                  >
+                    Filters
+                    {activeFilterCount > 0 && (
+                      <span className="filter-trigger-btn__badge">{activeFilterCount}</span>
+                    )}
+                  </button>
+                </div>
                 <div className="d-flex flex-wrap justify-content-center" style={{ gap: '12px 12px', position: 'relative' }}>
                   {categories.map((category) => (
                     <div
@@ -111,10 +183,10 @@ const AllProducts = () => {
                     </div>
                   ))}
                 </div>
-                {selectedCategory && (
+                {(selectedCategory || activeFilterCount > 0) && (
                   <div className="text-center mt-3">
                     <button
-                      onClick={() => setSelectedCategory('')}
+                      onClick={handleClearFilters}
                       className="btn btn-sm btn-secondary"
                       style={{ 
                         borderRadius: '20px',
@@ -122,7 +194,7 @@ const AllProducts = () => {
                         fontWeight: 'bold'
                       }}
                     >
-                      Clear Filter
+                      Remove Filters
                     </button>
                   </div>
                 )}
@@ -184,6 +256,17 @@ const AllProducts = () => {
           </div>
         </div>
       </div>
+      <FilterDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onApply={handleApplyFilters}
+        onClear={handleClearFilters}
+        categories={mergedCategories}
+        selectedCategories={filters.categories}
+        selectedSizes={filters.sizes}
+        selectedSort={filters.sort}
+        title="Filters"
+      />
     </Layout>
   );
 };

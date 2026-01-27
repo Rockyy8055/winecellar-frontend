@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from '../../store/slices/cart-slice';
 import { addToWishlist, deleteFromWishlist } from '../../store/slices/wishlist-slice';
+import { resolveProductImage } from "../../utils/image";
 
 const ProductGridSingleTwo = ({ product }) => {
   const [hovered, setHovered] = useState(false);
@@ -104,6 +105,15 @@ const ProductGridSingleTwo = ({ product }) => {
   };
 
   const currency = useSelector((state) => state.currency);
+  const primaryImage = useMemo(() => {
+    const variationImg = product?.variation?.find((v) => v?.image)?.image;
+    const extrasImg = product?.extras?.find((extra) => extra?.image)?.image;
+    return resolveProductImage({
+      ...product,
+      img: variationImg || extrasImg || product?.img,
+      imageUrl: product?.imageUrl || variationImg || extrasImg,
+    });
+  }, [product]);
   return (
     <div
       className="product-card-simple"
@@ -154,7 +164,7 @@ const ProductGridSingleTwo = ({ product }) => {
       {/* Product Image */}
       <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
         <img
-          src={product.img && product.img.startsWith('http') ? product.img : process.env.PUBLIC_URL + product.img}
+          src={primaryImage}
           alt={product.name}
           style={{
             width: '100%',

@@ -8,6 +8,7 @@ import { getDiscountPrice } from "../../helpers/product";
 import ProductModal from "./ProductModal";
 import { addToCart } from "../../store/slices/cart-slice";
 import { addToWishlist } from "../../store/slices/wishlist-slice";
+import { resolveImageSource } from "../../utils/image";
 
 const ProductGridSingle = ({
   product,
@@ -32,7 +33,7 @@ const ProductGridSingle = ({
           <Link to={"/product/" + product.ProductId}>
             <img
               className="default-img"
-              src={process.env.PUBLIC_URL + product.img}
+              src={resolveImageSource(product.img, product.imageUrl)}
               alt=""
             />
           </Link>

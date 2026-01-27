@@ -7,6 +7,7 @@ import Layout from "../../layouts/Layout";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import { addToCart } from "../../store/slices/cart-slice";
 import { deleteFromWishlist, deleteAllFromWishlist } from "../../store/slices/wishlist-slice"
+import { resolveImageSource } from "../../utils/image";
 
 const Wishlist = () => {
   const dispatch = useDispatch();
@@ -75,10 +76,7 @@ const Wishlist = () => {
                                   >
                                     <img
                                       className="img-fluid"
-                                      src={
-                                        process.env.PUBLIC_URL +
-                                        wishlistItem.img
-                                      }
+                                      src={resolveImageSource(wishlistItem.img, wishlistItem.imageUrl)}
                                       alt=""
                                     />
                                   </Link>

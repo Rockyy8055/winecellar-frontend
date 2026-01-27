@@ -9,7 +9,8 @@ const ProductGridTwo = ({
   titlePriceClass,
   category,
   type,
-  limit
+  limit,
+  productsOverride
 }) => {
   const { products } = useSelector((state) => state.product);
   const currency = useSelector((state) => state.currency);
@@ -17,12 +18,11 @@ const ProductGridTwo = ({
   const { wishlistItems } = useSelector((state) => state.wishlist);
   const { compareItems } = useSelector((state) => state.compare);
   
-  console.log('ProductGridTwo - All products from Redux:', products);
-  console.log('ProductGridTwo - Category:', category, 'Type:', type, 'Limit:', limit);
-  
-  // Show all products (not filtered by type) and limit to first 6 for homepage
-  const displayProducts = products ? products.slice(0, limit || products.length) : [];
-  console.log('ProductGridTwo - Products to display:', displayProducts);
+  const sourceProducts = productsOverride && Array.isArray(productsOverride)
+    ? productsOverride
+    : (products || []);
+
+  const displayProducts = sourceProducts.slice(0, limit || sourceProducts.length);
   
   return (
     <>
@@ -69,7 +69,8 @@ ProductGridTwo.propTypes = {
   titlePriceClass: PropTypes.string,
   category: PropTypes.string,
   type: PropTypes.string,
-  limit: PropTypes.number
+  limit: PropTypes.number,
+  productsOverride: PropTypes.array
 };
 
 export default ProductGridTwo;

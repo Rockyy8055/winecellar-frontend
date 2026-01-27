@@ -34,6 +34,17 @@ export const getDiscountPrice = (price, discount) => {
 };
 
 // get product cart quantity
+export const QUANTITY_SIZE_OPTIONS = [
+  "1.5LTR",
+  "1LTR",
+  "75CL",
+  "70CL",
+  "35CL",
+  "20CL",
+  "10CL",
+  "5CL"
+];
+
 export const getProductCartQuantity = (cartItems, product, color, size) => {
   let productInCart = cartItems.find(
     single =>
@@ -156,6 +167,83 @@ export const getIndividualTags = products => {
     });
   const individualProductTags = getIndividualItemArray(productTags);
   return individualProductTags;
+};
+
+const normalizeQuantityValue = value => {
+  if (value === undefined || value === null) return "";
+  return String(value)
+    .toUpperCase()
+    .replace(/LITRES?/g, "LTR")
+    .replace(/LITERS?/g, "LTR")
+    .replace(/\s+/g, "")
+    .replace(/\./g, "");
+};
+
+const collectProductQuantityTokens = product => {
+  const tokens = new Set();
+  const pushValue = val => {
+    if (val === undefined || val === null) return;
+    if (Array.isArray(val)) {
+      val.forEach(pushValue);
+      return;
+    }
+    if (typeof val === "object") {
+      Object.values(val).forEach(pushValue);
+      return;
+    }
+    const normalized = normalizeQuantityValue(val);
+    if (normalized) tokens.add(normalized);
+  };
+
+  if (!product || typeof product !== "object") {
+    return Array.from(tokens);
+  }
+
+  pushValue(product.size);
+  pushValue(product.Size);
+  pushValue(product.SIZE);
+  pushValue(product.volume);
+  pushValue(product.quantity);
+  pushValue(product.quantities);
+  pushValue(product.availableSizes);
+  pushValue(product.sizes);
+
+  if (Array.isArray(product.variation)) {
+    product.variation.forEach(variant => {
+      pushValue(variant?.size);
+      pushValue(variant?.volume);
+      if (Array.isArray(variant?.size)) {
+        variant.size.forEach(sizeEntry => {
+          pushValue(sizeEntry?.name || sizeEntry?.label || sizeEntry);
+        });
+      }
+    });
+  }
+
+  return Array.from(tokens);
+};
+
+export const filterProductsByQuantityAndSort = (products = [], filters = {}) => {
+  const { sizes = [], sort = "default" } = filters;
+  const normalizedSelected = sizes.map(normalizeQuantityValue).filter(Boolean);
+
+  let working = Array.isArray(products) ? [...products] : [];
+
+  if (normalizedSelected.length) {
+    working = working.filter(product => {
+      const productTokens = collectProductQuantityTokens(product);
+      if (!productTokens.length) return false;
+      return productTokens.some(token => normalizedSelected.includes(token));
+    });
+  }
+
+  if (sort === "priceHighToLow") {
+    working.sort((a, b) => Number(b?.price || 0) - Number(a?.price || 0));
+  } else if (sort === "priceLowToHigh") {
+    working.sort((a, b) => Number(a?.price || 0) - Number(b?.price || 0));
+  }
+
+  return working;
 };
 
 // get individual colors
