@@ -16,8 +16,8 @@ import PricingBifurcation from './pages/Payment/PricingBifurcation';
 import PaymentSuccess from './pages/Payment/PaymentSuccess';
 
 const HomeNew = lazy(() => import("./NewPages/Home/Home"));
-const LoginPage = lazy(() => import('./pages/Auth/Login'));
-const SignupPage = lazy(() => import('./pages/Auth/Signup'));
+const LoginPage = lazy(() => import('./NewPages/auth/Login'));
+const SignupPage = lazy(() => import('./NewPages/auth/Signup'));
 const WishlistNew = lazy(() => import("./NewPages/other/Wishlist"));
 const CartNew = lazy(() => import("./NewPages/other/Cart"));
 const AllProducts = lazy(() => import("./NewPages/other/AllProducts"));

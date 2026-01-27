@@ -23,6 +23,19 @@ export async function listOrders({ page = 1, limit = 20, status = '' } = {}, tok
   return r.json();
 }
 
+export async function listUsers({ page = 1, limit = 100, search = '' } = {}, token) {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit)
+  });
+  if (search) params.append('search', search);
+  const r = await fetch(`${API_BASE}/api/admin/users?${params.toString()}`, {
+    headers: { Authorization: `Bearer ${getToken(token)}` }
+  });
+  if (!r.ok) throw new Error(`listUsers failed: ${r.status}`);
+  return r.json();
+}
+
 export async function getOrder(id, token) {
   const r = await fetch(`${API_BASE}/api/admin/orders/${id}`, {
     headers: { Authorization: `Bearer ${getToken(token)}` }

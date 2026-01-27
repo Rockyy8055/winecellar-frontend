@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Layout from '../../layouts/Layout';
-import { listOrders, getOrder, setOrderStatus, formatGBP, API_BASE } from '../../Services/admin-api';
+import { listOrders, getOrder, setOrderStatus, formatGBP, API_BASE, listUsers } from '../../Services/admin-api';
 import { listProducts, createProduct, updateProduct } from '../../Services/product-admin-api';
 import { setProducts as setProductsAction } from '../../store/slices/product-slice';
 import { ToastContainer, toast } from 'react-toastify';
@@ -92,6 +92,13 @@ const buildPickupStoreInfo = (order = {}) => {
   return null;
 };
 
+const formatDateTime = (value) => {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleString('en-GB');
+};
+
 const AdminOrders = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [rows, setRows] = useState([]);
@@ -107,6 +114,7 @@ const AdminOrders = () => {
   const [savingProd, setSavingProd] = useState(false);
   const [editingProducts, setEditingProducts] = useState({});
   const [savingRow, setSavingRow] = useState(null);
+  const [userRows, setUserRows] = useState([]);
 
   const fileInputsRef = useRef({});
   const blobUrlsRef = useRef(new Set());
@@ -181,9 +189,10 @@ const AdminOrders = () => {
   const fetchData = useCallback(async ({ syncCatalog = false } = {}) => {
     setLoading(true);
     try {
-      const [ordersRes, prodsRes] = await Promise.allSettled([
+      const [ordersRes, prodsRes, usersRes] = await Promise.allSettled([
         listOrders({ page, limit: 20, status: statusFilter }, token),
-        listProducts({ page: 1, limit: 50, search: prodQ }, token)
+        listProducts({ page: 1, limit: 50, search: prodQ }, token),
+        listUsers({ page: 1, limit: 200 }, token)
       ]);
 
       if (ordersRes.status === 'fulfilled') {
@@ -203,6 +212,16 @@ const AdminOrders = () => {
       } else {
         console.warn('Products fetch failed:', prodsRes.reason);
         setProductRows([]);
+      }
+
+      if (usersRes.status === 'fulfilled') {
+        const payload = usersRes.value || {};
+        const list = Array.isArray(payload)
+          ? payload
+          : (payload.items || payload.rows || payload.users || payload.data || []);
+        setUserRows(Array.isArray(list) ? list : []);
+      } else {
+        console.warn('Users fetch failed:', usersRes.reason);
       }
     } catch (e) {
       console.error(e);
@@ -718,6 +737,48 @@ const AdminOrders = () => {
             </div>
           </div>
         )}
+
+        <hr/>
+        <h2 style={{ color:'#350008', fontWeight:800, fontSize: '1.8rem' }}>Users</h2>
+        <div className="table-responsive">
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Created</th>
+                <th>Last Login</th>
+              </tr>
+            </thead>
+            <tbody>
+              {userRows.length ? userRows.map((user, idx) => {
+                const identifier = user.id || user._id || user.userId || user.email || user.username || `user-${idx}`;
+                const fullName = user.name
+                  || [user.firstName, user.lastName].filter(Boolean).join(' ')
+                  || user.fullName
+                  || '—';
+                const email = user.email || user.username || '—';
+                const phone = user.phone || user.contactNumber || user.mobile || '—';
+                const created = formatDateTime(user.createdAt || user.created_at || user.createdOn);
+                const lastLogin = formatDateTime(user.lastLoginAt || user.lastLogin || user.updatedAt || user.updated_at || user.lastSeenAt);
+                return (
+                  <tr key={identifier}>
+                    <td>{user.id || user._id || '—'}</td>
+                    <td>{fullName}</td>
+                    <td>{email}</td>
+                    <td>{phone}</td>
+                    <td>{created}</td>
+                    <td>{lastLogin}</td>
+                  </tr>
+                );
+              }) : (
+                <tr><td colSpan={6} className="text-center">{loading ? 'Loading users…' : 'No users found'}</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {/* Product Management */}
         <hr/>
