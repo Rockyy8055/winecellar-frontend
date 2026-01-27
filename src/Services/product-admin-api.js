@@ -85,7 +85,8 @@ export async function listProducts({ page = 1, limit = 20, search = '' } = {}, t
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-      }
+      },
+      credentials: 'include'
     });
     if (r.ok) {
       const d = await r.json();
@@ -160,7 +161,8 @@ export async function createProduct({ name, price, desc, category = [], subCateg
       'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     },
-    body
+    body,
+    credentials: 'include'
   });
   if (!r.ok) throw new Error(`createProduct failed: ${r.status}`);
   return r.json();
@@ -221,7 +223,8 @@ export async function updateProduct(id, fields = {}, token) {
       'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     },
-    body
+    body,
+    credentials: 'include'
   });
   if (!r.ok) {
     let message = `updateProduct failed: ${r.status}`;

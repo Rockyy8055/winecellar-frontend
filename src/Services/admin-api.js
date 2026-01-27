@@ -23,7 +23,8 @@ export async function listOrders({ page = 1, limit = 20, status = '' } = {}, tok
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-    }
+    },
+    credentials: 'include'
   });
   if (!r.ok) throw new Error(`listOrders failed: ${r.status}`);
   return r.json();
@@ -42,7 +43,8 @@ export async function listUsers({ page = 1, limit = 100, search = '' } = {}, tok
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-    }
+    },
+    credentials: 'include'
   });
   if (!r.ok) throw new Error(`listUsers failed: ${r.status}`);
   return r.json();
@@ -56,7 +58,8 @@ export async function getOrder(id, token) {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-    }
+    },
+    credentials: 'include'
   });
   if (!r.ok) throw new Error(`getOrder failed: ${r.status}`);
   return r.json();
@@ -73,6 +76,7 @@ export async function setOrderStatus(id, status, note = 'Admin update', token) {
       'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     },
+    credentials: 'include',
     body: JSON.stringify({ status, note })
   });
   if (!r.ok) throw new Error(`setOrderStatus failed: ${r.status}`);
