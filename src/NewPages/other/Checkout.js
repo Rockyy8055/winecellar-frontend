@@ -461,56 +461,109 @@ const Checkout = () => {
 
       {/* Store Selector Modal */}
       {showStoreSelector && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999 }}>
-          <div style={{ background:'#fffef1', maxWidth:520, width:'90%', borderRadius:12, padding:24 }}>
-            <h3 style={{ margin:'0 0 20px', textAlign:'center', color:'#350008' }}>Select Store for Pickup</h3>
-            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-              {STORE_LOCATIONS.map((location) => (
-                <label
-                  key={location.id}
-                  style={{
-                    display:'flex',
-                    alignItems:'flex-start',
-                    gap:12,
-                    padding:16,
-                    border:selectedStoreId === location.id ? '2px solid #350008' : '1px solid #ccc',
-                    borderRadius:8,
-                    background:selectedStoreId === location.id ? '#f7f7f7' : '#fff',
-                    cursor:'pointer'
-                  }}
-                >
-                  <input
-                    type="radio"
-                    name="pickupStore"
-                    checked={selectedStoreId === location.id}
-                    onChange={() => setSelectedStoreId(location.id)}
-                    style={{ marginTop:2 }}
-                  />
-                  <div>
-                    <strong>{location.name}</strong><br/>
-                    {location.addressLine1}, {location.city}<br/>
-                    {location.postcode}, {location.country}<br/>
-                    Phone: {location.phone}
-                  </div>
-                </label>
-              ))}
+        <div
+          style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999, padding:16 }}
+          onClick={() => { setShowStoreSelector(false); setSelectedStoreId(null); }}
+        >
+          <div
+            style={{
+              position:'relative',
+              background:'#fffdf6',
+              maxWidth:440,
+              width:'100%',
+              borderRadius:16,
+              boxShadow:'0 22px 45px rgba(0,0,0,0.2)',
+              padding:'28px 26px 24px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => { setShowStoreSelector(false); setSelectedStoreId(null); }}
+              style={{
+                position:'absolute',
+                top:16,
+                right:16,
+                background:'transparent',
+                border:'none',
+                fontSize:22,
+                color:'#6f6f6f',
+                cursor:'pointer',
+                lineHeight:1
+              }}
+              aria-label="Close store selector"
+            >
+              ×
+            </button>
+            <h3 style={{ margin:'0 0 8px', textAlign:'center', color:'#2c040a', fontSize:'1.6rem', fontWeight:800 }}>Pick your collection store</h3>
+            <p style={{ margin:'0 0 20px', textAlign:'center', color:'#6b5a5c', fontSize:'0.95rem' }}>
+              Choose the location where you’d like to collect your order.
+            </p>
+            <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+              {STORE_LOCATIONS.map((location) => {
+                const isActive = selectedStoreId === location.id;
+                return (
+                  <label
+                    key={location.id}
+                    style={{
+                      position:'relative',
+                      display:'flex',
+                      alignItems:'flex-start',
+                      gap:14,
+                      padding:'16px 18px',
+                      borderRadius:12,
+                      border:isActive ? '2px solid #2c040a' : '1px solid #e1d8d0',
+                      background:isActive ? 'linear-gradient(130deg, #fff6ea 0%, #ffe8d8 100%)' : '#ffffff',
+                      boxShadow:isActive ? '0 12px 24px rgba(44,4,10,0.18)' : '0 4px 12px rgba(0,0,0,0.06)',
+                      transition:'all 0.2s ease',
+                      cursor:'pointer'
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="pickupStore"
+                      checked={isActive}
+                      onChange={() => setSelectedStoreId(location.id)}
+                      style={{ marginTop:4, accentColor:'#2c040a' }}
+                    />
+                    <div>
+                      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
+                        <strong style={{ fontSize:'1.05rem', color:'#2c040a' }}>{location.name}</strong>
+                        {isActive && (
+                          <span style={{ fontSize:'0.7rem', fontWeight:700, color:'#2c040a', background:'#fde5cf', padding:'3px 8px', borderRadius:999 }}>Selected</span>
+                        )}
+                      </div>
+                      <div style={{ color:'#5c4a4d', fontSize:'0.95rem', lineHeight:1.5 }}>
+                        {location.addressLine1}<br/>
+                        {location.city}<br/>
+                        {location.postcode}, {location.country}<br/>
+                        <span style={{ fontWeight:600 }}>Phone:</span> {location.phone}
+                      </div>
+                    </div>
+                  </label>
+                );
+              })}
             </div>
-            <div style={{ display:'flex', gap:12, marginTop:24 }}>
-              <button
-                type="button"
-                onClick={() => { setShowStoreSelector(false); setSelectedStoreId(null); }}
-                style={{ flex:1, padding:'12px 16px', border:'1px solid #ccc', background:'#fff', borderRadius:6, cursor:'pointer' }}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmStorePickup}
-                style={{ flex:1, padding:'12px 16px', background:'#350008', color:'#fff', border:'none', borderRadius:6, cursor:'pointer' }}
-              >
-                Pick up at this store
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleConfirmStorePickup}
+              style={{
+                marginTop:22,
+                width:'100%',
+                padding:'14px 20px',
+                border:'none',
+                borderRadius:999,
+                background:'#2c040a',
+                color:'#fffef6',
+                fontSize:'1rem',
+                fontWeight:700,
+                letterSpacing:0.4,
+                cursor:'pointer',
+                boxShadow:'0 16px 28px rgba(44,4,10,0.35)'
+              }}
+            >
+              Collect from this store
+            </button>
           </div>
         </div>
       )}
