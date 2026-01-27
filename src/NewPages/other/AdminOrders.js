@@ -388,7 +388,6 @@ const AdminOrders = () => {
     const product = displayedProducts.find((p) => p.id === id);
     if (!product) return;
     setEditingProducts((prev) => {
-      const draft = prev[id];
       return { ...prev, [id]: buildDraft(product) };
     });
     if (fileInputsRef.current[id]) fileInputsRef.current[id].value = '';

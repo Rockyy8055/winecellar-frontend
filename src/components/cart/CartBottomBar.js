@@ -113,21 +113,24 @@ const CartBottomBar = () => {
           )}
         </div>
         <div className="cart-bottom-bar__right">
-          <button
-            type="button"
-            className="cart-bottom-bar__clear"
-            onClick={handleClearCart}
-            aria-label="Clear cart"
-          >
-            ×
-          </button>
           <div className="cart-bottom-bar__summary">
             <span>{summary.totalQuantity} item{summary.totalQuantity === 1 ? '' : 's'}</span>
             <span>{currency?.currencySymbol || ''}{summary.totalPrice}</span>
           </div>
-          <Link to="/Cart" className="cart-bottom-bar__cta">
-            View Cart
-          </Link>
+          <div className="cart-bottom-bar__actions">
+            <Link to="/Cart" className="cart-bottom-bar__cta">
+              View Cart
+            </Link>
+            <button
+              type="button"
+              className="cart-bottom-bar__clear"
+              onClick={handleClearCart}
+              aria-label="Clear cart"
+              title="Clear cart"
+            >
+              ×
+            </button>
+          </div>
         </div>
       </div>
       {expanded && moreCount > 0 && (

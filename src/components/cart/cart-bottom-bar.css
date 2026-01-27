@@ -117,6 +117,12 @@ body {
   gap: 16px;
 }
 
+.cart-bottom-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .cart-bottom-bar__clear {
   border: none;
   background: rgba(53, 0, 8, 0.08);
