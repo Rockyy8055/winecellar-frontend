@@ -48,6 +48,7 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [activeTab, setActiveTab] = useState('all'); // 'all' | 'pickAndPay'
   // products
   const [productRows, setProductRows] = useState([]);
   const [prodQ, setProdQ] = useState("");
@@ -181,6 +182,14 @@ const AdminOrders = () => {
     };
     return [...productRows].sort((a, b) => rank(a) - rank(b));
   }, [productRows, prodQInput]);
+
+  // Filter rows based on active tab
+  const displayedRows = useMemo(() => {
+    if (activeTab === 'pickAndPay') {
+      return rows.filter(r => r.paymentMethod === 'cod');
+    }
+    return rows;
+  }, [rows, activeTab]);
 
   const buildDraft = useCallback((p) => {
     const category = Array.isArray(p.category) ? p.category.filter(Boolean).join(', ') : (p.category || '');
@@ -495,8 +504,27 @@ const AdminOrders = () => {
           </div>
         </div>
 
+        <h2 style={{ color:'#350008', fontWeight:800, fontSize: '1.8rem' }}>Orders</h2>
+        <div className="mb-3">
+          <div className="btn-group" role="group">
+            <button
+              type="button"
+              className={`btn ${activeTab === 'all' ? 'btn-dark' : 'btn-outline-dark'}`}
+              onClick={() => setActiveTab('all')}
+            >
+              All Orders
+            </button>
+            <button
+              type="button"
+              className={`btn ${activeTab === 'pickAndPay' ? 'btn-dark' : 'btn-outline-dark'}`}
+              onClick={() => setActiveTab('pickAndPay')}
+            >
+              Pick and Pay
+            </button>
+          </div>
+        </div>
         <div className="table-responsive">
-          <table className="table">
+          <table className="table table-bordered">
             <thead>
               <tr>
                 <th>Order ID</th>
@@ -505,13 +533,14 @@ const AdminOrders = () => {
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Total (£)</th>
+                <th>Payment Method</th>
                 <th>Status</th>
                 <th>Created At</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
+              {displayedRows.map((r) => (
                 <tr key={r.id} onClick={() => view(r.id)} style={{ cursor: 'pointer' }}>
                   <td>{r.id}</td>
                   <td>{r.trackingCode}</td>
@@ -519,6 +548,7 @@ const AdminOrders = () => {
                   <td>{r.customer?.email}</td>
                   <td>{r.customer?.phone}</td>
                   <td>{formatGBP(r.total)}</td>
+                  <td>{r.paymentMethod === 'cod' ? 'Pick and Pay' : (r.paymentMethod || 'Card')}</td>
                   <td style={{ minWidth: 180 }} onClick={(e)=>e.stopPropagation()}>
                     <StatusSelect value={r.status} onChange={(v) => updateStatus(r.id, v)} disabled={updatingId===r.id} />
                   </td>
@@ -528,8 +558,8 @@ const AdminOrders = () => {
                   </td>
                 </tr>
               ))}
-              {!rows.length && (
-                <tr><td colSpan={9} className="text-center">{loading ? 'Loading...' : 'No orders found'}</td></tr>
+              {!displayedRows.length && (
+                <tr><td colSpan={10} className="text-center">{loading ? 'Loading...' : 'No orders found'}</td></tr>
               )}
             </tbody>
           </table>
@@ -560,6 +590,26 @@ const AdminOrders = () => {
                   </div>
                 </div>
               </div>
+              {selected.paymentMethod === 'cod' && (
+                <div className="row mt-3">
+                  <div className="col-12">
+                    <h5>Billing Details (Pick and Pay)</h5>
+                    <div className="row">
+                      <div className="col-md-6">
+                        <strong>Name:</strong> {selected.customer?.name}<br/>
+                        <strong>Email:</strong> {selected.customer?.email}<br/>
+                        <strong>Phone:</strong> {selected.customer?.phone}
+                      </div>
+                      <div className="col-md-6">
+                        <strong>Address:</strong> {selected.shippingAddress?.line1}<br/>
+                        {selected.shippingAddress?.city && <><strong>City:</strong> {selected.shippingAddress?.city}<br/></>}
+                        <strong>Postcode:</strong> {selected.shippingAddress?.postcode}<br/>
+                        {selected.shippingAddress?.country && <><strong>Country:</strong> {selected.shippingAddress?.country}</>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               <h5 className="mt-3">Items</h5>
               <div className="table-responsive">
                 <table className="table table-sm">
