@@ -9,6 +9,27 @@ import { createOrder } from '../../Services/orders-api';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
+const STORE_LOCATIONS = [
+  {
+    id: 1,
+    name: 'Shop Location 1',
+    addressLine1: '536 Kingsland Road',
+    city: 'Dalston, London',
+    postcode: 'E8 4AH',
+    country: 'United Kingdom',
+    phone: '020 7241 1593'
+  },
+  {
+    id: 2,
+    name: 'Shop Location 2',
+    addressLine1: '164 Stoke Newington Road',
+    city: 'London',
+    postcode: 'N16 7UY',
+    country: 'United Kingdom',
+    phone: '020 7241 1593'
+  }
+];
+
 const StripePaymentForm = ({ onSuccess, canPay }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -86,7 +107,12 @@ const Checkout = () => {
   const [orderId, setOrderId] = useState(null);
   const [shipping, setShipping] = useState(0);
   const [showStoreSelector, setShowStoreSelector] = useState(false);
-  const [selectedStore, setSelectedStore] = useState(null);
+  const [selectedStoreId, setSelectedStoreId] = useState(null);
+  const [confirmedStore, setConfirmedStore] = useState(null);
+  const selectedStore = useMemo(
+    () => STORE_LOCATIONS.find((location) => location.id === selectedStoreId) || null,
+    [selectedStoreId]
+  );
   const isTradeCustomer = (() => {
     try { return !!localStorage.getItem('trade_customer_profile'); } catch (_) { return false; }
   })();
@@ -137,12 +163,13 @@ const Checkout = () => {
     }
   }, [totalAmount, paymentMethod]);
 
-  const handlePlaceOrderCOD = async () => {
-    // Require login (server also enforces; client UX guard)
-    try {
-      const meRes = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, { credentials: 'include' });
-      if (!meRes.ok) { window.location.href = '/login'; return; }
-    } catch (_) { window.location.href = '/login'; return; }
+  useEffect(() => {
+    if (showStoreSelector && selectedStoreId == null && STORE_LOCATIONS.length) {
+      setSelectedStoreId(STORE_LOCATIONS[0].id);
+    }
+  }, [showStoreSelector, selectedStoreId]);
+
+  const handlePlaceOrderCOD = () => {
     if (!isBillingComplete) {
       alert('Please fill the Billing Details.');
       return;
@@ -156,17 +183,38 @@ const Checkout = () => {
       return;
     }
     try {
+      const meRes = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, { credentials: 'include' });
+      if (!meRes.ok) {
+        alert('Please log in to place an order.');
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Unable to verify login. Please try again.');
+      return;
+    }
+    try {
       const payload = {
         method: 'cod',
         customer: { name: `${billing.firstName} ${billing.lastName}`.trim(), email: billing.email, phone: billing.phone },
-        shippingAddress: { 
-          line1: billing.address, 
-          postcode: billing.postcode,
-          // Add store info to address for admin reference
-          storeName: selectedStore.name,
-          storeAddress: selectedStore.address,
-          storePhone: selectedStore.phone
+        billingDetails: {
+          firstName: billing.firstName,
+          lastName: billing.lastName,
+          email: billing.email,
+          phone: billing.phone,
+          address: billing.address,
+          postcode: billing.postcode
         },
+        shippingAddress: {
+          line1: selectedStore.addressLine1,
+          city: selectedStore.city,
+          postcode: selectedStore.postcode,
+          country: selectedStore.country,
+          phone: selectedStore.phone,
+          storeId: selectedStore.id,
+          storeName: selectedStore.name
+        },
+        pickupStore: selectedStore,
         items: cartItems.map(it => ({ id: it.ProductId, name: it.name, qty: it.quantity, price: it.price })),
         subtotal: Number(subtotal.toFixed(2)),
         discount: Number(discountAmount.toFixed(2)),
@@ -176,6 +224,7 @@ const Checkout = () => {
       };
       const { trackingCode } = await createOrder(payload);
       setShowStoreSelector(false);
+      setConfirmedStore(selectedStore);
       setOrderPlaced(true);
       const newId = trackingCode || `ORD-${Date.now()}`;
       setOrderId(newId);
@@ -183,10 +232,16 @@ const Checkout = () => {
         localStorage.setItem('last_order_id', newId);
         localStorage.setItem('last_tracking_code', newId);
       } catch (_) {}
+      setSelectedStoreId(null);
     } catch (err) {
       console.error(err);
       alert('Failed to place order. Please try again.');
     }
+  };
+
+  const handleCloseSuccess = () => {
+    setOrderPlaced(false);
+    setConfirmedStore(null);
   };
 
   // PayPal client ID should be set in .env and passed here
@@ -407,29 +462,54 @@ const Checkout = () => {
       {/* Store Selector Modal */}
       {showStoreSelector && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999 }}>
-          <div style={{ background:'#fffef1', maxWidth:500, width:'90%', borderRadius:12, padding:24 }}>
+          <div style={{ background:'#fffef1', maxWidth:520, width:'90%', borderRadius:12, padding:24 }}>
             <h3 style={{ margin:'0 0 20px', textAlign:'center', color:'#350008' }}>Select Store for Pickup</h3>
             <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-              <label style={{ display:'flex', alignItems:'flex-start', gap:12, padding:16, border:selectedStore?.id===1 ? '2px solid #350008' : '1px solid #ccc', borderRadius:8, cursor:'pointer', background:selectedStore?.id===1 ? '#f7f7f7' : '#fff' }}>
-                <input type="radio" name="store" checked={selectedStore?.id===1} onChange={() => setSelectedStore({ id:1, name:'Shop Location 1', address:'536 Kingsland Road, Dalston, London, E8 4AH, United Kingdom', phone:'020 7241 1593' })} style={{ marginTop:2 }} />
-                <div>
-                  <strong>Shop Location 1</strong><br/>
-                  536 Kingsland Road, Dalston, London, E8 4AH, United Kingdom<br/>
-                  Phone: 020 7241 1593
-                </div>
-              </label>
-              <label style={{ display:'flex', alignItems:'flex-start', gap:12, padding:16, border:selectedStore?.id===2 ? '2px solid #350008' : '1px solid #ccc', borderRadius:8, cursor:'pointer', background:selectedStore?.id===2 ? '#f7f7f7' : '#fff' }}>
-                <input type="radio" name="store" checked={selectedStore?.id===2} onChange={() => setSelectedStore({ id:2, name:'Shop Location 2', address:'164 Stoke Newington Road, London, N16 7UY', phone:'020 7241 1593' })} style={{ marginTop:2 }} />
-                <div>
-                  <strong>Shop Location 2</strong><br/>
-                  164 Stoke Newington Road, London, N16 7UY<br/>
-                  Phone: 020 7241 1593
-                </div>
-              </label>
+              {STORE_LOCATIONS.map((location) => (
+                <label
+                  key={location.id}
+                  style={{
+                    display:'flex',
+                    alignItems:'flex-start',
+                    gap:12,
+                    padding:16,
+                    border:selectedStoreId === location.id ? '2px solid #350008' : '1px solid #ccc',
+                    borderRadius:8,
+                    background:selectedStoreId === location.id ? '#f7f7f7' : '#fff',
+                    cursor:'pointer'
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="pickupStore"
+                    checked={selectedStoreId === location.id}
+                    onChange={() => setSelectedStoreId(location.id)}
+                    style={{ marginTop:2 }}
+                  />
+                  <div>
+                    <strong>{location.name}</strong><br/>
+                    {location.addressLine1}, {location.city}<br/>
+                    {location.postcode}, {location.country}<br/>
+                    Phone: {location.phone}
+                  </div>
+                </label>
+              ))}
             </div>
             <div style={{ display:'flex', gap:12, marginTop:24 }}>
-              <button type="button" onClick={() => { setShowStoreSelector(false); setSelectedStore(null); }} style={{ flex:1, padding:'12px 16px', border:'1px solid #ccc', background:'#fff', borderRadius:6, cursor:'pointer' }}>Cancel</button>
-              <button type="button" onClick={handleConfirmStorePickup} style={{ flex:1, padding:'12px 16px', background:'#350008', color:'#fff', border:'none', borderRadius:6, cursor:'pointer' }}>Pick up at this store</button>
+              <button
+                type="button"
+                onClick={() => { setShowStoreSelector(false); setSelectedStoreId(null); }}
+                style={{ flex:1, padding:'12px 16px', border:'1px solid #ccc', background:'#fff', borderRadius:6, cursor:'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmStorePickup}
+                style={{ flex:1, padding:'12px 16px', background:'#350008', color:'#fff', border:'none', borderRadius:6, cursor:'pointer' }}
+              >
+                Pick up at this store
+              </button>
             </div>
           </div>
         </div>
@@ -441,8 +521,24 @@ const Checkout = () => {
           <div style={{ background:'#fffef1', borderRadius:12, padding:32, textAlign:'center' }}>
             <div style={{ fontSize:48, marginBottom:16 }}>✅</div>
             <h3 style={{ margin:'0 0 12px', color:'#350008' }}>Thank you for placing an order!</h3>
-            <p style={{ margin:0, color:'#666' }}>Your order has been received and will be ready for pickup at the selected store.</p>
-            <button type="button" onClick={() => setOrderPlaced(false)} style={{ marginTop:20, padding:'12px 24px', background:'#350008', color:'#fff', border:'none', borderRadius:6, cursor:'pointer' }}>Close</button>
+            <p style={{ margin:0, color:'#666' }}>
+              Your order has been received and will be ready for pickup at
+              {confirmedStore ? ` ${confirmedStore.name}` : ' the selected store'}.
+            </p>
+            {confirmedStore && (
+              <div style={{ marginTop:16, color:'#350008', fontWeight:600 }}>
+                {confirmedStore.addressLine1}, {confirmedStore.city}<br/>
+                {confirmedStore.postcode}, {confirmedStore.country}<br/>
+                Phone: {confirmedStore.phone}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleCloseSuccess}
+              style={{ marginTop:20, padding:'12px 24px', background:'#350008', color:'#fff', border:'none', borderRadius:6, cursor:'pointer' }}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

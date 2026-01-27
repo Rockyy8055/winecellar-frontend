@@ -42,6 +42,56 @@ const TOAST_PRESET = {
   iconTheme: { primary: '#350008', secondary: '#fffef1' }
 };
 
+const buildBillingSummary = (order = {}) => {
+  const billing = order.billingDetails || {};
+  const customer = order.customer || {};
+  const firstName = billing.firstName || '';
+  const lastName = billing.lastName || '';
+  const fullName = [firstName, lastName].filter(Boolean).join(' ') || customer.name || '';
+  return {
+    firstName,
+    lastName,
+    fullName,
+    email: billing.email || customer.email || '',
+    phone: billing.phone || customer.phone || '',
+    address: billing.address || '',
+    postcode: billing.postcode || ''
+  };
+};
+
+const buildPickupStoreInfo = (order = {}) => {
+  if (!order) return null;
+  const explicitStore = order.pickupStore;
+  if (explicitStore && Object.keys(explicitStore).length) {
+    return {
+      name: explicitStore.name || explicitStore.storeName || '',
+      addressLine1: explicitStore.addressLine1 || explicitStore.line1 || explicitStore.address || '',
+      city: explicitStore.city || '',
+      postcode: explicitStore.postcode || '',
+      country: explicitStore.country || '',
+      phone: explicitStore.phone || explicitStore.storePhone || ''
+    };
+  }
+  const shipping = order.shippingAddress || {};
+  if (!shipping.storeName && order.paymentMethod !== 'cod') {
+    return null;
+  }
+  if (
+    shipping.storeName ||
+    order.paymentMethod === 'cod'
+  ) {
+    return {
+      name: shipping.storeName || shipping.name || '',
+      addressLine1: shipping.line1 || shipping.addressLine1 || '',
+      city: shipping.city || '',
+      postcode: shipping.postcode || '',
+      country: shipping.country || '',
+      phone: shipping.phone || shipping.storePhone || ''
+    };
+  }
+  return null;
+};
+
 const AdminOrders = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [rows, setRows] = useState([]);
@@ -534,32 +584,38 @@ const AdminOrders = () => {
                 <th>Phone</th>
                 <th>Total (£)</th>
                 <th>Payment Method</th>
+                <th>Pickup Store</th>
                 <th>Status</th>
                 <th>Created At</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {displayedRows.map((r) => (
-                <tr key={r.id} onClick={() => view(r.id)} style={{ cursor: 'pointer' }}>
-                  <td>{r.id}</td>
-                  <td>{r.trackingCode}</td>
-                  <td>{r.customer?.name}</td>
-                  <td>{r.customer?.email}</td>
-                  <td>{r.customer?.phone}</td>
-                  <td>{formatGBP(r.total)}</td>
-                  <td>{r.paymentMethod === 'cod' ? 'Pick and Pay' : (r.paymentMethod || 'Card')}</td>
-                  <td style={{ minWidth: 180 }} onClick={(e)=>e.stopPropagation()}>
-                    <StatusSelect value={r.status} onChange={(v) => updateStatus(r.id, v)} disabled={updatingId===r.id} />
-                  </td>
-                  <td>{r.createdAt ? new Date(r.createdAt).toLocaleString('en-GB') : ''}</td>
-                  <td>
-                    <button className="btn btn-sm btn-outline-primary" onClick={(e)=>{e.stopPropagation(); view(r.id);}}>View</button>
-                  </td>
-                </tr>
-              ))}
+              {displayedRows.map((r) => {
+                const billing = buildBillingSummary(r);
+                const pickupStore = buildPickupStoreInfo(r);
+                return (
+                  <tr key={r.id} onClick={() => view(r.id)} style={{ cursor: 'pointer' }}>
+                    <td>{r.id}</td>
+                    <td>{r.trackingCode}</td>
+                    <td>{billing.fullName || '—'}</td>
+                    <td>{billing.email || '—'}</td>
+                    <td>{billing.phone || '—'}</td>
+                    <td>{formatGBP(r.total)}</td>
+                    <td>{r.paymentMethod === 'cod' ? 'Pick and Pay' : (r.paymentMethod || 'Card')}</td>
+                    <td>{pickupStore?.name || (r.paymentMethod === 'cod' ? 'No store selected' : '—')}</td>
+                    <td style={{ minWidth: 180 }} onClick={(e)=>e.stopPropagation()}>
+                      <StatusSelect value={r.status} onChange={(v) => updateStatus(r.id, v)} disabled={updatingId===r.id} />
+                    </td>
+                    <td>{r.createdAt ? new Date(r.createdAt).toLocaleString('en-GB') : ''}</td>
+                    <td>
+                      <button className="btn btn-sm btn-outline-primary" onClick={(e)=>{e.stopPropagation(); view(r.id);}}>View</button>
+                    </td>
+                  </tr>
+                );
+              })}
               {!displayedRows.length && (
-                <tr><td colSpan={10} className="text-center">{loading ? 'Loading...' : 'No orders found'}</td></tr>
+                <tr><td colSpan={11} className="text-center">{loading ? 'Loading...' : 'No orders found'}</td></tr>
               )}
             </tbody>
           </table>
@@ -574,42 +630,61 @@ const AdminOrders = () => {
                 <button className="btn btn-sm btn-outline-secondary" onClick={()=>setSelected(null)}>Close</button>
               </div>
               <hr/>
-              <div className="row">
-                <div className="col-md-6">
-                  <h5>Customer</h5>
-                  <div>{selected.customer?.name}</div>
-                  <div>{selected.customer?.email}</div>
-                  <div>{selected.customer?.phone}</div>
-                </div>
-                <div className="col-md-6">
-                  <h5>Shipping Address</h5>
-                  <div>
-                    {selected.shippingAddress?.line1}<br/>
-                    {selected.shippingAddress?.city} {selected.shippingAddress?.postcode}<br/>
-                    {selected.shippingAddress?.country}
-                  </div>
-                </div>
-              </div>
-              {selected.paymentMethod === 'cod' && (
-                <div className="row mt-3">
-                  <div className="col-12">
-                    <h5>Billing Details (Pick and Pay)</h5>
-                    <div className="row">
-                      <div className="col-md-6">
-                        <strong>Name:</strong> {selected.customer?.name}<br/>
-                        <strong>Email:</strong> {selected.customer?.email}<br/>
-                        <strong>Phone:</strong> {selected.customer?.phone}
-                      </div>
-                      <div className="col-md-6">
-                        <strong>Address:</strong> {selected.shippingAddress?.line1}<br/>
-                        {selected.shippingAddress?.city && <><strong>City:</strong> {selected.shippingAddress?.city}<br/></>}
-                        <strong>Postcode:</strong> {selected.shippingAddress?.postcode}<br/>
-                        {selected.shippingAddress?.country && <><strong>Country:</strong> {selected.shippingAddress?.country}</>}
-                      </div>
+              {(() => {
+                const billing = buildBillingSummary(selected);
+                const pickupStore = buildPickupStoreInfo(selected);
+                const shippingAddress = selected.shippingAddress || {};
+                const shippingLines = [
+                  shippingAddress.line1,
+                  shippingAddress.line2,
+                  [shippingAddress.city, shippingAddress.state].filter(Boolean).join(', '),
+                  [shippingAddress.postcode, shippingAddress.country].filter(Boolean).join(' ')
+                ].filter((line) => line && line.trim().length);
+                const pickupLines = pickupStore ? [
+                  pickupStore.addressLine1,
+                  pickupStore.city,
+                  [pickupStore.postcode, pickupStore.country].filter(Boolean).join(' '),
+                  pickupStore.phone
+                ].filter((line) => line && line.trim().length) : [];
+                return (
+                  <div className="row">
+                    <div className="col-md-6">
+                      <h5>Billing Details</h5>
+                      <div><strong>Name:</strong> {billing.fullName || '—'}</div>
+                      <div><strong>Email:</strong> {billing.email || '—'}</div>
+                      <div><strong>Phone:</strong> {billing.phone || '—'}</div>
+                      {(billing.address || billing.postcode) && (
+                        <div style={{ marginTop: 8 }}>
+                          {billing.address && <div>{billing.address}</div>}
+                          {billing.postcode && <div>{billing.postcode}</div>}
+                        </div>
+                      )}
+                    </div>
+                    <div className="col-md-6">
+                      {pickupStore ? (
+                        <>
+                          <h5>Pickup Store</h5>
+                          <div><strong>{pickupStore.name || 'Store'}</strong></div>
+                          {pickupLines.map((line, idx) => (
+                            <div key={idx}>{line}</div>
+                          ))}
+                        </>
+                      ) : (
+                        <>
+                          <h5>Shipping Address</h5>
+                          {shippingLines.length ? (
+                            shippingLines.map((line, idx) => (
+                              <div key={idx}>{line}</div>
+                            ))
+                          ) : (
+                            <div>—</div>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
               <h5 className="mt-3">Items</h5>
               <div className="table-responsive">
                 <table className="table table-sm">
