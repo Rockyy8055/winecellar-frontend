@@ -93,7 +93,6 @@ const compareSlice = createSlice({
 });
 
 export const { addToCompare, deleteFromCompare } = compareSlice.actions;
-export { rehydrateCompareWithProducts };
 export default compareSlice.reducer;
 
 
