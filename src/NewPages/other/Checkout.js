@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Layout from "../../layouts/Layout";
@@ -30,7 +30,7 @@ const STORE_LOCATIONS = [
   }
 ];
 
-const StripePaymentForm = ({ onSuccess, canPay }) => {
+const StripePaymentForm = ({ onSuccess, canPay, isSubmitting }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState(null);
@@ -56,8 +56,10 @@ const StripePaymentForm = ({ onSuccess, canPay }) => {
       setProcessing(false);
       try {
         const id = paymentIntent?.id || `pi_${Date.now()}`;
-        if (onSuccess) onSuccess(id);
-      } catch (_) {}
+        if (onSuccess) await onSuccess(id);
+      } catch (submissionError) {
+        setError(submissionError?.message || 'Unable to finalize order.');
+      }
     }
   };
 
@@ -75,7 +77,7 @@ const StripePaymentForm = ({ onSuccess, canPay }) => {
       )}
       <button
         type="submit"
-        disabled={processing || !stripe || !elements || !canPay}
+        disabled={processing || !stripe || !elements || !canPay || isSubmitting}
         style={{
           background: '#111',
           color: '#fff',
@@ -87,7 +89,7 @@ const StripePaymentForm = ({ onSuccess, canPay }) => {
           width: '100%'
         }}
       >
-        {processing ? 'Processing...' : 'Pay Now'}
+        {processing ? 'Processing...' : (isSubmitting ? 'Finalizing order...' : 'Pay Now')}
       </button>
     </form>
   );
@@ -109,10 +111,15 @@ const Checkout = () => {
   const [showStoreSelector, setShowStoreSelector] = useState(false);
   const [selectedStoreId, setSelectedStoreId] = useState(null);
   const [confirmedStore, setConfirmedStore] = useState(null);
+  const [submittingOrder, setSubmittingOrder] = useState(false);
+  const [orderError, setOrderError] = useState('');
+  const [confirmationEmail, setConfirmationEmail] = useState('');
+  const [confirmationLocation, setConfirmationLocation] = useState('');
   const selectedStore = useMemo(
     () => STORE_LOCATIONS.find((location) => location.id === selectedStoreId) || null,
     [selectedStoreId]
   );
+  const orderSubmitLock = useRef(false);
   const isTradeCustomer = (() => {
     try { return !!localStorage.getItem('trade_customer_profile'); } catch (_) { return false; }
   })();
@@ -174,6 +181,7 @@ const Checkout = () => {
       alert('Please fill the Billing Details.');
       return;
     }
+    setOrderError('');
     setShowStoreSelector(true);
   };
 
@@ -194,54 +202,163 @@ const Checkout = () => {
       return;
     }
     try {
-      const payload = {
-        method: 'cod',
-        customer: { name: `${billing.firstName} ${billing.lastName}`.trim(), email: billing.email, phone: billing.phone },
-        billingDetails: {
-          firstName: billing.firstName,
-          lastName: billing.lastName,
-          email: billing.email,
-          phone: billing.phone,
-          address: billing.address,
-          postcode: billing.postcode
-        },
-        shippingAddress: {
-          line1: selectedStore.addressLine1,
-          city: selectedStore.city,
-          postcode: selectedStore.postcode,
-          country: selectedStore.country,
-          phone: selectedStore.phone,
-          storeId: selectedStore.id,
-          storeName: selectedStore.name
-        },
-        pickupStore: selectedStore,
-        items: cartItems.map(it => ({ id: it.ProductId, name: it.name, qty: it.quantity, price: it.price })),
-        subtotal: Number(subtotal.toFixed(2)),
-        discount: Number(discountAmount.toFixed(2)),
-        vat: Number(vatAmount.toFixed(2)),
-        shipping: Number(shipping.toFixed(2)),
-        total: Number(totalAmount.toFixed(2))
-      };
-      const { trackingCode } = await createOrder(payload);
-      setShowStoreSelector(false);
-      setConfirmedStore(selectedStore);
-      setOrderPlaced(true);
-      const newId = trackingCode || `ORD-${Date.now()}`;
+      await finalizeOrder('pick_pay', { store: selectedStore });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const orderItemsPayload = useMemo(() => (
+    cartItems.map(item => ({
+      id: item.ProductId || item.id,
+      name: item.name,
+      quantity: item.quantity,
+      price: Number(item.price),
+      size: item.selectedProductSize || null,
+      lineTotal: Number((item.price * item.quantity).toFixed(2))
+    }))
+  ), [cartItems]);
+
+  const finalizeOrder = useCallback(async (method, meta = {}) => {
+    if (!isBillingComplete) {
+      const message = 'Please complete billing details before finalizing your order.';
+      setOrderError(message);
+      throw new Error(message);
+    }
+    if (!orderItemsPayload.length) {
+      const message = 'Your cart is empty. Add items before checking out.';
+      setOrderError(message);
+      throw new Error(message);
+    }
+    if (orderSubmitLock.current) {
+      return;
+    }
+    orderSubmitLock.current = true;
+    setSubmittingOrder(true);
+    setOrderError('');
+
+    const storeRef = method === 'pick_pay' ? (meta.store || selectedStore) : null;
+    const normalizedMethod = method === 'pick_pay' ? 'PICK_PAY' : method.toUpperCase();
+    const normalizedTotals = {
+      subtotal: Number(subtotal.toFixed(2)),
+      tax: Number(vatAmount.toFixed(2)),
+      discount: Number(discountAmount.toFixed(2)),
+      shipping: Number(shipping.toFixed(2)),
+      total: Number(totalAmount.toFixed(2))
+    };
+
+    const payload = {
+      customerEmail: billing.email.trim(),
+      customerName: `${billing.firstName} ${billing.lastName}`.trim(),
+      paymentMethod: normalizedMethod,
+      orderItems: orderItemsPayload.map(({ id, name, quantity, price, size }) => ({
+        id,
+        name,
+        quantity,
+        price,
+        size
+      })),
+      subtotal: normalizedTotals.subtotal,
+      tax: normalizedTotals.tax,
+      total: normalizedTotals.total,
+      shopLocation: storeRef ? `${storeRef.name} (${storeRef.city})` : 'Online Checkout',
+      billingDetails: {
+        firstName: billing.firstName,
+        lastName: billing.lastName,
+        email: billing.email,
+        phone: billing.phone,
+        address: billing.address,
+        postcode: billing.postcode
+      },
+      paymentReference: meta.transactionId || null,
+      pickupDetails: storeRef
+        ? {
+            name: storeRef.name,
+            line1: storeRef.addressLine1,
+            city: storeRef.city,
+            postcode: storeRef.postcode,
+            country: storeRef.country,
+            phone: storeRef.phone
+          }
+        : null,
+      // Legacy fields kept for backward compatibility with current Render API
+      method: normalizedMethod === 'PICK_PAY' ? 'cod' : normalizedMethod.toLowerCase(),
+      customer: {
+        name: `${billing.firstName} ${billing.lastName}`.trim(),
+        email: billing.email,
+        phone: billing.phone
+      },
+      items: orderItemsPayload.map(({ id, name, quantity, price, size, lineTotal }) => ({
+        id,
+        name,
+        qty: quantity,
+        price,
+        size,
+        total: lineTotal
+      })),
+      discount: normalizedTotals.discount,
+      vat: normalizedTotals.tax,
+      shipping: normalizedTotals.shipping,
+      shippingAddress: storeRef
+        ? {
+            storeName: storeRef.name,
+            line1: storeRef.addressLine1,
+            city: storeRef.city,
+            postcode: storeRef.postcode,
+            country: storeRef.country,
+            phone: storeRef.phone
+          }
+        : {
+            line1: billing.address,
+            city: 'London',
+            postcode: billing.postcode,
+            country: 'United Kingdom',
+            phone: billing.phone
+          }
+    };
+
+    try {
+      const response = await createOrder(payload);
+      const newId = response?.orderId || response?.trackingCode || response?.id || `ORD-${Date.now()}`;
       setOrderId(newId);
-      try { 
+      setOrderPlaced(true);
+      setConfirmedStore(storeRef || null);
+      setConfirmationEmail(payload.customerEmail);
+      setConfirmationLocation(payload.shopLocation);
+      setShowStoreSelector(false);
+      setSelectedStoreId(null);
+      setPaypalPaid(method === 'paypal');
+      try {
         localStorage.setItem('last_order_id', newId);
         localStorage.setItem('last_tracking_code', newId);
       } catch (_) {}
-      setSelectedStoreId(null);
     } catch (err) {
-      console.error(err);
-      alert('Failed to place order. Please try again.');
+      orderSubmitLock.current = false;
+      const message = err?.message || 'Unable to finalize your order. Please try again.';
+      setOrderError(message);
+      throw err;
+    } finally {
+      setSubmittingOrder(false);
     }
-  };
+  }, [billing, isBillingComplete, orderItemsPayload, subtotal, vatAmount, totalAmount, selectedStore, discountAmount, shipping]);
+
+  const handleStripeSuccess = useCallback(async (paymentIntentId) => {
+    await finalizeOrder('card', { transactionId: paymentIntentId });
+  }, [finalizeOrder]);
+
+  const handlePayPalSuccess = useCallback(async (orderID) => {
+    await finalizeOrder('paypal', { transactionId: orderID });
+  }, [finalizeOrder]);
 
   const handleCloseSuccess = () => {
     setOrderPlaced(false);
     setConfirmedStore(null);
+    setOrderId(null);
+    setConfirmationEmail('');
+    setConfirmationLocation('');
+    setPaypalPaid(false);
+    setShowStoreSelector(false);
+    orderSubmitLock.current = false;
   };
 
   // PayPal client ID should be set in .env and passed here
@@ -348,7 +465,11 @@ const Checkout = () => {
                       <div style={{ flex: 1, minWidth: 520 }}>
                         {paymentMethod === 'card' && clientSecret && (
                           <Elements stripe={stripePromise} options={elementsOptions} key={clientSecret}>
-                            <StripePaymentForm canPay={isBillingComplete} onSuccess={(id) => { setOrderId(id); try { localStorage.setItem('last_order_id', id); localStorage.setItem('last_tracking_code', id);} catch (_) {} }} />
+                            <StripePaymentForm
+                              canPay={isBillingComplete}
+                              isSubmitting={submittingOrder}
+                              onSuccess={handleStripeSuccess}
+                            />
                           </Elements>
                         )}
                         {paymentMethod === 'paypal' && (
@@ -362,7 +483,15 @@ const Checkout = () => {
                                   });
                                 }}
                                 onApprove={(data, actions) => {
-                                  return actions.order.capture().then(() => { setPaypalPaid(true); const id = data?.orderID || `PP-${Date.now()}`; setOrderId(id); try { localStorage.setItem('last_order_id', id); localStorage.setItem('last_tracking_code', id);} catch (_) {} });
+                                  return actions.order.capture().then(async () => {
+                                    setPaypalPaid(true);
+                                    const id = data?.orderID || `PP-${Date.now()}`;
+                                    try {
+                                      await handlePayPalSuccess(id);
+                                    } catch (err) {
+                                      console.error(err);
+                                    }
+                                  });
                                 }}
                               />
                               {paypalPaid && (
@@ -372,6 +501,16 @@ const Checkout = () => {
                               )}
                             </div>
                           </PayPalScriptProvider>
+                        )}
+                        {orderError && (
+                          <div style={{ color: '#b12704', fontWeight: 600, marginTop: 16 }}>
+                            {orderError}
+                          </div>
+                        )}
+                        {submittingOrder && (
+                          <div style={{ color: '#350008', fontWeight: 600, marginTop: 8 }}>
+                            Finalizing your order...
+                          </div>
                         )}
                         {orderId && (
                           <div style={{ marginTop: 12 }}>
@@ -567,38 +706,16 @@ const Checkout = () => {
                   cursor:'pointer',
                   boxShadow:'0 16px 24px rgba(44,4,10,0.25)'
                 }}
+                disabled={submittingOrder}
               >
-                Collect from this store
+                {submittingOrder ? 'Finalizing...' : 'Collect from this store'}
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Order Success Animation */}
-      {orderPlaced && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10000 }}>
-          <div style={{ background:'#fffef1', borderRadius:12, padding:32, textAlign:'center' }}>
-            <div style={{ fontSize:48, marginBottom:16 }}>✅</div>
-            <h3 style={{ margin:'0 0 12px', color:'#350008' }}>Thank you for placing an order!</h3>
-            <p style={{ margin:0, color:'#666' }}>
-              Your order has been received and will be ready for pickup at
-              {confirmedStore ? ` ${confirmedStore.name}` : ' the selected store'}.
-            </p>
-            {confirmedStore && (
-              <div style={{ marginTop:16, color:'#350008', fontWeight:600 }}>
-                {confirmedStore.addressLine1}, {confirmedStore.city}<br/>
-                {confirmedStore.postcode}, {confirmedStore.country}<br/>
-                Phone: {confirmedStore.phone}
+            {orderError && (
+              <div style={{ marginTop:14, textAlign:'center', color:'#b12704', fontWeight:600 }}>
+                {orderError}
               </div>
             )}
-            <button
-              type="button"
-              onClick={handleCloseSuccess}
-              style={{ marginTop:20, padding:'12px 24px', background:'#350008', color:'#fff', border:'none', borderRadius:6, cursor:'pointer' }}
-            >
-              Close
-            </button>
           </div>
         </div>
       )}
