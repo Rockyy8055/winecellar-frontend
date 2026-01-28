@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Layout from '../../layouts/Layout';
 import { listProducts, createProduct, updateProduct, deleteProduct } from '../../Services/product-admin-api';
