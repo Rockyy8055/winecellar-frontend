@@ -169,6 +169,13 @@ body {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.cart-bottom-bar__cta,
+.cart-bottom-bar__cta:visited,
+.cart-bottom-bar__cta:focus,
+.cart-bottom-bar__cta:active {
+  color: #ffffff;
+}
+
 .cart-bottom-bar__cta:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 30px rgba(53, 0, 8, 0.35);

@@ -363,6 +363,7 @@ const ProductGridSingleTwo = ({ product }) => {
               {sizeOptions.map((size) => {
                 const stockAvailable = sizeStockMap[size] || 0;
                 const enabled = allowedSizes.includes(size) && stockAvailable > 0;
+                const textColor = enabled ? (selectedSize === size ? '#fffef1' : '#350008') : '#350008';
                 return (
                 <button
                   key={size}
@@ -374,14 +375,14 @@ const ProductGridSingleTwo = ({ product }) => {
                     borderRadius: '22px',
                     border: `2px solid #350008`,
                     background: enabled && selectedSize === size ? '#350008' : '#fff',
-                    color: enabled ? (selectedSize === size ? '#fffef1' : '#350008') : '#350008',
+                    color: textColor,
                     fontWeight: 800,
                     cursor: enabled ? 'pointer' : 'not-allowed',
                     opacity: enabled ? 1 : 0.45
                   }}
                 >
                   {size}
-                  <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600 }}>{stockAvailable} in stock</span>
+                  <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, color: textColor }}>{stockAvailable} in stock</span>
                 </button>
               );})}
             </div>
