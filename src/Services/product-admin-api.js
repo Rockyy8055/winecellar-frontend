@@ -30,7 +30,32 @@ const normalizeQuantityKey = (value) => {
 };
 
 const cleanSizeStocks = (raw) => {
-  if (!raw || typeof raw !== 'object') return {};
+  if (!raw) return {};
+
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      return cleanSizeStocks(parsed);
+    } catch (_) {
+      return {};
+    }
+  }
+
+  if (Array.isArray(raw)) {
+    const fromArray = raw.reduce((acc, entry) => {
+      if (!entry || typeof entry !== 'object') return acc;
+      const key = entry.key ?? entry.size ?? entry.name ?? entry.label;
+      const value = entry.quantity ?? entry.qty ?? entry.stock ?? entry.value;
+      if (key !== undefined && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+    return cleanSizeStocks(fromArray);
+  }
+
+  if (typeof raw !== 'object') return {};
+
   return Object.entries(raw).reduce((acc, [key, value]) => {
     const canonical = normalizeQuantityKey(key);
     const num = Number(value);

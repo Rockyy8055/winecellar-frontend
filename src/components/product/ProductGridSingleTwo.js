@@ -363,7 +363,9 @@ const ProductGridSingleTwo = ({ product }) => {
               {sizeOptions.map((size) => {
                 const stockAvailable = sizeStockMap[size] || 0;
                 const enabled = allowedSizes.includes(size) && stockAvailable > 0;
-                const textColor = enabled ? (selectedSize === size ? '#fffef1' : '#350008') : '#350008';
+                const isSelected = selectedSize === size;
+                const baseColor = enabled ? '#350008' : 'rgba(53,0,8,0.55)';
+                const textColor = isSelected ? '#fffef1' : baseColor;
                 return (
                 <button
                   key={size}
@@ -374,7 +376,7 @@ const ProductGridSingleTwo = ({ product }) => {
                     padding: '8px 14px',
                     borderRadius: '22px',
                     border: `2px solid #350008`,
-                    background: enabled && selectedSize === size ? '#350008' : '#fff',
+                    background: enabled && isSelected ? '#350008' : '#fff',
                     color: textColor,
                     fontWeight: 800,
                     cursor: enabled ? 'pointer' : 'not-allowed',

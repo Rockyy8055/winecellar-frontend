@@ -199,6 +199,16 @@ const collectProductQuantityTokens = product => {
     return Array.from(tokens);
   }
 
+  const pushSizeMapKeys = (map = {}) => {
+    Object.entries(map).forEach(([key, qty]) => {
+      const normalizedKey = normalizeQuantityValue(key);
+      const numericQty = Number(qty);
+      if (normalizedKey && Number.isFinite(numericQty) && numericQty > 0) {
+        tokens.add(normalizedKey);
+      }
+    });
+  };
+
   pushValue(product.size);
   pushValue(product.Size);
   pushValue(product.SIZE);
@@ -207,6 +217,9 @@ const collectProductQuantityTokens = product => {
   pushValue(product.quantities);
   pushValue(product.availableSizes);
   pushValue(product.sizes);
+  if (product.sizeStocks && typeof product.sizeStocks === 'object') {
+    pushSizeMapKeys(product.sizeStocks);
+  }
 
   if (Array.isArray(product.variation)) {
     product.variation.forEach(variant => {
@@ -232,8 +245,21 @@ export const filterProductsByQuantityAndSort = (products = [], filters = {}) => 
   if (normalizedSelected.length) {
     working = working.filter(product => {
       const productTokens = collectProductQuantityTokens(product);
-      if (!productTokens.length) return false;
-      return productTokens.some(token => normalizedSelected.includes(token));
+      const normalizedSizeStocks = product && typeof product === 'object'
+        ? Object.entries(product.sizeStocks || {}).reduce((acc, [key, qty]) => {
+            const normalizedKey = normalizeQuantityValue(key);
+            const numericQty = Number(qty);
+            if (normalizedKey && Number.isFinite(numericQty) && numericQty > 0) {
+              acc[normalizedKey] = numericQty;
+            }
+            return acc;
+          }, {})
+        : {};
+
+      return normalizedSelected.some(sizeKey => {
+        if (normalizedSizeStocks[sizeKey] > 0) return true;
+        return productTokens.includes(sizeKey);
+      });
     });
   }
 
