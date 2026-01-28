@@ -719,6 +719,35 @@ const Checkout = () => {
           </div>
         </div>
       )}
+
+      {orderPlaced && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:10000, padding:16 }}>
+          <div style={{ background:'#fffef1', borderRadius:16, padding:'32px 28px', maxWidth:520, width:'min(520px, 92vw)', textAlign:'center', boxShadow:'0 20px 55px rgba(0,0,0,0.28)' }}>
+            <div style={{ fontSize:48, marginBottom:16 }}>✅</div>
+            <h3 style={{ margin:'0 0 12px', color:'#350008', fontWeight:800 }}>Order confirmed!</h3>
+            <p style={{ margin:'0 0 8px', color:'#513236', fontSize:'1rem' }}>
+              Order <strong>{orderId}</strong> is locked in. A confirmation email has been sent to <strong>{confirmationEmail || billing.email}</strong>.
+            </p>
+            <p style={{ margin:'0 0 14px', color:'#513236', fontSize:'0.95rem' }}>
+              {confirmedStore
+                ? `${confirmedStore.name}, ${confirmedStore.addressLine1}, ${confirmedStore.city} ${confirmedStore.postcode}`
+                : (confirmationLocation || 'Our fulfillment team is preparing your bottles now.')}
+            </p>
+            {confirmedStore && (
+              <div style={{ marginBottom:14, color:'#350008', fontWeight:600, fontSize:'0.95rem' }}>
+                Phone: {confirmedStore.phone}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleCloseSuccess}
+              style={{ background:'#350008', color:'#fffef1', border:'none', borderRadius:999, padding:'12px 28px', fontWeight:700, cursor:'pointer' }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };
