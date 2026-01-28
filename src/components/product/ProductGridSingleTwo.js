@@ -384,7 +384,7 @@ const ProductGridSingleTwo = ({ product }) => {
                   }}
                 >
                   {size}
-                  <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, color: enabled ? (isSelected ? '#fffef1' : '#350008') : 'rgba(53,0,8,0.55)' }}>{stockAvailable} in stock</span>
+                  <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, color: isSelected ? '#fffef1' : (enabled ? '#350008' : 'rgba(53,0,8,0.55)') }}>{stockAvailable} in stock</span>
                 </button>
               );})}
             </div>
