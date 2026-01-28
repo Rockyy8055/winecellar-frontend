@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import Layout from '../../layouts/Layout';
 import { listProducts, createProduct, updateProduct, deleteProduct } from '../../Services/product-admin-api';
@@ -106,6 +106,7 @@ const SIZE_CARD_EMPTY_STYLE = {
 
 const AdminProducts = () => {
   const [q, setQ] = useState('');
+  const [debouncedQ, setDebouncedQ] = useState('');
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState([]);
   const [showEdit, setShowEdit] = useState(null); // product to edit
@@ -143,7 +144,7 @@ const AdminProducts = () => {
 
   const fetchData = async (opts = {}) => {
     try {
-      const data = await listProducts({ page, limit: opts.limit ?? 20, search: q }, token);
+      const data = await listProducts({ page, limit: opts.limit ?? 20, search: debouncedQ }, token);
       const list = data.items || data.rows || [];
       const normalizedRows = list.map((item) => {
         const sanitizedSizes = sanitizeSizeStocks(item.sizeStocks || item.stockBySize || {});
@@ -169,7 +170,16 @@ const AdminProducts = () => {
     } catch (e) { console.error(e); }
   };
 
-  useEffect(() => { fetchData(); }, [page]); // eslint-disable-line
+  useEffect(() => { fetchData(); }, [page, debouncedQ]); // eslint-disable-line
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQ(q);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [q]);
 
   const handleNewProductFile = async (file) => {
     if (!file) {
@@ -278,7 +288,7 @@ const AdminProducts = () => {
         <h1 style={{ color:'#350008', fontWeight:800 }}>Admin Products</h1>
         <div className="row mb-3">
           <div className="col-md-6">
-            <input className="form-control" placeholder="Search products" value={q} onChange={(e)=>setQ(e.target.value)} onKeyDown={(e)=>{ if (e.key==='Enter') fetchData(); }} />
+            <input className="form-control" placeholder="Search products..." value={q} onChange={(e)=>setQ(e.target.value)} />
           </div>
           <div className="col-md-3" style={{ display:'flex', gap:8 }}>
             <button className="btn btn-dark" onClick={()=>fetchData()}>Search</button>
