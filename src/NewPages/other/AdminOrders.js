@@ -6,6 +6,7 @@ import { listProducts, createProduct, updateProduct } from '../../Services/produ
 import { setProducts as setProductsAction } from '../../store/slices/product-slice';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const StatusSelect = ({ value, onChange, disabled }) => {
   const options = [
@@ -129,6 +130,7 @@ const AdminOrders = () => {
   const token = useMemo(() => {
     try { return localStorage.getItem('admin_token') || localStorage.getItem('token') || ''; } catch (_) { return ''; }
   }, []);
+  const navigate = useNavigate();
 
   const syncGlobalProducts = useCallback(async () => {
     try {
@@ -511,7 +513,16 @@ const AdminOrders = () => {
     <>
     <Layout headerContainerClass="container-fluid" headerPaddingClass="header-padding-2" headerTop="visible">
       <div className="container" style={{ paddingTop: 24, paddingBottom: 60, fontSize: '1.1rem' }}>
-        <h1 style={{ color: '#350008', fontWeight: 800, fontSize: '2.2rem' }}>Admin Orders</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h1 style={{ color: '#350008', fontWeight: 800, fontSize: '2.2rem', margin: 0 }}>Admin Orders</h1>
+          <button
+            className="btn btn-dark"
+            onClick={() => navigate('/admin/products')}
+            style={{ fontWeight: 600, borderRadius: 8, padding: '10px 20px' }}
+          >
+            Update Stock
+          </button>
+        </div>
         <div className="row mb-3">
           <div className="col-md-3">
             <input className="form-control" placeholder="Filter status" value={statusFilter} onChange={(e)=>setStatusFilter(e.target.value)} />
