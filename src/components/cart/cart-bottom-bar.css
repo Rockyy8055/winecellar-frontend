@@ -173,7 +173,7 @@ body {
 .cart-bottom-bar__cta:visited,
 .cart-bottom-bar__cta:focus,
 .cart-bottom-bar__cta:active {
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .cart-bottom-bar__cta:hover {
