@@ -115,6 +115,7 @@ const Checkout = () => {
   const [orderError, setOrderError] = useState('');
   const [confirmationEmail, setConfirmationEmail] = useState('');
   const [confirmationLocation, setConfirmationLocation] = useState('');
+  const [emailSent, setEmailSent] = useState(null);
   const selectedStore = useMemo(
     () => STORE_LOCATIONS.find((location) => location.id === selectedStoreId) || null,
     [selectedStoreId]
@@ -325,6 +326,7 @@ const Checkout = () => {
       setConfirmedStore(storeRef || null);
       setConfirmationEmail(payload.customerEmail);
       setConfirmationLocation(payload.shopLocation);
+      setEmailSent(typeof response?.emailSent === 'boolean' ? response.emailSent : null);
       setShowStoreSelector(false);
       setSelectedStoreId(null);
       setPaypalPaid(method === 'paypal');
@@ -356,6 +358,7 @@ const Checkout = () => {
     setOrderId(null);
     setConfirmationEmail('');
     setConfirmationLocation('');
+    setEmailSent(null);
     setPaypalPaid(false);
     setShowStoreSelector(false);
     orderSubmitLock.current = false;
@@ -726,7 +729,13 @@ const Checkout = () => {
             <div style={{ fontSize:48, marginBottom:16 }}>✅</div>
             <h3 style={{ margin:'0 0 12px', color:'#350008', fontWeight:800 }}>Order confirmed!</h3>
             <p style={{ margin:'0 0 8px', color:'#513236', fontSize:'1rem' }}>
-              Order <strong>{orderId}</strong> is locked in. A confirmation email has been sent to <strong>{confirmationEmail || billing.email}</strong>.
+              Order <strong>{orderId}</strong> is locked in.
+            </p>
+            <p style={{ margin:'0 0 8px', color:'#513236', fontSize:'0.95rem' }}>
+              {emailSent === false
+                ? <>We couldn’t send the email right now. Please contact support if you don’t receive it.</>
+                : <>A confirmation email has been sent to <strong>{confirmationEmail || billing.email}</strong>.</>
+              }
             </p>
             <p style={{ margin:'0 0 14px', color:'#513236', fontSize:'0.95rem' }}>
               {confirmedStore
