@@ -1,6 +1,8 @@
 import {Suspense, lazy} from "react";
 import ScrollToTop from "./helpers/scroll-top";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import Notification from "./components/common/Notification";
 import ULogin from './pages/ULogin';
 import Register from './pages/Register';
 import Home from './pages/Home/Home';
@@ -31,54 +33,56 @@ const AdminProducts = lazy(() => import("./NewPages/other/AdminProducts"));
 
 function App() {
   return (
-    
-        <Router>
-             <ScrollToTop>
-             <Suspense
-            fallback={
-              <div className="flone-preloader-wrapper">
-                <div className="flone-preloader">
-                  <span></span>
-                  <span></span>
-                </div>
+    <AuthProvider>
+      <Router>
+           <ScrollToTop>
+           <Suspense
+          fallback={
+            <div className="flone-preloader-wrapper">
+              <div className="flone-preloader">
+                <span></span>
+                <span></span>
               </div>
-            }
-          >
-             <Routes>
-             <Route exact  path="/"  element={<HomeNew />} />
-             <Route path="/Home"  element={<HomeNew />} />
-              <Route path="/about-us" element={<AboutUs />} />
-              <Route path="/contact-us" element={<ContactUs />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/trade-customer" element={<TradeCustomerForm />} />
-             <Route path="/Wishlist"  element={<WishlistNew />} />
-             <Route path="/Cart"  element={<CartNew />} />
-             <Route path="/shop-grid-standard"  element={<AllProducts />} />
-             <Route path="/checkout" element={<Checkout />} />
-             <Route path="/order-status" element={<OrderStatus />} />
-             <Route path="/admin/orders" element={<AdminOrders />} />
-             <Route path="/admin/products" element={<AdminProducts />} />
-             <Route path="/product/:productId" element={<ProductDetails />} />
-             </Routes>
-             </Suspense>
-             </ScrollToTop>
-            <Routes>
-            <Route  path="/Login-old"  element={<ULogin />} />
-            <Route  path="/Register-old"  element={<Register />} />
-            <Route path="/Home-old"  element={<Home />} />
-            <Route path="/Cart-old" element={<Cart />} />
-            <Route path="/Wishlist-old" element={<Wishlist />} />
-            <Route path="/product-old/:productId" element={<ProductDetails />} />
-            <Route path="/BlankPage-old" element={<BlankPage />} />
-            <Route path="/shipping-old" element={<Shipping />} />
-            <Route path="/payment-old" element={<Payment />} />
-            <Route path="/pricing-bifurcation-old" element={<PricingBifurcation />} />
-             <Route path="/payment-success-old" element={<PaymentSuccess />} />
-            </Routes>
-            
-        </Router>
-    );
+            </div>
+          }
+        >
+           <Routes>
+           <Route exact  path="/"  element={<HomeNew />} />
+           <Route path="/Home"  element={<HomeNew />} />
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/contact-us" element={<ContactUs />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/trade-customer" element={<TradeCustomerForm />} />
+           <Route path="/Wishlist"  element={<WishlistNew />} />
+           <Route path="/Cart"  element={<CartNew />} />
+           <Route path="/shop-grid-standard"  element={<AllProducts />} />
+           <Route path="/checkout" element={<Checkout />} />
+           <Route path="/order-status" element={<OrderStatus />} />
+           <Route path="/admin/orders" element={<AdminOrders />} />
+           <Route path="/admin/products" element={<AdminProducts />} />
+           <Route path="/product/:productId" element={<ProductDetails />} />
+           </Routes>
+           </Suspense>
+           </ScrollToTop>
+          <Routes>
+          <Route  path="/Login-old"  element={<ULogin />} />
+          <Route  path="/Register-old"  element={<Register />} />
+          <Route path="/Home-old"  element={<Home />} />
+          <Route path="/Cart-old" element={<Cart />} />
+          <Route path="/Wishlist-old" element={<Wishlist />} />
+          <Route path="/product-old/:productId" element={<ProductDetails />} />
+          <Route path="/BlankPage-old" element={<BlankPage />} />
+          <Route path="/shipping-old" element={<Shipping />} />
+          <Route path="/payment-old" element={<Payment />} />
+          <Route path="/pricing-bifurcation-old" element={<PricingBifurcation />} />
+           <Route path="/payment-success-old" element={<PaymentSuccess />} />
+          </Routes>
+          
+      </Router>
+      <Notification />
+    </AuthProvider>
+  );
   
 }
 

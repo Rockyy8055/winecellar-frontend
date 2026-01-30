@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Layout from '../../layouts/Layout';
 import { login, signup, me } from '../../Services/auth-api';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const initialFormState = {
   fullName: '',
@@ -14,6 +15,7 @@ const initialFormState = {
 const AuthPage = ({ initialMode = 'login' }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login: authLogin, pendingOrder, showNotification } = useAuth();
   const [mode, setMode] = useState(initialMode);
   const [form, setForm] = useState(initialFormState);
   const [error, setError] = useState('');
@@ -24,8 +26,11 @@ const AuthPage = ({ initialMode = 'login' }) => {
 
   const redirectTo = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    return params.get('redirectTo') || '/';
-  }, [location.search]);
+    const stateFrom = location.state?.from;
+    return stateFrom || params.get('redirectTo') || '/';
+  }, [location.search, location.state]);
+
+  const loginMessage = location.state?.message;
 
   useEffect(() => {
     setMode(initialMode);
@@ -101,8 +106,14 @@ const AuthPage = ({ initialMode = 'login' }) => {
     setLoading(true);
     try {
       if (mode === 'login') {
-        await login({ email: trimmedEmail, password: trimmedPassword });
-        setStatus('Welcome back! Redirecting…');
+        const success = await authLogin(trimmedEmail, trimmedPassword);
+        if (success) {
+          setStatus('Welcome back! Redirecting…');
+          // Auto-order placement is handled in AuthContext
+          redirectTimer.current = setTimeout(() => {
+            navigate(redirectTo, { replace: true });
+          }, pendingOrder ? 2000 : 800);
+        }
       } else {
         await signup({
           name: form.fullName.trim() || trimmedEmail,
@@ -112,17 +123,17 @@ const AuthPage = ({ initialMode = 'login' }) => {
           confirmPassword: form.confirmPassword.trim() || trimmedPassword
         });
         setStatus('Account created successfully. Redirecting…');
-      }
 
-      try {
-        await me();
-      } catch (_) {
-        // ignore hydrate failures; backend might not expose a profile endpoint yet
-      }
+        try {
+          await me();
+        } catch (_) {
+          // ignore hydrate failures; backend might not expose a profile endpoint yet
+        }
 
-      redirectTimer.current = setTimeout(() => {
-        navigate(redirectTo || '/', { replace: true });
-      }, 800);
+        redirectTimer.current = setTimeout(() => {
+          navigate(redirectTo || '/', { replace: true });
+        }, 800);
+      }
     } catch (err) {
       const fallbackMessage = mode === 'login'
         ? 'Login failed. Please check your details and try again.'
@@ -268,10 +279,15 @@ const AuthPage = ({ initialMode = 'login' }) => {
               {isSignup ? 'Join the cellar' : 'Welcome back'}
             </h2>
             <p style={{ marginBottom: 24, color: '#6b4d53', fontSize: '0.95rem' }}>
-              {isSignup
+              {loginMessage || (isSignup
                 ? 'Sign up with your email to start collecting from our finest stores.'
-                : 'Log in with your email address to continue where you left off.'}
+                : 'Log in with your email address to continue where you left off.')}
             </p>
+            {loginMessage && (
+              <div className="alert alert-warning" role="alert" style={{ marginBottom: 18, background: '#fef3c7', border: '1px solid #f59e0b', color: '#92400e' }}>
+                <strong>Login Required:</strong> {loginMessage}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit}>
               {isSignup && (

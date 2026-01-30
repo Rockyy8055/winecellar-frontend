@@ -6,6 +6,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { createOrder } from '../../Services/orders-api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
@@ -98,6 +99,7 @@ const StripePaymentForm = ({ onSuccess, canPay, isSubmitting }) => {
 const Checkout = () => {
   const { cartItems } = useSelector((state) => state.cart);
   const currency = useSelector((state) => state.currency);
+  const { requireAuth } = useAuth();
   const [subtotal, setSubtotal] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -116,11 +118,16 @@ const Checkout = () => {
   const [confirmationEmail, setConfirmationEmail] = useState('');
   const [confirmationLocation, setConfirmationLocation] = useState('');
   const [emailSent, setEmailSent] = useState(null);
+  const [postcodeSuggestions, setPostcodeSuggestions] = useState([]);
+  const [postcodeLookupBusy, setPostcodeLookupBusy] = useState(false);
+  const [postcodeLookupError, setPostcodeLookupError] = useState(null);
+  const [showPostcodeSuggestions, setShowPostcodeSuggestions] = useState(false);
   const selectedStore = useMemo(
     () => STORE_LOCATIONS.find((location) => location.id === selectedStoreId) || null,
     [selectedStoreId]
   );
   const orderSubmitLock = useRef(false);
+  const postcodeLookupAbort = useRef(null);
   const isTradeCustomer = (() => {
     try { return !!localStorage.getItem('trade_customer_profile'); } catch (_) { return false; }
   })();
@@ -191,17 +198,46 @@ const Checkout = () => {
       alert('Please select a store for pickup.');
       return;
     }
-    try {
-      const meRes = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, { credentials: 'include' });
-      if (!meRes.ok) {
-        alert('Please log in to place an order.');
-        return;
+
+    // Create order data for potential auto-placement after login
+    const orderData = {
+      customerEmail: billing.email.trim(),
+      customerName: `${billing.firstName} ${billing.lastName}`.trim(),
+      paymentMethod: 'PICK_PAY',
+      orderItems: orderItemsPayload.map(({ id, name, quantity, price, size }) => ({
+        id,
+        name,
+        quantity,
+        price,
+        size
+      })),
+      subtotal: Number(subtotal.toFixed(2)),
+      tax: Number(vatAmount.toFixed(2)),
+      total: Number(totalAmount.toFixed(2)),
+      shopLocation: `${selectedStore.name} (${selectedStore.city})`,
+      billingDetails: {
+        firstName: billing.firstName,
+        lastName: billing.lastName,
+        email: billing.email,
+        phone: billing.phone,
+        address: billing.address,
+        postcode: billing.postcode
+      },
+      pickupDetails: {
+        name: selectedStore.name,
+        line1: selectedStore.addressLine1,
+        city: selectedStore.city,
+        postcode: selectedStore.postcode,
+        country: selectedStore.country,
+        phone: selectedStore.phone
       }
-    } catch (err) {
-      console.error(err);
-      alert('Unable to verify login. Please try again.');
+    };
+
+    // Check authentication and redirect to login if needed
+    if (!requireAuth(orderData)) {
       return;
     }
+
     try {
       await finalizeOrder('pick_pay', { store: selectedStore });
     } catch (err) {
@@ -345,12 +381,79 @@ const Checkout = () => {
   }, [billing, isBillingComplete, orderItemsPayload, subtotal, vatAmount, totalAmount, selectedStore, discountAmount, shipping]);
 
   const handleStripeSuccess = useCallback(async (paymentIntentId) => {
+    const orderData = {
+      customerEmail: billing.email.trim(),
+      customerName: `${billing.firstName} ${billing.lastName}`.trim(),
+      paymentMethod: 'card',
+      orderItems: orderItemsPayload.map(({ id, name, quantity, price, size }) => ({
+        id,
+        name,
+        quantity,
+        price,
+        size
+      })),
+      subtotal: Number(subtotal.toFixed(2)),
+      tax: Number(vatAmount.toFixed(2)),
+      total: Number(totalAmount.toFixed(2)),
+      shopLocation: 'Online Checkout',
+      billingDetails: {
+        firstName: billing.firstName,
+        lastName: billing.lastName,
+        email: billing.email,
+        phone: billing.phone,
+        address: billing.address,
+        postcode: billing.postcode
+      },
+      paymentReference: paymentIntentId
+    };
+
+    if (!requireAuth(orderData)) {
+      return;
+    }
+
     await finalizeOrder('card', { transactionId: paymentIntentId });
-  }, [finalizeOrder]);
+  }, [finalizeOrder, billing, orderItemsPayload, subtotal, vatAmount, totalAmount, requireAuth]);
 
   const handlePayPalSuccess = useCallback(async (orderID) => {
+    const orderData = {
+      customerEmail: billing.email.trim(),
+      customerName: `${billing.firstName} ${billing.lastName}`.trim(),
+      paymentMethod: 'paypal',
+      orderItems: orderItemsPayload.map(({ id, name, quantity, price, size }) => ({
+        id,
+        name,
+        quantity,
+        price,
+        size
+      })),
+      subtotal: Number(subtotal.toFixed(2)),
+      tax: Number(vatAmount.toFixed(2)),
+      total: Number(totalAmount.toFixed(2)),
+      shopLocation: 'Online Checkout',
+      billingDetails: {
+        firstName: billing.firstName,
+        lastName: billing.lastName,
+        email: billing.email,
+        phone: billing.phone,
+        address: billing.address,
+        postcode: billing.postcode
+      },
+      paymentReference: orderID
+    };
+
+    if (!requireAuth(orderData)) {
+      return;
+    }
+
     await finalizeOrder('paypal', { transactionId: orderID });
-  }, [finalizeOrder]);
+  }, [finalizeOrder, billing, orderItemsPayload, subtotal, vatAmount, totalAmount, requireAuth]);
+
+  const handleSelectPostcodeSuggestion = (suggestion) => {
+    setBilling((prev) => ({ ...prev, postcode: suggestion.postcode }));
+    setShowPostcodeSuggestions(false);
+    setPostcodeSuggestions([]);
+    setPostcodeLookupError(null);
+  };
 
   const handleCloseSuccess = () => {
     setOrderPlaced(false);
@@ -366,6 +469,58 @@ const Checkout = () => {
 
   // PayPal client ID should be set in .env and passed here
   const PAYPAL_CLIENT_ID = process.env.REACT_APP_PAYPAL_CLIENT_ID || "test";
+
+  useEffect(() => {
+    const query = billing.postcode.trim();
+
+    if (postcodeLookupAbort.current) {
+      postcodeLookupAbort.current.abort();
+      postcodeLookupAbort.current = null;
+    }
+
+    if (query.length < 2) {
+      setPostcodeSuggestions([]);
+      setPostcodeLookupBusy(false);
+      setPostcodeLookupError(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    postcodeLookupAbort.current = controller;
+    setPostcodeLookupBusy(true);
+    setPostcodeLookupError(null);
+
+    const debounceTimer = setTimeout(async () => {
+      try {
+        const response = await fetch(`https://api.postcodes.io/postcodes?q=${encodeURIComponent(query)}`, { signal: controller.signal });
+        if (!response.ok) {
+          throw new Error('Failed to lookup postcode');
+        }
+        const data = await response.json();
+        if (controller.signal.aborted) return;
+        const normalized = Array.isArray(data?.result)
+          ? data.result.slice(0, 8).map((item) => ({
+              postcode: item.postcode,
+              summary: [item.admin_ward, item.admin_district, item.region].filter(Boolean).join(', ')
+            }))
+          : [];
+        setPostcodeSuggestions(normalized);
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setPostcodeLookupError('Unable to fetch suggestions');
+        setPostcodeSuggestions([]);
+      } finally {
+        if (!controller.signal.aborted) {
+          setPostcodeLookupBusy(false);
+        }
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(debounceTimer);
+      controller.abort();
+    };
+  }, [billing.postcode]);
 
   return (
     <>
@@ -409,11 +564,68 @@ const Checkout = () => {
                         </div>
                       </div>
                       <div className="col-lg-6 col-md-6">
-                        <div className="billing-info mb-20">
+                        <div className="billing-info mb-20" style={{ position: 'relative' }}>
                           <label style={{ fontWeight: 800, fontSize: '1.25rem' }}>Postcode</label>
-                          <input type="text" value={billing.postcode} onChange={(e)=>setBilling({ ...billing, postcode: e.target.value })} style={{ fontSize: '1.2rem', padding: '16px 18px', height: 'auto' }} />
+                          <input
+                            type="text"
+                            value={billing.postcode}
+                            onChange={(e)=>setBilling({ ...billing, postcode: e.target.value.toUpperCase() })}
+                            onFocus={() => setShowPostcodeSuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowPostcodeSuggestions(false), 120)}
+                            style={{ fontSize: '1.2rem', padding: '16px 18px', height: 'auto' }}
+                          />
                           {!isUKPostcode(billing.postcode) && billing.postcode.trim() !== '' && (
                             <div style={{ color: '#b12704', marginTop: 6, fontWeight: 600 }}>Enter a valid UK Postcode</div>
+                          )}
+                          {(showPostcodeSuggestions && (postcodeLookupBusy || postcodeSuggestions.length > 0 || postcodeLookupError)) && (
+                            <div style={{
+                              position: 'absolute',
+                              top: '100%',
+                              left: 0,
+                              right: 0,
+                              background: '#fff',
+                              border: '1px solid #ddd',
+                              borderRadius: 8,
+                              boxShadow: '0 12px 24px rgba(0,0,0,0.1)',
+                              zIndex: 50,
+                              marginTop: 6,
+                              maxHeight: 260,
+                              overflowY: 'auto'
+                            }}>
+                              {postcodeLookupBusy && (
+                                <div style={{ padding: '12px 16px', fontWeight: 600, color: '#555' }}>Searching…</div>
+                              )}
+                              {!postcodeLookupBusy && postcodeSuggestions.map((suggestion) => (
+                                <button
+                                  key={suggestion.postcode}
+                                  type="button"
+                                  onMouseDown={(e) => { e.preventDefault(); handleSelectPostcodeSuggestion(suggestion); }}
+                                  style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-start',
+                                    gap: 4,
+                                    width: '100%',
+                                    border: 'none',
+                                    background: 'transparent',
+                                    padding: '12px 16px',
+                                    textAlign: 'left',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <span style={{ fontWeight: 700, color: '#1f1f1f', letterSpacing: 0.4 }}>{suggestion.postcode}</span>
+                                  {suggestion.summary && (
+                                    <span style={{ fontSize: '0.85rem', color: '#666' }}>{suggestion.summary}</span>
+                                  )}
+                                </button>
+                              ))}
+                              {!postcodeLookupBusy && postcodeSuggestions.length === 0 && !postcodeLookupError && (
+                                <div style={{ padding: '12px 16px', color: '#777' }}>No suggestions found</div>
+                              )}
+                              {postcodeLookupError && !postcodeLookupBusy && (
+                                <div style={{ padding: '12px 16px', color: '#b12704', fontWeight: 600 }}>{postcodeLookupError}</div>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>

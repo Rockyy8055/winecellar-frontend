@@ -23,13 +23,33 @@ const IconGroup = ({ iconWhiteClass }) => {
   const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(new URL('/api/auth/me', API_BASE).toString(), { credentials: 'include' });
-        setAuthed(res.ok);
-      } catch (_) { setAuthed(false); }
-    })();
+    checkAuthStatus();
   }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      const res = await fetch(new URL('/api/auth/me', API_BASE).toString(), { credentials: 'include' });
+      setAuthed(res.ok);
+    } catch (_) { setAuthed(false); }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch(new URL('/api/auth/logout', API_BASE).toString(), { method:'POST', credentials:'include' });
+      setAuthed(false);
+      // Clear any local auth-related data
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      // Redirect to home page
+      window.location.href = '/';
+    } catch(_) {
+      // Even if logout request fails, update local state
+      setAuthed(false);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      window.location.href = '/';
+    }
+  };
 
   return (
     <div className={clsx("header-right-wrap", iconWhiteClass)} >
@@ -53,7 +73,7 @@ const IconGroup = ({ iconWhiteClass }) => {
                 <button
                   type="button"
                   style={{ color:'#350008', background:'transparent', border:'none', padding:0, cursor:'pointer' }}
-                  onClick={async ()=>{ try { await fetch(new URL('/api/auth/logout', API_BASE).toString(), { method:'POST', credentials:'include' }); } catch(_){} window.location.reload(); }}
+                  onClick={handleLogout}
                 >
                   Logout
                 </button>

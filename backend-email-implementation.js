@@ -30,6 +30,8 @@ const createEmailTransporter = () => {
   throw new Error('No email configuration found. Please set up Gmail SMTP or Resend environment variables.');
 };
 
+const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_ORDER_ALERT_EMAIL || 'winecellarcustomerservice@gmail.com';
+
 // Generate order receipt HTML email template
 const generateOrderEmailTemplate = (orderData) => {
   const {
@@ -187,6 +189,36 @@ const generateOrderEmailTemplate = (orderData) => {
   `;
 };
 
+const generateAdminNotificationTemplate = (orderData) => {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>New Order Placed - ${orderData.orderId}</title>
+      </head>
+      <body style="font-family: 'Segoe UI', Tahoma, sans-serif; color: #111">
+        <h2>New order placed</h2>
+        <p><strong>Order ID:</strong> ${orderData.orderId}</p>
+        <p><strong>Customer:</strong> ${orderData.customerName} (${orderData.customerEmail})</p>
+        <p><strong>Payment:</strong> ${orderData.paymentMethod}${orderData.paymentReference ? ` · Ref: ${orderData.paymentReference}` : ''}</p>
+        <p><strong>Total:</strong> £${orderData.total.toFixed(2)}</p>
+        <p><strong>Items:</strong></p>
+        <ul>
+          ${orderData.orderItems.map((item) => `<li>${item.quantity} x ${item.name} (${item.size || 'STD'}) - £${(item.price * item.quantity).toFixed(2)}</li>`).join('')}
+        </ul>
+        <p><strong>Billing address:</strong><br />
+          ${orderData.billingDetails.firstName} ${orderData.billingDetails.lastName}<br />
+          ${orderData.billingDetails.address}<br />
+          ${orderData.billingDetails.postcode}<br />
+          ${orderData.billingDetails.phone}
+        </p>
+        ${orderData.pickupDetails ? `<p><strong>Pickup location:</strong> ${orderData.pickupDetails.name}, ${orderData.pickupDetails.city}</p>` : ''}
+      </body>
+    </html>
+  `;
+};
+
 // Send transactional email function
 const sendOrderConfirmationEmail = async (orderData) => {
   try {
@@ -243,12 +275,22 @@ const sendOrderConfirmationEmail = async (orderData) => {
     };
 
     let result;
+    let adminResult;
     
     // Send via Gmail SMTP (nodemailer)
     if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       result = await transporter.sendMail(mailOptions);
       console.log('Email sent via Gmail SMTP:', result.messageId);
-      return { success: true, messageId: result.messageId, provider: 'gmail-smtp' };
+      // Admin notification
+      adminResult = await transporter.sendMail({
+        from: process.env.EMAIL_FROM || 'Wine Cellar <winecellarcustomerservice@gmail.com>',
+        to: ADMIN_NOTIFICATION_EMAIL,
+        subject: `New order placed: ${orderData.customerName} (${orderData.orderId})`,
+        html: generateAdminNotificationTemplate(orderData),
+        text: `New order ${orderData.orderId} by ${orderData.customerName} (${orderData.customerEmail}) totaling £${orderData.total.toFixed(2)}.`
+      });
+      console.log('Admin notification sent via Gmail SMTP:', adminResult.messageId);
+      return { success: true, messageId: result.messageId, provider: 'gmail-smtp', adminNotified: true };
     }
     
     // Send via Resend
@@ -261,7 +303,15 @@ const sendOrderConfirmationEmail = async (orderData) => {
         text: emailText
       });
       console.log('Email sent via Resend:', result.data);
-      return { success: true, messageId: result.data.id, provider: 'resend' };
+      adminResult = await transporter.emails.send({
+        from: process.env.EMAIL_FROM || 'Wine Cellar <winecellarcustomerservice@gmail.com>',
+        to: [ADMIN_NOTIFICATION_EMAIL],
+        subject: `New order placed: ${orderData.customerName} (${orderData.orderId})`,
+        html: generateAdminNotificationTemplate(orderData),
+        text: `New order ${orderData.orderId} by ${orderData.customerName} (${orderData.customerEmail}) totaling £${orderData.total.toFixed(2)}.`
+      });
+      console.log('Admin notification sent via Resend:', adminResult.data);
+      return { success: true, messageId: result.data.id, provider: 'resend', adminNotified: true };
     }
     
   } catch (error) {
