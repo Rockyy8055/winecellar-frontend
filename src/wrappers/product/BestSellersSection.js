@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import SectionTitle from "../../components/section-title/SectionTitle";
 import ProductGridSingleTwo from "../../components/product/ProductGridSingleTwo";
 
@@ -64,9 +65,9 @@ const BestSellersSection = () => {
           )}
         </div>
         <div className="view-more text-center mt-20 toggle-btn6 col-12">
-          <a
+          <Link
             className="view-more-products-btn"
-            href={process.env.PUBLIC_URL + "/shop-grid-standard"}
+            to="/shop-grid-standard"
             style={{
               display: 'inline-block',
               background: '#111',
@@ -86,7 +87,7 @@ const BestSellersSection = () => {
             onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
           >
             VIEW MORE PRODUCTS
-          </a>
+          </Link>
         </div>
       </div>
     </div>
