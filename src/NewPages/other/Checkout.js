@@ -389,7 +389,7 @@ const Checkout = () => {
     } finally {
       setSubmittingOrder(false);
     }
-  }, [billing, isBillingComplete, orderItemsPayload, subtotal, vatAmount, totalAmount, selectedStore, discountAmount, shipping]);
+  }, [billing, isBillingComplete, orderItemsPayload, subtotal, vatAmount, totalAmount, selectedStore, discountAmount, shipping, dispatch]);
 
   const handleStripeSuccess = useCallback(async (paymentIntentId) => {
     const orderData = {
