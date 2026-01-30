@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import { API_BASE } from '../../../Services/auth-api';
+import { useAuth } from "../../../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 
 const MobileNavMenu = () => {
+  const { logout } = useAuth();
   const { t } = useTranslation();
   const [authed, setAuthed] = useState(false);
   useEffect(() => { (async () => { try { const r = await fetch(new URL('/api/auth/me', API_BASE).toString(), { credentials:'include' }); setAuthed(r.ok); } catch(_) { setAuthed(false); } })(); }, []);
@@ -49,7 +51,7 @@ const MobileNavMenu = () => {
           <li>
             <button
               type="button"
-              onClick={async ()=>{ try { await fetch(new URL('/api/auth/logout', API_BASE).toString(), { method:'POST', credentials:'include' }); } catch(_){} closeMobileMenu(); window.location.reload(); }}
+              onClick={async ()=>{ try { await logout(); } catch(_){} closeMobileMenu(); }}
               style={{ background:'transparent', border:'none', padding:0, cursor:'pointer', color:'inherit' }}
             >
               Logout

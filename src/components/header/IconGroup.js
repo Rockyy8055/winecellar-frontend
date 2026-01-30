@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from 'react';
 import { API_BASE } from '../../Services/auth-api';
+import { useAuth } from "../../contexts/AuthContext";
 import clsx from "clsx";
 import MenuCart from "./sub-components/MenuCart";
 
@@ -21,6 +22,7 @@ const IconGroup = ({ iconWhiteClass }) => {
   const { wishlistItems } = useSelector((state) => state.wishlist);
   const { cartItems } = useSelector((state) => state.cart);
   const [authed, setAuthed] = useState(false);
+  const { logout } = useAuth();
 
   useEffect(() => {
     checkAuthStatus();
@@ -35,19 +37,10 @@ const IconGroup = ({ iconWhiteClass }) => {
 
   const handleLogout = async () => {
     try {
-      await fetch(new URL('/api/auth/logout', API_BASE).toString(), { method:'POST', credentials:'include' });
+      await logout();
       setAuthed(false);
-      // Clear any local auth-related data
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-      // Redirect to home page
-      window.location.href = '/';
     } catch(_) {
-      // Even if logout request fails, update local state
       setAuthed(false);
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-      window.location.href = '/';
     }
   };
 

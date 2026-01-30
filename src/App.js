@@ -3,19 +3,9 @@ import ScrollToTop from "./helpers/scroll-top";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Notification from "./components/common/Notification";
-import ULogin from './pages/ULogin';
-import Register from './pages/Register';
-import Home from './pages/Home/Home';
-import Cart from './pages/Single Pages/Cart'; 
 import './App.css';
 import './theme/custom-colors.css';
-import Wishlist from './pages/Single Pages/Wishlist'; 
-import ProductDetails from './pages/Single Pages/ProductDetails';
-import BlankPage from './pages/BlankPage';
-import Shipping from './pages/Shipping/Shipping';
-import Payment from './pages/Payment/Payment';
-import PricingBifurcation from './pages/Payment/PricingBifurcation';
-import PaymentSuccess from './pages/Payment/PaymentSuccess';
+import CartSyncManager from "./components/cart/CartSyncManager";
 
 const HomeNew = lazy(() => import("./NewPages/Home/Home"));
 const LoginPage = lazy(() => import('./NewPages/auth/Login'));
@@ -23,6 +13,7 @@ const SignupPage = lazy(() => import('./NewPages/auth/Signup'));
 const WishlistNew = lazy(() => import("./NewPages/other/Wishlist"));
 const CartNew = lazy(() => import("./NewPages/other/Cart"));
 const AllProducts = lazy(() => import("./NewPages/other/AllProducts"));
+const ProductDetailsNew = lazy(() => import("./NewPages/other/ProductDetails"));
 const AboutUs = lazy(() => import("./NewPages/other/AboutUs"));
 const ContactUs = lazy(() => import("./NewPages/other/ContactUs"));
 const TradeCustomerForm = lazy(() => import("./NewPages/other/TradeCustomerForm"));
@@ -35,6 +26,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <CartSyncManager />
            <ScrollToTop>
            <Suspense
           fallback={
@@ -61,23 +53,10 @@ function App() {
            <Route path="/order-status" element={<OrderStatus />} />
            <Route path="/admin/orders" element={<AdminOrders />} />
            <Route path="/admin/products" element={<AdminProducts />} />
-           <Route path="/product/:productId" element={<ProductDetails />} />
+           <Route path="/product/:productId" element={<ProductDetailsNew />} />
            </Routes>
            </Suspense>
            </ScrollToTop>
-          <Routes>
-          <Route  path="/Login-old"  element={<ULogin />} />
-          <Route  path="/Register-old"  element={<Register />} />
-          <Route path="/Home-old"  element={<Home />} />
-          <Route path="/Cart-old" element={<Cart />} />
-          <Route path="/Wishlist-old" element={<Wishlist />} />
-          <Route path="/product-old/:productId" element={<ProductDetails />} />
-          <Route path="/BlankPage-old" element={<BlankPage />} />
-          <Route path="/shipping-old" element={<Shipping />} />
-          <Route path="/payment-old" element={<Payment />} />
-          <Route path="/pricing-bifurcation-old" element={<PricingBifurcation />} />
-           <Route path="/payment-success-old" element={<PaymentSuccess />} />
-          </Routes>
       <Notification />
     </AuthProvider>
     </Router>

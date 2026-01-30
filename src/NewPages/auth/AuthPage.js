@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import Layout from '../../layouts/Layout';
 import { signup, me } from '../../Services/auth-api';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -22,6 +24,8 @@ const AuthPage = ({ initialMode = 'login' }) => {
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const redirectTimer = useRef(null);
 
   const redirectTo = useMemo(() => {
@@ -332,29 +336,71 @@ const AuthPage = ({ initialMode = 'login' }) => {
 
               <div className="mb-3">
                 <label className="form-label" style={{ fontWeight: 600, color: '#350008' }}>Password</label>
-                <input
-                  className="form-control"
-                  type="password"
-                  value={form.password}
-                  onChange={updateField('password')}
-                  placeholder={isSignup ? 'Create a password' : 'Enter your password'}
-                  autoComplete={isSignup ? 'new-password' : 'current-password'}
-                  required
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    className="form-control"
+                    type={showPassword ? 'text' : 'password'}
+                    value={form.password}
+                    onChange={updateField('password')}
+                    placeholder={isSignup ? 'Create a password' : 'Enter your password'}
+                    autoComplete={isSignup ? 'new-password' : 'current-password'}
+                    required
+                    style={{ paddingRight: 44 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      right: 12,
+                      transform: 'translateY(-50%)',
+                      border: 'none',
+                      background: 'transparent',
+                      color: '#6b4d53',
+                      cursor: 'pointer',
+                      padding: 0
+                    }}
+                  >
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  </button>
+                </div>
               </div>
 
               {isSignup && (
                 <div className="mb-3">
                   <label className="form-label" style={{ fontWeight: 600, color: '#350008' }}>Confirm password</label>
-                  <input
-                    className="form-control"
-                    type="password"
-                    value={form.confirmPassword}
-                    onChange={updateField('confirmPassword')}
-                    placeholder="Repeat your password"
-                    autoComplete="new-password"
-                    required
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      className="form-control"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={form.confirmPassword}
+                      onChange={updateField('confirmPassword')}
+                      placeholder="Repeat your password"
+                      autoComplete="new-password"
+                      required
+                      style={{ paddingRight: 44 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        right: 12,
+                        transform: 'translateY(-50%)',
+                        border: 'none',
+                        background: 'transparent',
+                        color: '#6b4d53',
+                        cursor: 'pointer',
+                        padding: 0
+                      }}
+                    >
+                      <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+                    </button>
+                  </div>
                 </div>
               )}
 

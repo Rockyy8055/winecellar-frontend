@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { API_BASE } from '../Services/auth-api';
+import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { API_BASE } from '../Services/auth-api';
+import { clearRemoteCart, deleteAllFromCart } from '../store/slices/cart-slice';
 
 const AuthContext = createContext();
 
@@ -18,6 +20,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
   const [pendingOrder, setPendingOrder] = useState(null);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -84,6 +87,11 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
+      try {
+        await dispatch(clearRemoteCart()).unwrap();
+      } catch (_) {
+        dispatch(deleteAllFromCart());
+      }
       await fetch(new URL('/api/auth/logout', API_BASE).toString(), { 
         method: 'POST', 
         credentials: 'include' 
@@ -95,6 +103,8 @@ export const AuthProvider = ({ children }) => {
     setPendingOrder(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    try { localStorage.removeItem('cartProducts'); } catch (_) {}
+    dispatch(deleteAllFromCart());
     showNotification('Logged out successfully', 'info');
     navigate('/');
   };

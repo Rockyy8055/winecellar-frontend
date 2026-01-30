@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Layout from "../../layouts/Layout";
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { createOrder } from '../../Services/orders-api';
 import { useAuth } from '../../contexts/AuthContext';
+import { clearRemoteCart, deleteAllFromCart } from '../../store/slices/cart-slice';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
@@ -100,6 +101,7 @@ const Checkout = () => {
   const { cartItems } = useSelector((state) => state.cart);
   const currency = useSelector((state) => state.currency);
   const { requireAuth } = useAuth();
+  const dispatch = useDispatch();
   const [subtotal, setSubtotal] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -370,6 +372,15 @@ const Checkout = () => {
         localStorage.setItem('last_order_id', newId);
         localStorage.setItem('last_tracking_code', newId);
       } catch (_) {}
+
+      // IMPORTANT: clear cart after successful checkout
+      try {
+        await dispatch(clearRemoteCart()).unwrap();
+      } catch (_) {
+        // If backend does not support clearing, still ensure UI cart is empty
+      }
+      dispatch(deleteAllFromCart());
+      try { localStorage.removeItem('cartProducts'); } catch (_) {}
     } catch (err) {
       orderSubmitLock.current = false;
       const message = err?.message || 'Unable to finalize your order. Please try again.';

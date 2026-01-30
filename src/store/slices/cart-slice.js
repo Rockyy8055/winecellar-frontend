@@ -1,7 +1,40 @@
 import { v4 as uuidv4 } from 'uuid';
 import cogoToast from 'cogo-toast';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { setProducts } from './product-slice';
+import {
+    fetchCart as fetchCartApi,
+    persistCart as persistCartApi,
+    clearRemoteCart as clearRemoteCartApi
+} from '../../Services/cart-api';
+
+const toNumber = (value, fallback = 0) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+};
+
+const normalizeCartItem = (item = {}) => {
+    const productId = item.ProductId ?? item.productId ?? item.id ?? item?.product?.id;
+    if (!productId) return null;
+
+    const resolvedQuantity = Math.max(1, toNumber(item.quantity ?? item.qty ?? item.count ?? 1, 1));
+    const selectedProductSize = item.selectedProductSize ?? item.size ?? item.variant?.size ?? null;
+    const selectedProductColor = item.selectedProductColor ?? item.color ?? item.variant?.color ?? null;
+
+    return {
+        ...item,
+        ProductId: productId,
+        quantity: resolvedQuantity,
+        selectedProductSize,
+        selectedProductColor,
+        cartItemId: item.cartItemId ?? uuidv4()
+    };
+};
+
+const normalizeCartCollection = (items = []) =>
+    items
+        .map(normalizeCartItem)
+        .filter(Boolean);
 
 const findCatalogProduct = (catalog, productId) => {
     const target = String(productId);
@@ -26,10 +59,49 @@ const mergeCartItemWithCatalog = (item, product) => {
     };
 };
 
+export const loadCart = createAsyncThunk(
+    'cart/loadCart',
+    async (_, { rejectWithValue }) => {
+        try {
+            const items = await fetchCartApi();
+            return items;
+        } catch (error) {
+            return rejectWithValue(error?.message || 'Unable to load cart');
+        }
+    }
+);
+
+export const pushCart = createAsyncThunk(
+    'cart/pushCart',
+    async (_, { getState, rejectWithValue }) => {
+        try {
+            const items = getState().cart.cartItems;
+            const payload = await persistCartApi(items);
+            return payload;
+        } catch (error) {
+            return rejectWithValue(error?.message || 'Unable to sync cart');
+        }
+    }
+);
+
+export const clearRemoteCart = createAsyncThunk(
+    'cart/clearRemoteCart',
+    async (_, { rejectWithValue }) => {
+        try {
+            const payload = await clearRemoteCartApi();
+            return payload;
+        } catch (error) {
+            return rejectWithValue(error?.message || 'Unable to clear remote cart');
+        }
+    }
+);
+
 const cartSlice = createSlice({
     name: "cart",
     initialState: {
-        cartItems: []
+        cartItems: [],
+        status: 'idle',
+        error: null
     },
     reducers: {
         addToCart(state, action) {
@@ -129,19 +201,42 @@ const cartSlice = createSlice({
             }
         },
         deleteAllFromCart(state){
-            state.cartItems = []
+            state.cartItems = [];
+        },
+        setCartItems(state, action){
+            state.cartItems = normalizeCartCollection(action.payload);
         }
     },
     extraReducers: (builder) => {
-        builder.addCase(setProducts, (state, action) => {
+        builder
+            .addCase(setProducts, (state, action) => {
             const catalog = Array.isArray(action.payload) ? action.payload : [];
             state.cartItems = state.cartItems
                 .map((item) => mergeCartItemWithCatalog(item, findCatalogProduct(catalog, item.ProductId)))
                 .filter(Boolean);
-        });
+        })
+            .addCase(loadCart.pending, (state) => {
+                state.status = 'loading';
+                state.error = null;
+            })
+            .addCase(loadCart.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.cartItems = normalizeCartCollection(action.payload);
+            })
+            .addCase(loadCart.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload || action.error?.message || 'Failed to load cart';
+            })
+            .addCase(pushCart.fulfilled, (state, action) => {
+                if (Array.isArray(action.payload) && action.payload.length) {
+                    state.cartItems = normalizeCartCollection(action.payload);
+                }
+            })
+            .addCase(clearRemoteCart.fulfilled, (state) => {
+                state.cartItems = [];
+            });
     }
 });
 
-export const { addToCart, deleteFromCart, decreaseQuantity, deleteAllFromCart } = cartSlice.actions;
+export const { addToCart, deleteFromCart, decreaseQuantity, deleteAllFromCart, setCartItems } = cartSlice.actions;
 export default cartSlice.reducer;
-
