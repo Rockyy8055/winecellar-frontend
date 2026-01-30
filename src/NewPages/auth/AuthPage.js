@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Layout from '../../layouts/Layout';
-import { login, signup, me } from '../../Services/auth-api';
+import { signup, me } from '../../Services/auth-api';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -15,7 +15,7 @@ const initialFormState = {
 const AuthPage = ({ initialMode = 'login' }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login: authLogin, pendingOrder, showNotification } = useAuth();
+  const { login: authLogin, pendingOrder } = useAuth();
   const [mode, setMode] = useState(initialMode);
   const [form, setForm] = useState(initialFormState);
   const [error, setError] = useState('');
