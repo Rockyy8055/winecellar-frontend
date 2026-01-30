@@ -33,8 +33,8 @@ const AdminProducts = lazy(() => import("./NewPages/other/AdminProducts"));
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
            <ScrollToTop>
            <Suspense
           fallback={
@@ -78,10 +78,9 @@ function App() {
           <Route path="/pricing-bifurcation-old" element={<PricingBifurcation />} />
            <Route path="/payment-success-old" element={<PaymentSuccess />} />
           </Routes>
-          
-      </Router>
       <Notification />
     </AuthProvider>
+    </Router>
   );
   
 }
