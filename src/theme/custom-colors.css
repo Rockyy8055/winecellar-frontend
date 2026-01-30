@@ -288,6 +288,10 @@ a[style*="background-color: #111"] {
   background: #350008 !important;
 }
 
+.popup-size-selector .size-pill.selected span {
+  color: #fffef1 !important;
+}
+
 /* Navbar bottom shadow */
 .header-area .sticky-bar,
 .header-area .stick {
