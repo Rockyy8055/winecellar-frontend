@@ -11,6 +11,11 @@ const CartSyncManager = () => {
 
   const hasHydrated = useRef(false);
   const skipNextPush = useRef(false);
+  const lastCartSnapshot = useRef(cartItems);
+
+  useEffect(() => {
+    lastCartSnapshot.current = cartItems;
+  }, [cartItems]);
 
   useEffect(() => {
     if (authLoading) {
@@ -18,11 +23,25 @@ const CartSyncManager = () => {
     }
 
     if (isAuthenticated) {
-      skipNextPush.current = true;
-      dispatch(loadCart())
-        .finally(() => {
+      const hydrate = async () => {
+        const pendingItems = lastCartSnapshot.current;
+        if (Array.isArray(pendingItems) && pendingItems.length) {
+          try {
+            await dispatch(pushCart()).unwrap();
+          } catch (err) {
+            console.warn('Failed to persist pre-login cart before hydrating:', err);
+          }
+        }
+
+        skipNextPush.current = true;
+        try {
+          await dispatch(loadCart());
+        } finally {
           hasHydrated.current = true;
-        });
+        }
+      };
+
+      hydrate();
     } else {
       hasHydrated.current = false;
       skipNextPush.current = false;
