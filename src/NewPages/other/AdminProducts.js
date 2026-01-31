@@ -568,9 +568,9 @@ const AdminProducts = () => {
 
         {showEdit && (
           <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999 }} onClick={()=>setShowEdit(null)}>
-            <div style={{ background:'#fffef1', padding:16, borderRadius:10, width:'min(92vw, 640px)' }} onClick={(e)=>e.stopPropagation()}>
+            <div style={{ background:'#fffef1', padding:16, borderRadius:10, width:'min(85vw, 520px)', maxHeight: '80vh', overflowY: 'auto' }} onClick={(e)=>e.stopPropagation()}>
               <h5>Edit Product</h5>
-              <div className="row" style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: 8 }}>
+              <div className="row" style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: 8 }}>
                 <div className="col-md-6">
                   <div className="mb-2"><label className="form-label">Name</label><input className="form-control" value={showEdit.name||''} onChange={(e)=>setShowEdit({ ...showEdit, name: e.target.value })} /></div>
                   <div className="mb-2"><label className="form-label">Price</label><input type="number" className="form-control" value={showEdit.price||0} onChange={(e)=>setShowEdit({ ...showEdit, price: e.target.value })} /></div>
