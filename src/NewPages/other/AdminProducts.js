@@ -105,6 +105,71 @@ const SIZE_CARD_EMPTY_STYLE = {
   color: 'rgba(53,0,8,0.6)'
 };
 
+const BESTSELLER_MODAL_STYLE = {
+  background: '#fffdf5',
+  padding: 24,
+  borderRadius: 26,
+  width: 'min(94vw, 640px)',
+  maxHeight: '85vh',
+  overflow: 'hidden',
+  boxShadow: '0 30px 70px rgba(20,0,6,0.25)',
+  border: '1px solid rgba(80,22,3,0.08)'
+};
+
+const BESTSELLER_MODAL_HEADER_STYLE = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'flex-start',
+  gap: 16,
+  marginBottom: 18
+};
+
+const BESTSELLER_SEARCH_WRAPPER = {
+  position: 'relative',
+  marginBottom: 18
+};
+
+const BESTSELLER_SELECTED_CARD_STYLE = {
+  background: '#fffef9',
+  border: '1px solid #eadfcf',
+  borderRadius: 18,
+  padding: 12,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  minWidth: 220,
+  boxShadow: '0 8px 26px rgba(33,0,6,0.08)'
+};
+
+const BESTSELLER_SELECTED_IMAGE_STYLE = {
+  width: 56,
+  height: 56,
+  borderRadius: 14,
+  objectFit: 'cover',
+  background: '#f5ebe0'
+};
+
+const BESTSELLER_SELECTED_META_STYLE = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+  flex: 1
+};
+
+const getBestsellerRowStyle = (selected) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 14,
+  padding: '12px 14px',
+  borderRadius: 18,
+  border: `1px solid ${selected ? 'rgba(103,8,20,0.45)' : 'rgba(53,0,8,0.08)'}`,
+  background: selected ? '#fff5ef' : '#ffffff',
+  boxShadow: selected ? '0 10px 24px rgba(71,0,12,0.15)' : 'none',
+  cursor: 'pointer',
+  transition: 'all 0.18s ease',
+  marginBottom: 10
+});
+
 const formatCurrency = (amount, currency = 'GBP') => {
   if (amount === null || amount === undefined || Number.isNaN(Number(amount))) return '—';
   try {
@@ -648,26 +713,46 @@ const AdminProducts = () => {
         </div>
 
         {/* Bestsellers of This Week */}
-        <div className="mt-5">
-          <h4>Add Bestsellers of This Week</h4>
-          <div className="mb-3">
-            <button className="btn btn-dark" onClick={() => { setShowBestsellersPicker(true); fetchAllProductsForBestsellers(); }}>
-              Add Products
-            </button>
+        <div className="mt-5" style={{ background:'#fffaf0', borderRadius:24, padding:24, border:'1px solid #f1e1c9' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:16 }}>
+            <div>
+              <h4 style={{ fontWeight:800, marginBottom:6 }}>Add Bestsellers of This Week</h4>
+              <p style={{ margin:0, color:'rgba(53,0,8,0.65)' }}>Highlight up to six bottles that deserve the spotlight.</p>
+            </div>
+            <button className="btn btn-dark" onClick={() => { setShowBestsellersPicker(true); fetchAllProductsForBestsellers(); }}>Add Products</button>
           </div>
-          {bestsellers.length > 0 && (
-            <div className="mb-3">
-              <div style={{ fontWeight: 600, marginBottom: 8 }}>Selected ({bestsellers.length}/6)</div>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                {bestsellers.map(p => (
-                  <div key={p.id} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 8, width: 120, textAlign: 'center' }}>
-                    {p.previewUrl ? <img src={p.previewUrl} alt={p.name} style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4 }} /> : <div style={{ width: 60, height: 60, background: '#f0f0f0', borderRadius: 4, margin: '0 auto 4px' }} />}
-                    <div style={{ fontSize: 12, fontWeight: 600 }}>{p.name}</div>
-                    <div style={{ fontSize: 12 }}>{formatCurrency(p.price)}</div>
+          {bestsellers.length > 0 ? (
+            <>
+              <div style={{ fontWeight: 700, marginTop:18, marginBottom:12, color:'#350008' }}>Selected ({bestsellers.length}/6)</div>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                {bestsellers.map((p, idx) => (
+                  <div key={p.id} style={BESTSELLER_SELECTED_CARD_STYLE}>
+                    {p.previewUrl ? (
+                      <img src={p.previewUrl} alt={p.name} style={BESTSELLER_SELECTED_IMAGE_STYLE} />
+                    ) : (
+                      <div style={{ ...BESTSELLER_SELECTED_IMAGE_STYLE, display:'flex', alignItems:'center', justifyContent:'center', color:'#8c5c3c' }}>No Img</div>
+                    )}
+                    <div style={BESTSELLER_SELECTED_META_STYLE}>
+                      <span style={{ fontSize:12, fontWeight:700, color:'rgba(53,0,8,0.6)' }}>#{idx + 1}</span>
+                      <span style={{ fontWeight:700 }}>{p.name}</span>
+                      <span style={{ fontSize:13 }}>{formatCurrency(p.price)}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-danger"
+                      style={{ borderRadius:999, padding:'4px 10px', fontSize:12 }}
+                      onClick={()=>toggleBestseller(p)}
+                    >Remove</button>
                   </div>
                 ))}
               </div>
-              <button className="btn btn-success mt-3" onClick={saveBestsellers}>Save Bestsellers</button>
+              <div style={{ display:'flex', justifyContent:'flex-end', marginTop:18 }}>
+                <button className="btn btn-success" onClick={saveBestsellers}>Save Bestsellers</button>
+              </div>
+            </>
+          ) : (
+            <div style={{ marginTop:18, padding:18, border:'1px dashed rgba(53,0,8,0.3)', borderRadius:18, color:'rgba(53,0,8,0.55)' }}>
+              No picks yet. Click “Add Products” to choose up to six spotlight bottles.
             </div>
           )}
         </div>
@@ -675,38 +760,45 @@ const AdminProducts = () => {
         {/* Bestsellers Picker Modal */}
         {showBestsellersPicker && (
           <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999 }} onClick={()=>setShowBestsellersPicker(false)}>
-            <div style={{ background:'#fffef1', padding:16, borderRadius:10, width:'min(90vw, 600px)', maxHeight: '80vh', overflowY: 'auto' }} onClick={(e)=>e.stopPropagation()}>
-              <h5>Select Bestsellers (max 6)</h5>
-              <input
-                type="text"
-                className="form-control mb-3"
-                placeholder="Search products..."
-                value={bestsellersSearch}
-                onChange={(e)=>setBestsellersSearch(e.target.value)}
-              />
-              <div style={{ maxHeight: '50vh', overflowY: 'auto', border: '1px solid #ddd', borderRadius: 8, padding: 8 }}>
+            <div style={BESTSELLER_MODAL_STYLE} onClick={(e)=>e.stopPropagation()}>
+              <div style={BESTSELLER_MODAL_HEADER_STYLE}>
+                <div>
+                  <h5 style={{ fontWeight:800, marginBottom:4 }}>Select Bestsellers (max 6)</h5>
+                  <p style={{ margin:0, color:'rgba(53,0,8,0.65)', fontSize:14 }}>Search and tap to add or remove products. {6 - bestsellers.length} spots left.</p>
+                </div>
+                <button className="btn btn-sm btn-outline-secondary" onClick={()=>setShowBestsellersPicker(false)}>Close</button>
+              </div>
+              <div style={BESTSELLER_SEARCH_WRAPPER}>
+                <input
+                  type="text"
+                  className="form-control"
+                  style={{ paddingLeft:36, borderRadius:999, height:44, border:'1px solid #e5cdb4' }}
+                  placeholder="Search products..."
+                  value={bestsellersSearch}
+                  onChange={(e)=>setBestsellersSearch(e.target.value)}
+                />
+                <span style={{ position:'absolute', left:14, top:11, color:'rgba(53,0,8,0.5)' }}>🔍</span>
+              </div>
+              <div style={{ maxHeight: '50vh', overflowY: 'auto', paddingRight:8, paddingLeft:4 }}>
                 {filteredBestsellersList.map(p => {
                   const isSelected = bestsellers.some(b => b.id === p.id);
                   return (
-                    <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 8, borderBottom: '1px solid #eee', cursor: 'pointer' }} onClick={() => toggleBestseller(p)}>
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => {}}
-                        style={{ pointerEvents: 'none' }}
-                      />
-                      {p.previewUrl ? <img src={p.previewUrl} alt={p.name} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} /> : <div style={{ width: 40, height: 40, background: '#f0f0f0', borderRadius: 4 }} />}
+                    <div key={p.id} style={getBestsellerRowStyle(isSelected)} onClick={() => toggleBestseller(p)}>
+                      <div style={{ width:26, height:26, borderRadius:8, border:`2px solid ${isSelected ? '#5a0a16' : '#c9b5a1'}`, display:'flex', alignItems:'center', justifyContent:'center', background:isSelected ? '#5a0a16' : '#fff', color:'#fff', fontSize:14 }}>
+                        {isSelected ? '✓' : ''}
+                      </div>
+                      {p.previewUrl ? <img src={p.previewUrl} alt={p.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 12 }} /> : <div style={{ width: 48, height: 48, background: '#f0f0f0', borderRadius: 12 }} />}
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 600 }}>{p.name}</div>
-                        <div style={{ fontSize: 12 }}>{formatCurrency(p.price)}</div>
+                        <div style={{ fontWeight: 700 }}>{p.name}</div>
+                        <div style={{ fontSize: 13, color:'rgba(53,0,8,0.7)' }}>{formatCurrency(p.price)}</div>
                       </div>
                     </div>
                   );
                 })}
               </div>
-              <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between' }}>
-                <button className="btn btn-outline-secondary" onClick={()=>setShowBestsellersPicker(false)}>Cancel</button>
-                <button className="btn btn-dark" onClick={()=>setShowBestsellersPicker(false)}>Done</button>
+              <div style={{ marginTop: 18, display: 'flex', justifyContent: 'space-between', gap:12 }}>
+                <button className="btn btn-outline-secondary" style={{ borderRadius:999, padding:'10px 24px' }} onClick={()=>setShowBestsellersPicker(false)}>Cancel</button>
+                <button className="btn btn-dark" style={{ borderRadius:999, padding:'10px 28px' }} onClick={()=>setShowBestsellersPicker(false)}>Done</button>
               </div>
             </div>
           </div>
