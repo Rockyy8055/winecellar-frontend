@@ -78,6 +78,15 @@ const IconGroup = ({ iconWhiteClass }) => {
           </ul>
         </div>
       </div>
+      <div className="same-style account-setting d-block d-lg-none">
+        <Link
+          to={process.env.PUBLIC_URL + (authed ? "/my-orders" : "/login")}
+          style={{ fontSize: '38px' }}
+          aria-label={authed ? 'My Orders' : 'Login'}
+        >
+          <i className="pe-7s-user-female" />
+        </Link>
+      </div>
       <div className="same-style header-wishlist">
         <Link to={process.env.PUBLIC_URL + "/Wishlist"} style={{ fontSize: '38px' }}>
           <i className="pe-7s-like" />
