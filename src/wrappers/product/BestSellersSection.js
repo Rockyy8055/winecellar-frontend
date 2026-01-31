@@ -29,11 +29,19 @@ const BestSellersSection = () => {
 
   const items = useMemo(() => (Array.isArray(bestSellers) ? bestSellers.slice(0, 6) : []), [bestSellers]);
 
+  const gridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+    gap: '28px',
+    maxWidth: 760,
+    margin: '0 auto'
+  };
+
   return (
     <div className="product-area pb-100">
       <div className="container">
         <SectionTitle titleText="BEST SELLERS OF THE WEEK" positionClass="text-center" />
-        <div className="product-grid-5">
+        <div style={gridStyle}>
           {items && items.length > 0 ? (
             items.map((product) => (
               <div key={product.ProductId || product.id || product._id}>
