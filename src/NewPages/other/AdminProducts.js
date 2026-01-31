@@ -105,6 +105,15 @@ const SIZE_CARD_EMPTY_STYLE = {
   color: 'rgba(53,0,8,0.6)'
 };
 
+const formatCurrency = (amount, currency = 'GBP') => {
+  if (amount === null || amount === undefined || Number.isNaN(Number(amount))) return '—';
+  try {
+    return new Intl.NumberFormat('en-GB', { style: 'currency', currency }).format(Number(amount));
+  } catch (_) {
+    return `${currency} ${Number(amount).toFixed(2)}`;
+  }
+};
+
 const AdminProducts = () => {
   const [q, setQ] = useState('');
   const [debouncedQ, setDebouncedQ] = useState('');
