@@ -112,11 +112,15 @@ const AuthPage = ({ initialMode = 'login' }) => {
       if (mode === 'login') {
         const success = await authLogin(trimmedEmail, trimmedPassword);
         if (success) {
+          if (pendingOrder) {
+            setStatus('Welcome back! Placing your order…');
+            return;
+          }
+
           setStatus('Welcome back! Redirecting…');
-          // Auto-order placement is handled in AuthContext
           redirectTimer.current = setTimeout(() => {
             navigate(redirectTo, { replace: true });
-          }, pendingOrder ? 2000 : 800);
+          }, 800);
         }
       } else {
         await signup({

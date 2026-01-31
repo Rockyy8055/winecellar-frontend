@@ -35,7 +35,7 @@ const CartSyncManager = () => {
 
         skipNextPush.current = true;
         try {
-          await dispatch(loadCart());
+          await dispatch(loadCart({ preserveLocalOnEmpty: true }));
         } finally {
           hasHydrated.current = true;
         }

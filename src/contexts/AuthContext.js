@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { API_BASE } from '../Services/auth-api';
+import { createOrder } from '../Services/orders-api';
 import { clearRemoteCart, deleteAllFromCart } from '../store/slices/cart-slice';
 
 const AuthContext = createContext();
@@ -131,21 +132,18 @@ export const AuthProvider = ({ children }) => {
     if (!pendingOrder || !isAuthenticated) return;
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/orders`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(pendingOrder)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error?.message || 'Order placement failed');
-      }
-
-      const orderResult = await response.json();
+      const orderResult = await createOrder(pendingOrder);
       setPendingOrder(null);
       showNotification('Order placed successfully!', 'success');
+
+      // IMPORTANT: clear cart after successful checkout
+      try {
+        await dispatch(clearRemoteCart()).unwrap();
+      } catch (_) {
+        // ignore; still clear UI cart
+      }
+      dispatch(deleteAllFromCart());
+
       navigate('/order-status', { 
         state: { order: orderResult } 
       });

@@ -61,10 +61,13 @@ const mergeCartItemWithCatalog = (item, product) => {
 
 export const loadCart = createAsyncThunk(
     'cart/loadCart',
-    async (_, { rejectWithValue }) => {
+    async (options = {}, { rejectWithValue }) => {
         try {
             const items = await fetchCartApi();
-            return items;
+            return {
+                items,
+                preserveLocalOnEmpty: Boolean(options?.preserveLocalOnEmpty)
+            };
         } catch (error) {
             return rejectWithValue(error?.message || 'Unable to load cart');
         }
@@ -221,7 +224,15 @@ const cartSlice = createSlice({
             })
             .addCase(loadCart.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.cartItems = normalizeCartCollection(action.payload);
+                const payloadItems = action.payload?.items;
+                const preserveLocalOnEmpty = Boolean(action.payload?.preserveLocalOnEmpty);
+                const normalized = normalizeCartCollection(Array.isArray(payloadItems) ? payloadItems : []);
+
+                if (preserveLocalOnEmpty && normalized.length === 0 && state.cartItems.length > 0) {
+                    return;
+                }
+
+                state.cartItems = normalized;
             })
             .addCase(loadCart.rejected, (state, action) => {
                 state.status = 'failed';
