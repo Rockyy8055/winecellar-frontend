@@ -7,7 +7,7 @@ import { setProducts as setProductsAction } from '../../store/slices/product-sli
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { resolveImageSource } from '../../utils/image';
-import { getBestsellers, saveBestsellers } from '../../Services/bestsellers-api';
+import { getBestsellers, saveBestsellers as saveBestsellersApi } from '../../Services/bestsellers-api';
 
 const SIZE_OPTIONS = ['1.5LTR', '1LTR', '75CL', '70CL', '35CL', '20CL', '10CL', '5CL'];
 
@@ -231,7 +231,7 @@ const AdminProducts = () => {
 
   const saveBestsellers = async () => {
     try {
-      await saveBestsellers(bestsellers.map(p => p.id));
+      await saveBestsellersApi(bestsellers.map(p => p.id));
       toast.success('Bestsellers saved', TOAST_PRESET);
     } catch (e) {
       console.error(e);

@@ -6,16 +6,11 @@ import ProductGridSingleTwo from "../../components/product/ProductGridSingleTwo"
 import { getBestsellers } from "../../Services/bestsellers-api";
 
 const BestSellersSection = () => {
-  const { products } = useSelector((state) => state.product);
   const currency = useSelector((state) => state.currency);
   const { cartItems } = useSelector((state) => state.cart);
   const { wishlistItems } = useSelector((state) => state.wishlist);
   const { compareItems } = useSelector((state) => state.compare);
   const [bestSellers, setBestSellers] = useState([]);
-
-  const apiBase = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_BASE)
-    || process.env.REACT_APP_API_URL
-    || '';
 
   useEffect(() => {
     let cancelled = false;
