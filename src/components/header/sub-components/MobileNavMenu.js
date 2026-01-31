@@ -48,15 +48,18 @@ const MobileNavMenu = () => {
           <li><Link to={process.env.PUBLIC_URL + "/signup"} onClick={closeMobileMenu}>Sign Up</Link></li>
           </>
         ) : (
-          <li>
-            <button
-              type="button"
-              onClick={async ()=>{ try { await logout(); } catch(_){} closeMobileMenu(); }}
-              style={{ background:'transparent', border:'none', padding:0, cursor:'pointer', color:'inherit' }}
-            >
-              Logout
-            </button>
-          </li>
+          <>
+            <li><Link to={process.env.PUBLIC_URL + "/my-orders"} onClick={closeMobileMenu}>My Orders</Link></li>
+            <li>
+              <button
+                type="button"
+                onClick={async ()=>{ try { await logout(); } catch(_){} closeMobileMenu(); }}
+                style={{ background:'transparent', border:'none', padding:0, cursor:'pointer', color:'inherit' }}
+              >
+                Logout
+              </button>
+            </li>
+          </>
         )}
         <li>
           <Link to={process.env.PUBLIC_URL + "/order-status"} onClick={closeMobileMenu}>

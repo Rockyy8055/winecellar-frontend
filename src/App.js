@@ -19,6 +19,7 @@ const ContactUs = lazy(() => import("./NewPages/other/ContactUs"));
 const TradeCustomerForm = lazy(() => import("./NewPages/other/TradeCustomerForm"));
 const Checkout = lazy(() => import("./NewPages/other/Checkout"));
 const OrderStatus = lazy(() => import("./NewPages/other/OrderStatus"));
+const MyOrders = lazy(() => import("./NewPages/other/MyOrders"));
 const AdminOrders = lazy(() => import("./NewPages/other/AdminOrders"));
 const AdminProducts = lazy(() => import("./NewPages/other/AdminProducts"));
 
@@ -50,6 +51,7 @@ function App() {
            <Route path="/Cart"  element={<CartNew />} />
            <Route path="/shop-grid-standard"  element={<AllProducts />} />
            <Route path="/checkout" element={<Checkout />} />
+           <Route path="/my-orders" element={<MyOrders />} />
            <Route path="/order-status" element={<OrderStatus />} />
            <Route path="/admin/orders" element={<AdminOrders />} />
            <Route path="/admin/products" element={<AdminProducts />} />

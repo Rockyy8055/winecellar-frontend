@@ -13,6 +13,26 @@ export async function createOrder(payload) {
   return r.json();
 }
 
+export async function getMyOrders() {
+  const r = await fetch(new URL('/api/my-orders', API_BASE).toString(), {
+    method: 'GET',
+    credentials: 'include'
+  });
+  if (!r.ok) throw new Error(`getMyOrders failed: ${r.status}`);
+  return r.json();
+}
+
+export async function trackOrder(trackingCode) {
+  if (!trackingCode) throw new Error('trackingCode is required');
+  const r = await fetch(
+    new URL(`/api/orders/track/${encodeURIComponent(trackingCode)}`, API_BASE).toString(),
+    { method: 'GET', credentials: 'include' }
+  );
+
+  if (!r.ok) throw new Error(`trackOrder failed: ${r.status}`);
+  return r.json();
+}
+
 export async function cancelOrderByTracking(trackingCode) {
   if (!trackingCode) throw new Error('trackingCode is required');
 

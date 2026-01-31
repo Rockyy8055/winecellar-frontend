@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Layout from '../../layouts/Layout';
 import UserAuthModal from './UserAuthModal';
-import { API_BASE } from '../../Services/admin-api';
-import { cancelOrderByTracking } from '../../Services/orders-api';
+import { cancelOrderByTracking, trackOrder } from '../../Services/orders-api';
 
 function useQuery() {
   const { search } = useLocation();
@@ -61,7 +60,9 @@ const deriveHistory = (rawHistory = []) => {
 
 const OrderStatus = () => {
   const query = useQuery();
+  const navigate = useNavigate();
   const trackingCode = query.get('trackingCode') || localStorage.getItem('last_tracking_code') || 'N/A';
+  const [inputCode, setInputCode] = useState(trackingCode && trackingCode !== 'N/A' ? trackingCode : '');
   const [status, setStatus] = useState('PROCESSING');
   const [loading, setLoading] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -76,49 +77,67 @@ const OrderStatus = () => {
   const [eta, setEta] = useState('');
   const [statusHistory, setStatusHistory] = useState([]);
   const [ownerView, setOwnerView] = useState(false);
+  const [statusDisplay, setStatusDisplay] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
+  const [primaryTrackingCode, setPrimaryTrackingCode] = useState(trackingCode);
+  const [internalTrackingCode, setInternalTrackingCode] = useState(null);
+  const [upsTrackingNumber, setUpsTrackingNumber] = useState(null);
+  const [pickupLocation, setPickupLocation] = useState(null);
+
+  useEffect(() => {
+    const resolved = trackingCode && trackingCode !== 'N/A' ? trackingCode : '';
+    setInputCode(resolved);
+    setPrimaryTrackingCode(trackingCode);
+  }, [trackingCode]);
 
   const fetchStatus = useCallback(async () => {
     if (!trackingCode || trackingCode === 'N/A') return;
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/api/orders/track/${encodeURIComponent(trackingCode)}`, { credentials: 'include' });
-
-      if (res.status === 401) {
-        setAuthed(false);
-        setShowAuth(true);
-        setOwnerView(false);
-        setOrder(null);
-        setItems([]);
-        return;
+      let data;
+      try {
+        data = await trackOrder(trackingCode);
+      } catch (e) {
+        const message = String(e?.message || '');
+        if (message.includes('401')) {
+          setAuthed(false);
+          setShowAuth(true);
+          setOwnerView(false);
+          setOrder(null);
+          setItems([]);
+          return;
+        }
+        if (message.includes('403')) {
+          setAuthed(true);
+          setShowAuth(false);
+          setOwnerView(false);
+          setOrder(null);
+          setItems([]);
+          setError('You are signed in, but this order belongs to a different account.');
+          return;
+        }
+        if (message.includes('404')) {
+          setError('We could not find an order with that tracking reference.');
+          setOwnerView(false);
+          setOrder(null);
+          setItems([]);
+          return;
+        }
+        throw e;
       }
 
-      if (res.status === 403) {
-        setAuthed(true);
-        setShowAuth(false);
-        setOwnerView(false);
-        setOrder(null);
-        setItems([]);
-        setError('You are signed in, but this order belongs to a different account.');
-        return;
-      }
-
-      if (res.status === 404) {
-        setError('We could not find an order with that tracking reference.');
-        setOwnerView(false);
-        setOrder(null);
-        setItems([]);
-        return;
-      }
-
-      if (!res.ok) {
-        throw new Error(`Request failed with status ${res.status}`);
-      }
-
-      const data = await res.json();
       setAuthed(true);
       setShowAuth(false);
       setOrder(data || null);
+
+      const primary = data?.trackingCode || trackingCode;
+      setPrimaryTrackingCode(primary);
+      setInternalTrackingCode(data?.internalTrackingCode || null);
+      setUpsTrackingNumber(data?.upsTrackingNumber || null);
+      setPickupLocation(data?.pickupLocation || null);
+      setStatusDisplay(data?.statusDisplay || '');
+      setStatusMessage(data?.statusMessage || '');
 
       const resolvedStatus = normalizeStatus(data?.status);
       setStatus(resolvedStatus);
@@ -144,7 +163,7 @@ const OrderStatus = () => {
       setOrderedDate(formatDate(data?.createdAt || data?.orderDate));
       setEta(formatDate(data?.estimatedDelivery || data?.estimatedDeliveryDate || data?.eta));
 
-      try { localStorage.setItem('last_tracking_code', trackingCode); } catch (_) {}
+      try { localStorage.setItem('last_tracking_code', primary); } catch (_) {}
     } catch (err) {
       setError('We had trouble loading that order. Please refresh or try again later.');
     } finally {
@@ -228,20 +247,68 @@ const OrderStatus = () => {
     return niceStatus.charAt(0).toUpperCase() + niceStatus.slice(1);
   }, [status]);
 
+  const onSubmitTracking = (e) => {
+    e.preventDefault();
+    const code = String(inputCode || '').trim();
+    if (!code) return;
+    navigate(`/order-status?trackingCode=${encodeURIComponent(code)}`);
+  };
+
+  const upsUrl = upsTrackingNumber
+    ? `https://www.ups.com/track?tracknum=${encodeURIComponent(upsTrackingNumber)}`
+    : null;
+
   return (
     <Layout headerContainerClass="container-fluid" headerPaddingClass="header-padding-2" headerTop="visible">
       <div className="container" style={{ paddingTop: 40, paddingBottom: 60 }}>
         <h1 style={{ color: '#350008', fontWeight: 800, marginBottom: 12 }}>Order Status</h1>
+        <form onSubmit={onSubmitTracking} style={{ marginBottom: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <input
+            value={inputCode}
+            onChange={(e) => setInputCode(e.target.value)}
+            placeholder="Enter UPS (1Z...) or WC-..."
+            className="form-control"
+            style={{ maxWidth: 420 }}
+          />
+          <button type="submit" className="btn btn-dark">Track</button>
+        </form>
         <div style={{ background: '#fffef1', border: '1px solid #eee', borderRadius: 12, padding: 20, boxShadow: '0 10px 22px rgba(0,0,0,0.05)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: '1.05rem' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
-              <div><strong>Tracking Code:</strong> {trackingCode}</div>
+              <div>
+                <strong>Tracking Code:</strong> {primaryTrackingCode}
+                {upsTrackingNumber ? (
+                  <span style={{ marginLeft: 10, padding: '4px 10px', borderRadius: 999, background: '#2b6cb015', color: '#2b6cb0', fontWeight: 800, fontSize: '0.85rem' }}>
+                    Carrier: UPS
+                  </span>
+                ) : null}
+              </div>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 999, background: `${statusBadgeColor}15`, color: statusBadgeColor, fontWeight: 700, letterSpacing: 0.4 }}>
                 <span style={{ width: 10, height: 10, borderRadius: '50%', background: statusBadgeColor }}></span>
-                {statusLabel}
+                {statusDisplay || statusLabel}
                 {loading && <span style={{ fontSize: '0.85rem', fontWeight: 400 }}>Updating…</span>}
               </span>
             </div>
+            {statusMessage ? (
+              <div style={{ color: '#5f4438', fontWeight: 600 }}>{statusMessage}</div>
+            ) : null}
+            {internalTrackingCode && internalTrackingCode !== primaryTrackingCode ? (
+              <div style={{ fontSize: '0.95rem', color: '#6b4d53' }}>
+                <strong>Internal Reference:</strong> {internalTrackingCode}
+              </div>
+            ) : null}
+            {upsUrl ? (
+              <div>
+                <a href={upsUrl} target="_blank" rel="noreferrer" className="btn btn-primary" style={{ background: '#2b6cb0', borderColor: '#2b6cb0', fontWeight: 700 }}>
+                  Track on UPS
+                </a>
+              </div>
+            ) : null}
+            {pickupLocation ? (
+              <div style={{ color: '#350008', fontWeight: 700 }}>
+                Please collect it at the store: {pickupLocation}
+              </div>
+            ) : null}
             {orderedDate && <div><strong>Order placed on:</strong> {orderedDate}</div>}
             {eta && <div><strong>Estimated delivery:</strong> {eta}</div>}
             {order?.paymentMethod && (

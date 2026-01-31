@@ -62,15 +62,18 @@ const IconGroup = ({ iconWhiteClass }) => {
                 <li><Link to={process.env.PUBLIC_URL + "/signup"} style={{ color:'#350008' }}>Sign Up</Link></li>
               </>
             ) : (
-              <li>
-                <button
-                  type="button"
-                  style={{ color:'#350008', background:'transparent', border:'none', padding:0, cursor:'pointer' }}
-                  onClick={handleLogout}
-                >
-                  Logout
-                </button>
-              </li>
+              <>
+                <li><Link to={process.env.PUBLIC_URL + "/my-orders"} style={{ color:'#350008' }}>My Orders</Link></li>
+                <li>
+                  <button
+                    type="button"
+                    style={{ color:'#350008', background:'transparent', border:'none', padding:0, cursor:'pointer' }}
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
             )}
           </ul>
         </div>

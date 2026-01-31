@@ -111,6 +111,7 @@ const Checkout = () => {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [paypalPaid, setPaypalPaid] = useState(false);
   const [orderId, setOrderId] = useState(null);
+  const [confirmation, setConfirmation] = useState(null);
   const [shipping, setShipping] = useState(0);
   const [showStoreSelector, setShowStoreSelector] = useState(false);
   const [selectedStoreId, setSelectedStoreId] = useState(null);
@@ -358,8 +359,16 @@ const Checkout = () => {
 
     try {
       const response = await createOrder(payload);
-      const newId = response?.orderId || response?.trackingCode || response?.id || `ORD-${Date.now()}`;
-      setOrderId(newId);
+      const primaryTracking = response?.trackingCode || response?.upsTrackingNumber || response?.internalTrackingCode || response?.orderId || response?.id || `ORD-${Date.now()}`;
+      const internalTracking = response?.internalTrackingCode || null;
+      const upsTracking = response?.upsTrackingNumber || null;
+
+      setOrderId(primaryTracking);
+      setConfirmation({
+        trackingCode: primaryTracking,
+        internalTrackingCode: internalTracking,
+        upsTrackingNumber: upsTracking
+      });
       setOrderPlaced(true);
       setConfirmedStore(storeRef || null);
       setConfirmationEmail(payload.customerEmail);
@@ -369,8 +378,8 @@ const Checkout = () => {
       setSelectedStoreId(null);
       setPaypalPaid(method === 'paypal');
       try {
-        localStorage.setItem('last_order_id', newId);
-        localStorage.setItem('last_tracking_code', newId);
+        localStorage.setItem('last_order_id', primaryTracking);
+        localStorage.setItem('last_tracking_code', primaryTracking);
       } catch (_) {}
 
       // IMPORTANT: clear cart after successful checkout
@@ -736,6 +745,42 @@ const Checkout = () => {
                         {submittingOrder && (
                           <div style={{ color: '#350008', fontWeight: 600, marginTop: 8 }}>
                             Finalizing your order...
+                          </div>
+                        )}
+                        {confirmation?.trackingCode && (
+                          <div style={{ marginTop: 14, padding: '12px 14px', border: '1px solid #e5d6cf', borderRadius: 10, background: '#fffaf5' }}>
+                            <div style={{ fontWeight: 800, color: '#350008' }}>Order confirmed</div>
+                            <div style={{ marginTop: 6 }}>
+                              <strong>Tracking:</strong> {confirmation.trackingCode}
+                              {confirmation.upsTrackingNumber ? (
+                                <span style={{ marginLeft: 10, padding: '4px 10px', borderRadius: 999, background: '#2b6cb015', color: '#2b6cb0', fontWeight: 800, fontSize: '0.85rem' }}>
+                                  UPS Tracking
+                                </span>
+                              ) : null}
+                            </div>
+                            {confirmation.internalTrackingCode && confirmation.internalTrackingCode !== confirmation.trackingCode ? (
+                              <div style={{ marginTop: 4, fontSize: '0.9rem', color: '#6b4d53' }}>
+                                Internal Reference: {confirmation.internalTrackingCode}
+                              </div>
+                            ) : null}
+                            {confirmation.upsTrackingNumber ? (
+                              <div style={{ marginTop: 10, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                <a
+                                  href={`https://www.ups.com/track?tracknum=${encodeURIComponent(confirmation.upsTrackingNumber)}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  style={{ background: '#2b6cb0', color: '#fffef1', padding: '10px 14px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', fontWeight: 700 }}
+                                >
+                                  Track on UPS
+                                </a>
+                                <Link
+                                  to={`/order-status?trackingCode=${encodeURIComponent(confirmation.trackingCode)}`}
+                                  style={{ background: '#350008', color: '#fffef1', padding: '10px 14px', borderRadius: 6, display: 'inline-block', textDecoration: 'none', fontWeight: 700 }}
+                                >
+                                  Track here
+                                </Link>
+                              </div>
+                            ) : null}
                           </div>
                         )}
                         {orderId && (
