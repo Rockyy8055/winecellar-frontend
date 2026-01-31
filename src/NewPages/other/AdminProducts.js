@@ -7,6 +7,7 @@ import { setProducts as setProductsAction } from '../../store/slices/product-sli
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { resolveImageSource } from '../../utils/image';
+import { getBestsellers, saveBestsellers } from '../../Services/bestsellers-api';
 
 const SIZE_OPTIONS = ['1.5LTR', '1LTR', '75CL', '70CL', '35CL', '20CL', '10CL', '5CL'];
 
@@ -111,6 +112,10 @@ const AdminProducts = () => {
   const [rows, setRows] = useState([]);
   const [showEdit, setShowEdit] = useState(null); // product to edit
   const [newProd, setNewProd] = useState({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', previewUrl: '', stock: '', sizeStocks: createEmptySizeStocks(), sizeEntries: createEmptySizeEntries() });
+  const [bestsellers, setBestsellers] = useState([]); // selected bestsellers (up to 6)
+  const [bestsellersSearch, setBestsellersSearch] = useState('');
+  const [allProductsForBestsellers, setAllProductsForBestsellers] = useState([]);
+  const [showBestsellersPicker, setShowBestsellersPicker] = useState(false);
 
   const dispatch = useDispatch();
   const token = useMemo(() => { try { return localStorage.getItem('admin_token') || ''; } catch (_) { return ''; } }, []);
@@ -182,7 +187,74 @@ const AdminProducts = () => {
     });
   };
 
+  const fetchAllProductsForBestsellers = async () => {
+    try {
+      const data = await listProducts({ limit: 500 }, token);
+      const list = data.items || data.rows || [];
+      const normalized = list.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        img: item.img || item.imageUrl || '',
+        previewUrl: resolveImageSource(item.img, item.imageUrl || '')
+      }));
+      setAllProductsForBestsellers(normalized);
+    } catch (e) {
+      console.error('Failed to load products for bestsellers:', e);
+      toast.error('Unable to load products', TOAST_PRESET);
+    }
+  };
+
+  const toggleBestseller = (product) => {
+    setBestsellers(prev => {
+      const exists = prev.some(p => p.id === product.id);
+      if (exists) {
+        return prev.filter(p => p.id !== product.id);
+      } else {
+        if (prev.length >= 6) {
+          toast.error('You can select up to 6 products', TOAST_PRESET);
+          return prev;
+        }
+        return [...prev, product];
+      }
+    });
+  };
+
+  const saveBestsellers = async () => {
+    try {
+      await saveBestsellers(bestsellers.map(p => p.id));
+      toast.success('Bestsellers saved', TOAST_PRESET);
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to save bestsellers', TOAST_PRESET);
+    }
+  };
+
+  const loadBestsellers = async () => {
+    try {
+      const data = await getBestsellers();
+      const list = data.items || data.products || [];
+      const normalized = list.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        img: item.img || item.imageUrl || '',
+        previewUrl: resolveImageSource(item.img, item.imageUrl || '')
+      }));
+      setBestsellers(normalized);
+    } catch (e) {
+      // Ignore error on load; may not exist yet
+    }
+  };
+
+  const filteredBestsellersList = useMemo(() => {
+    if (!bestsellersSearch) return allProductsForBestsellers;
+    const q = bestsellersSearch.toLowerCase();
+    return allProductsForBestsellers.filter(p => p.name.toLowerCase().includes(q));
+  }, [allProductsForBestsellers, bestsellersSearch]);
+
   useEffect(() => { fetchData(); }, [page, debouncedQ]); // eslint-disable-line
+  useEffect(() => { loadBestsellers(); }, []); // eslint-disable-line
 
   // Debounce search query
   useEffect(() => {
@@ -565,6 +637,71 @@ const AdminProducts = () => {
             </div>
           </div>
         </div>
+
+        {/* Bestsellers of This Week */}
+        <div className="mt-5">
+          <h4>Add Bestsellers of This Week</h4>
+          <div className="mb-3">
+            <button className="btn btn-dark" onClick={() => { setShowBestsellersPicker(true); fetchAllProductsForBestsellers(); }}>
+              Add Products
+            </button>
+          </div>
+          {bestsellers.length > 0 && (
+            <div className="mb-3">
+              <div style={{ fontWeight: 600, marginBottom: 8 }}>Selected ({bestsellers.length}/6)</div>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                {bestsellers.map(p => (
+                  <div key={p.id} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 8, width: 120, textAlign: 'center' }}>
+                    {p.previewUrl ? <img src={p.previewUrl} alt={p.name} style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4 }} /> : <div style={{ width: 60, height: 60, background: '#f0f0f0', borderRadius: 4, margin: '0 auto 4px' }} />}
+                    <div style={{ fontSize: 12, fontWeight: 600 }}>{p.name}</div>
+                    <div style={{ fontSize: 12 }}>{formatCurrency(p.price)}</div>
+                  </div>
+                ))}
+              </div>
+              <button className="btn btn-success mt-3" onClick={saveBestsellers}>Save Bestsellers</button>
+            </div>
+          )}
+        </div>
+
+        {/* Bestsellers Picker Modal */}
+        {showBestsellersPicker && (
+          <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999 }} onClick={()=>setShowBestsellersPicker(false)}>
+            <div style={{ background:'#fffef1', padding:16, borderRadius:10, width:'min(90vw, 600px)', maxHeight: '80vh', overflowY: 'auto' }} onClick={(e)=>e.stopPropagation()}>
+              <h5>Select Bestsellers (max 6)</h5>
+              <input
+                type="text"
+                className="form-control mb-3"
+                placeholder="Search products..."
+                value={bestsellersSearch}
+                onChange={(e)=>setBestsellersSearch(e.target.value)}
+              />
+              <div style={{ maxHeight: '50vh', overflowY: 'auto', border: '1px solid #ddd', borderRadius: 8, padding: 8 }}>
+                {filteredBestsellersList.map(p => {
+                  const isSelected = bestsellers.some(b => b.id === p.id);
+                  return (
+                    <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 8, borderBottom: '1px solid #eee', cursor: 'pointer' }} onClick={() => toggleBestseller(p)}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => {}}
+                        style={{ pointerEvents: 'none' }}
+                      />
+                      {p.previewUrl ? <img src={p.previewUrl} alt={p.name} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} /> : <div style={{ width: 40, height: 40, background: '#f0f0f0', borderRadius: 4 }} />}
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600 }}>{p.name}</div>
+                        <div style={{ fontSize: 12 }}>{formatCurrency(p.price)}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between' }}>
+                <button className="btn btn-outline-secondary" onClick={()=>setShowBestsellersPicker(false)}>Cancel</button>
+                <button className="btn btn-dark" onClick={()=>setShowBestsellersPicker(false)}>Done</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {showEdit && (
           <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999 }} onClick={()=>setShowEdit(null)}>

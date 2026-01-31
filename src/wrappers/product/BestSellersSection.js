@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import SectionTitle from "../../components/section-title/SectionTitle";
 import ProductGridSingleTwo from "../../components/product/ProductGridSingleTwo";
+import { getBestsellers } from "../../Services/bestsellers-api";
 
 const BestSellersSection = () => {
   const { products } = useSelector((state) => state.product);
@@ -19,26 +20,19 @@ const BestSellersSection = () => {
   useEffect(() => {
     let cancelled = false;
     async function fetchBest() {
-      // Try backend endpoint if available; otherwise fallback to first 15 products
-      if (!apiBase) {
-        setBestSellers(Array.isArray(products) ? products.slice(0, 15) : []);
-        return;
-      }
       try {
-        const r = await fetch(`${apiBase}/api/product/best-sellers?limit=15&days=7`);
-        if (!r.ok) throw new Error(String(r.status));
-        const arr = await r.json();
-        const list = Array.isArray(arr) ? arr : (arr.items || arr.rows || arr.data || []);
-        if (!cancelled) setBestSellers(list.slice(0, 15));
+        const data = await getBestsellers();
+        const list = data.items || data.products || [];
+        if (!cancelled) setBestSellers(list.slice(0, 6));
       } catch (_) {
-        if (!cancelled) setBestSellers(Array.isArray(products) ? products.slice(0, 15) : []);
+        if (!cancelled) setBestSellers([]);
       }
     }
     fetchBest();
     return () => { cancelled = true; };
-  }, [apiBase, products]);
+  }, []);
 
-  const items = useMemo(() => (Array.isArray(bestSellers) ? bestSellers.slice(0, 15) : []), [bestSellers]);
+  const items = useMemo(() => (Array.isArray(bestSellers) ? bestSellers.slice(0, 6) : []), [bestSellers]);
 
   return (
     <div className="product-area pb-100">
