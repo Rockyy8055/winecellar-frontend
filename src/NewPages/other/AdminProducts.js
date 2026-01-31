@@ -117,6 +117,7 @@ const AdminProducts = () => {
 
   const newProdFileInputRef = useRef(null);
   const editFileInputsRef = useRef({});
+  const productsTableRef = useRef(null);
 
   const TOAST_PRESET = {
     style: {
@@ -168,6 +169,17 @@ const AdminProducts = () => {
         await syncStorefrontCatalog();
       }
     } catch (e) { console.error(e); }
+  };
+
+  const refreshPreserveScroll = async (opts = {}) => {
+    const el = productsTableRef.current;
+    const scrollTop = el ? el.scrollTop : 0;
+    await fetchData(opts);
+    requestAnimationFrame(() => {
+      if (productsTableRef.current) {
+        productsTableRef.current.scrollTop = scrollTop;
+      }
+    });
   };
 
   useEffect(() => { fetchData(); }, [page, debouncedQ]); // eslint-disable-line
@@ -443,7 +455,7 @@ const AdminProducts = () => {
           </div>
           <div className="col-md-7">
             <h5>Products</h5>
-            <div className="table-responsive" style={{ maxHeight: 500, overflow:'auto' }}>
+            <div ref={productsTableRef} className="table-responsive" style={{ maxHeight: 500, overflow:'auto' }}>
               <table className="table table-sm">
                 <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Description</th><th>Category</th><th>Stock (Total)</th><th>Sizes</th><th>Actions</th></tr></thead>
                 <tbody>
@@ -472,8 +484,8 @@ const AdminProducts = () => {
                       <td>{Array.isArray(p.category) ? p.category.join(', ') : p.category}</td>
                       <td style={{ minWidth: 120 }}>
                         <div style={{ display:'flex', gap:6 }}>
-                          <input type="number" className="form-control form-control-sm" defaultValue={p.stock||0} onBlur={async (e)=>{ try { await updateProduct(p.id, { stock: Number(e.target.value) }, token); toast.success('Stock updated', TOAST_PRESET); await fetchData({ syncCatalog: true }); } catch (er) { toast.error(er?.message || 'Update failed', TOAST_PRESET); console.error(er); } }} />
-                          <button className="btn btn-sm btn-dark" onClick={async ()=>{ const el = document.activeElement; const value = (el && el.tagName==='INPUT') ? el.value : p.stock; try { await updateProduct(p.id, { stock: Number(value) }, token); toast.success('Stock updated', TOAST_PRESET); await fetchData({ syncCatalog: true }); } catch (er) { toast.error(er?.message || 'Update failed', TOAST_PRESET); console.error(er); } }}>Save</button>
+                          <input type="number" className="form-control form-control-sm" defaultValue={p.stock||0} onBlur={async (e)=>{ try { await updateProduct(p.id, { stock: Number(e.target.value) }, token); toast.success('Stock updated', TOAST_PRESET); await refreshPreserveScroll({ syncCatalog: true }); } catch (er) { toast.error(er?.message || 'Update failed', TOAST_PRESET); console.error(er); } }} />
+                          <button className="btn btn-sm btn-dark" onClick={async ()=>{ const el = document.activeElement; const value = (el && el.tagName==='INPUT') ? el.value : p.stock; try { await updateProduct(p.id, { stock: Number(value) }, token); toast.success('Stock updated', TOAST_PRESET); await refreshPreserveScroll({ syncCatalog: true }); } catch (er) { toast.error(er?.message || 'Update failed', TOAST_PRESET); console.error(er); } }}>Save</button>
                         </div>
                       </td>
                       <td style={{ minWidth: 220 }}>
@@ -499,7 +511,7 @@ const AdminProducts = () => {
                                       try {
                                         await updateProduct(p.id, { sizeStocks: cleaned, stock }, token);
                                         toast.success('Size stock updated', TOAST_PRESET);
-                                        await fetchData({ syncCatalog: true });
+                                        await refreshPreserveScroll({ syncCatalog: true });
                                       } catch (er) {
                                         toast.error(er?.message || 'Update failed', TOAST_PRESET);
                                         console.error(er);
