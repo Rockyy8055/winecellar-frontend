@@ -457,7 +457,7 @@ const AdminProducts = () => {
             <h5>Products</h5>
             <div ref={productsTableRef} className="table-responsive" style={{ maxHeight: 500, overflow:'auto' }}>
               <table className="table table-sm">
-                <thead><tr><th>Image</th><th>Name</th><th style={{ minWidth: 120 }}>Price</th><th>Description</th><th>Category</th><th>Stock (Total)</th><th>Sizes</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Image</th><th style={{ minWidth: 180 }}>Name</th><th style={{ minWidth: 120 }}>Price</th><th>Description</th><th>Category</th><th>Stock (Total)</th><th>Sizes</th><th>Actions</th></tr></thead>
                 <tbody>
                   {rows.map(p => (
                     <tr key={p.id}>
@@ -467,6 +467,7 @@ const AdminProducts = () => {
                           type="text"
                           defaultValue={p.name}
                           className="form-control form-control-sm"
+                          style={{ minWidth: 180 }}
                           onBlur={(e)=>onQuickName(p.id, e.target.value)}
                         />
                       </td>
