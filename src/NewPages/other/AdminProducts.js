@@ -417,8 +417,12 @@ const AdminProducts = () => {
     setHeroSlidesSaving(true);
     try {
       const cleaned = heroSlides.filter(slide => slide.image);
-      await saveAdminHeroSlides(cleaned);
-      toast.success('Hero slider updated', TOAST_PRESET);
+      const res = await saveAdminHeroSlides(cleaned);
+      if (res?.source === 'local_fallback') {
+        toast.success('Saved locally (CORS blocked API)', TOAST_PRESET);
+      } else {
+        toast.success('Hero slider updated', TOAST_PRESET);
+      }
     } catch (e) {
       console.error(e);
       toast.error(e?.message || 'Failed to save hero slides', TOAST_PRESET);
