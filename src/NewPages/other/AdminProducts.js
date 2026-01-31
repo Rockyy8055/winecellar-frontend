@@ -457,7 +457,7 @@ const AdminProducts = () => {
             <h5>Products</h5>
             <div ref={productsTableRef} className="table-responsive" style={{ maxHeight: 500, overflow:'auto' }}>
               <table className="table table-sm">
-                <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Description</th><th>Category</th><th>Stock (Total)</th><th>Sizes</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Image</th><th>Name</th><th style={{ minWidth: 120 }}>Price</th><th>Description</th><th>Category</th><th>Stock (Total)</th><th>Sizes</th><th>Actions</th></tr></thead>
                 <tbody>
                   {rows.map(p => (
                     <tr key={p.id}>
@@ -471,7 +471,14 @@ const AdminProducts = () => {
                         />
                       </td>
                       <td>
-                        <input type="number" step="0.01" defaultValue={p.price} className="form-control form-control-sm" onBlur={(e)=>onQuickPrice(p.id, e.target.value)} />
+                        <input
+                          type="number"
+                          step="0.01"
+                          defaultValue={p.price}
+                          className="form-control form-control-sm"
+                          style={{ minWidth: 120 }}
+                          onBlur={(e)=>onQuickPrice(p.id, e.target.value)}
+                        />
                       </td>
                       <td>
                         <textarea 
