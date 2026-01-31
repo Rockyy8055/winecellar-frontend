@@ -31,9 +31,9 @@ const BestSellersSection = () => {
 
   const gridStyle = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
     gap: '28px',
-    maxWidth: 760,
+    maxWidth: 1140,
     margin: '0 auto'
   };
 
