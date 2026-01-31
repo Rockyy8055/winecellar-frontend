@@ -792,7 +792,7 @@ const AdminOrders = () => {
                   <tr>
                     <th>Image</th>
                     <th>Name</th>
-                    <th>Price (£)</th>
+                    <th style={{ minWidth: 100 }}>Price (£)</th>
                     <th>Description</th>
                     <th>Category</th>
                     <th>Subcategory</th>
