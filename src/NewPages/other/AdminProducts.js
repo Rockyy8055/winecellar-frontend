@@ -170,6 +170,67 @@ const getBestsellerRowStyle = (selected) => ({
   marginBottom: 10
 });
 
+const ADMIN_PAGE_STYLE = {
+  paddingTop: 32,
+  paddingBottom: 70,
+  maxWidth: 1240,
+  margin: '0 auto'
+};
+
+const SEARCH_CARD_STYLE = {
+  background: '#fff9f3',
+  borderRadius: 26,
+  padding: '20px 28px',
+  boxShadow: '0 20px 55px rgba(30,0,8,0.08)',
+  border: '1px solid rgba(70,12,3,0.08)',
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: 16,
+  alignItems: 'center',
+  marginBottom: 30
+};
+
+const PANEL_WRAPPER_STYLE = {
+  display: 'grid',
+  gridTemplateColumns: 'minmax(320px, 0.45fr) minmax(380px, 0.55fr)',
+  gap: 28,
+  alignItems: 'start'
+};
+
+const PANEL_CARD_STYLE = {
+  background: '#ffffff',
+  borderRadius: 30,
+  padding: 28,
+  border: '1px solid rgba(55,4,14,0.08)',
+  boxShadow: '0 25px 70px rgba(23,0,8,0.08)'
+};
+
+const SECTION_LABEL_STYLE = {
+  fontSize: 12,
+  fontWeight: 700,
+  letterSpacing: '0.06em',
+  color: 'rgba(32,4,9,0.6)',
+  textTransform: 'uppercase',
+  marginBottom: 6
+};
+
+const INPUT_STYLE = {
+  borderRadius: 14,
+  border: '1px solid rgba(93,28,4,0.2)',
+  background: '#fffdfb',
+  fontWeight: 600,
+  padding: '10px 14px'
+};
+
+const BESTSELLER_CARD_STYLE = {
+  background: '#fef9ff',
+  borderRadius: 30,
+  padding: 28,
+  border: '1px solid rgba(83,14,55,0.12)',
+  boxShadow: '0 20px 65px rgba(40,0,18,0.08)',
+  marginTop: 40
+};
+
 const formatCurrency = (amount, currency = 'GBP') => {
   if (amount === null || amount === undefined || Number.isNaN(Number(amount))) return '—';
   try {
@@ -442,24 +503,31 @@ const AdminProducts = () => {
 
   return (
     <Layout headerContainerClass="container-fluid" headerPaddingClass="header-padding-2" headerTop="visible">
-      <div className="container" style={{ paddingTop: 24, paddingBottom: 60 }}>
-        <h1 style={{ color:'#350008', fontWeight:800 }}>Admin Products</h1>
-        <div className="row mb-3">
-          <div className="col-md-6">
-            <input className="form-control" placeholder="Search products..." value={q} onChange={(e)=>setQ(e.target.value)} />
+      <div style={ADMIN_PAGE_STYLE}>
+        <div style={{ marginBottom: 26 }}>
+          <div style={{ fontSize: 13, letterSpacing: '0.08em', fontWeight: 700, color: 'rgba(53,0,8,0.6)', textTransform: 'uppercase' }}>Operations</div>
+          <h1 style={{ color:'#2e050b', fontWeight:800, marginBottom: 12 }}>Admin Products</h1>
+          <p style={{ color:'rgba(46,5,11,0.7)', maxWidth: 560 }}>Search, create and curate your catalogue without ever leaving this page. Use the toolkit below to keep pricing, inventory and bestsellers perfectly in sync.</p>
+        </div>
+
+        <div style={SEARCH_CARD_STYLE}>
+          <div style={{ flex: '1 1 320px' }}>
+            <div style={SECTION_LABEL_STYLE}>Search products</div>
+            <input className="form-control" style={INPUT_STYLE} placeholder="Type product name or SKU" value={q} onChange={(e)=>setQ(e.target.value)} />
           </div>
-          <div className="col-md-3" style={{ display:'flex', gap:8 }}>
-            <button className="btn btn-dark" onClick={()=>fetchData()}>Search</button>
-            <button className="btn btn-outline-secondary" onClick={()=>{ setPage(1); fetchData({ limit: 5000 }); }}>Load All</button>
+          <div style={{ display:'flex', gap:12 }}>
+            <button className="btn btn-dark" style={{ padding:'11px 28px', borderRadius:999 }} onClick={()=>fetchData()}>Search</button>
+            <button className="btn btn-outline-secondary" style={{ padding:'11px 24px', borderRadius:999 }} onClick={()=>{ setPage(1); fetchData({ limit: 5000 }); }}>Load All</button>
           </div>
         </div>
 
-        <div className="row">
-          <div className="col-md-5">
-            <h5>Add Product</h5>
-            <div className="mb-2"><input className="form-control" placeholder="Name" value={newProd.name} onChange={(e)=>setNewProd({ ...newProd, name: e.target.value })} /></div>
-            <div className="mb-2"><input type="number" step="0.01" className="form-control" placeholder="Price" value={newProd.price} onChange={(e)=>setNewProd({ ...newProd, price: e.target.value })} /></div>
-            <div className="mb-2"><input className="form-control" placeholder="Category (e.g. SPIRITS)" value={newProd.category} onChange={(e)=>setNewProd({ ...newProd, category: e.target.value })} /></div>
+        <div style={PANEL_WRAPPER_STYLE}>
+          <div style={PANEL_CARD_STYLE}>
+            <div style={SECTION_LABEL_STYLE}>Add product</div>
+            <h4 style={{ fontWeight:800, color:'#2d060b', marginBottom:18 }}>Catalogue entry</h4>
+            <div className="mb-3"><input className="form-control" style={INPUT_STYLE} placeholder="Name" value={newProd.name} onChange={(e)=>setNewProd({ ...newProd, name: e.target.value })} /></div>
+            <div className="mb-3"><input type="number" step="0.01" className="form-control" style={INPUT_STYLE} placeholder="Price" value={newProd.price} onChange={(e)=>setNewProd({ ...newProd, price: e.target.value })} /></div>
+            <div className="mb-3"><input className="form-control" style={INPUT_STYLE} placeholder="Category (e.g. SPIRITS)" value={newProd.category} onChange={(e)=>setNewProd({ ...newProd, category: e.target.value })} /></div>
             <div className="mb-3">
               <label className="form-label" style={{ fontWeight:600 }}>Product Image</label>
               <div style={{ display:'flex', gap:12, alignItems:'center' }}>
@@ -597,12 +665,18 @@ const AdminProducts = () => {
               </div>
             </div>
             <div className="mb-2"><textarea className="form-control" placeholder="Description" rows={3} value={newProd.desc} onChange={(e)=>setNewProd({ ...newProd, desc: e.target.value })} /></div>
-            <button className="btn btn-dark" onClick={onAdd}>Add</button>
+            <button className="btn btn-dark" style={{ padding:'12px 32px', borderRadius:16, fontWeight:700 }} onClick={onAdd}>Add product</button>
           </div>
-          <div className="col-md-7">
-            <h5>Products</h5>
-            <div ref={productsTableRef} className="table-responsive" style={{ maxHeight: 500, overflow:'auto' }}>
-              <table className="table table-sm">
+          <div style={PANEL_CARD_STYLE}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+              <div>
+                <div style={SECTION_LABEL_STYLE}>Product catalogue</div>
+                <h4 style={{ fontWeight:800, margin:0 }}>Inline editor</h4>
+              </div>
+              <span style={{ fontSize:13, color:'rgba(32,4,9,0.6)' }}>{rows.length} items</span>
+            </div>
+            <div ref={productsTableRef} className="table-responsive" style={{ maxHeight: 520, overflow:'auto', borderRadius:22, border:'1px solid rgba(44,5,10,0.08)' }}>
+              <table className="table table-sm" style={{ marginBottom:0 }}>
                 <thead><tr><th>Image</th><th style={{ minWidth: 180 }}>Name</th><th style={{ minWidth: 120 }}>Price</th><th>Description</th><th>Category</th><th>Stock (Total)</th><th>Sizes</th><th>Actions</th></tr></thead>
                 <tbody>
                   {rows.map(p => (
@@ -713,13 +787,14 @@ const AdminProducts = () => {
         </div>
 
         {/* Bestsellers of This Week */}
-        <div className="mt-5" style={{ background:'#fffaf0', borderRadius:24, padding:24, border:'1px solid #f1e1c9' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:16 }}>
+        <div style={BESTSELLER_CARD_STYLE}>
+          <div style={{ display:'flex', justifyContent:'space-between', flexWrap:'wrap', gap:16, alignItems:'center' }}>
             <div>
-              <h4 style={{ fontWeight:800, marginBottom:6 }}>Add Bestsellers of This Week</h4>
-              <p style={{ margin:0, color:'rgba(53,0,8,0.65)' }}>Highlight up to six bottles that deserve the spotlight.</p>
+              <div style={SECTION_LABEL_STYLE}>Spotlight</div>
+              <h4 style={{ fontWeight:800, marginBottom:6 }}>Bestsellers of this week</h4>
+              <p style={{ margin:0, color:'rgba(48,0,19,0.65)' }}>Pick up to six bottles to headline the home page carousel.</p>
             </div>
-            <button className="btn btn-dark" onClick={() => { setShowBestsellersPicker(true); fetchAllProductsForBestsellers(); }}>Add Products</button>
+            <button className="btn btn-dark" style={{ padding:'11px 28px', borderRadius:999 }} onClick={() => { setShowBestsellersPicker(true); fetchAllProductsForBestsellers(); }}>Add products</button>
           </div>
           {bestsellers.length > 0 ? (
             <>
@@ -747,12 +822,12 @@ const AdminProducts = () => {
                 ))}
               </div>
               <div style={{ display:'flex', justifyContent:'flex-end', marginTop:18 }}>
-                <button className="btn btn-success" onClick={saveBestsellers}>Save Bestsellers</button>
+                <button className="btn btn-success" style={{ padding:'11px 32px', borderRadius:16 }} onClick={saveBestsellers}>Save collection</button>
               </div>
             </>
           ) : (
             <div style={{ marginTop:18, padding:18, border:'1px dashed rgba(53,0,8,0.3)', borderRadius:18, color:'rgba(53,0,8,0.55)' }}>
-              No picks yet. Click “Add Products” to choose up to six spotlight bottles.
+              No picks yet. Click “Add products” to choose up to six spotlight bottles.
             </div>
           )}
         </div>
@@ -760,7 +835,7 @@ const AdminProducts = () => {
         {/* Bestsellers Picker Modal */}
         {showBestsellersPicker && (
           <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999 }} onClick={()=>setShowBestsellersPicker(false)}>
-            <div style={BESTSELLER_MODAL_STYLE} onClick={(e)=>e.stopPropagation()}>
+            <div style={{ ...BESTSELLER_MODAL_STYLE, borderRadius:30 }} onClick={(e)=>e.stopPropagation()}>
               <div style={BESTSELLER_MODAL_HEADER_STYLE}>
                 <div>
                   <h5 style={{ fontWeight:800, marginBottom:4 }}>Select Bestsellers (max 6)</h5>
