@@ -677,17 +677,28 @@ const AdminProducts = () => {
             </div>
             <div ref={productsTableRef} className="table-responsive" style={{ maxHeight: 520, overflow:'auto', borderRadius:22, border:'1px solid rgba(44,5,10,0.08)' }}>
               <table className="table table-sm" style={{ marginBottom:0 }}>
-                <thead><tr><th>Image</th><th style={{ minWidth: 180 }}>Name</th><th style={{ minWidth: 120 }}>Price</th><th>Description</th><th>Category</th><th>Stock (Total)</th><th>Sizes</th><th>Actions</th></tr></thead>
+                <thead style={{ position:'sticky', top:0, zIndex:2, background:'#fff7f2', boxShadow:'0 2px 10px rgba(0,0,0,0.05)' }}>
+                  <tr>
+                    <th>Image</th>
+                    <th style={{ minWidth: 190 }}>Name</th>
+                    <th style={{ minWidth: 120 }}>Price</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Stock (Total)</th>
+                    <th>Sizes</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {rows.map(p => (
-                    <tr key={p.id}>
-                      <td>{p.img || p.imageUrl || p.previewUrl ? <img src={resolveImageSource(p.img, p.imageUrl || p.previewUrl)} alt={p.name} style={{ width:40, height:40, objectFit:'cover' }} /> : '-'}</td>
+                  {rows.map((p, idx) => (
+                    <tr key={p.id} style={{ background: idx % 2 ? '#fffdf8' : '#ffffff' }}>
+                      <td>{p.img || p.imageUrl || p.previewUrl ? <img src={resolveImageSource(p.img, p.imageUrl || p.previewUrl)} alt={p.name} style={{ width:44, height:44, objectFit:'cover', borderRadius:12 }} /> : '-'}</td>
                       <td>
                         <input
                           type="text"
                           defaultValue={p.name}
                           className="form-control form-control-sm"
-                          style={{ minWidth: 180 }}
+                          style={{ minWidth: 190, ...INPUT_STYLE, fontSize:13, padding:'8px 12px' }}
                           onBlur={(e)=>onQuickName(p.id, e.target.value)}
                         />
                       </td>
@@ -697,7 +708,7 @@ const AdminProducts = () => {
                           step="0.01"
                           defaultValue={p.price}
                           className="form-control form-control-sm"
-                          style={{ minWidth: 120 }}
+                          style={{ minWidth: 120, ...INPUT_STYLE, fontSize:13, padding:'8px 12px' }}
                           onBlur={(e)=>onQuickPrice(p.id, e.target.value)}
                         />
                       </td>
@@ -706,14 +717,14 @@ const AdminProducts = () => {
                           className="form-control form-control-sm" 
                           defaultValue={p.description || p.desc || ''} 
                           onBlur={(e) => onQuickDesc(p.id, e.target.value)}
-                          style={{ minWidth: '200px', maxWidth: '300px', minHeight: '60px' }}
+                          style={{ minWidth: '220px', maxWidth: '320px', minHeight: '60px', ...INPUT_STYLE, fontSize:13, padding:'8px 12px' }}
                         />
                       </td>
                       <td>{Array.isArray(p.category) ? p.category.join(', ') : p.category}</td>
                       <td style={{ minWidth: 120 }}>
                         <div style={{ display:'flex', gap:6 }}>
-                          <input type="number" className="form-control form-control-sm" defaultValue={p.stock||0} onBlur={async (e)=>{ try { await updateProduct(p.id, { stock: Number(e.target.value) }, token); toast.success('Stock updated', TOAST_PRESET); await refreshPreserveScroll({ syncCatalog: true }); } catch (er) { toast.error(er?.message || 'Update failed', TOAST_PRESET); console.error(er); } }} />
-                          <button className="btn btn-sm btn-dark" onClick={async ()=>{ const el = document.activeElement; const value = (el && el.tagName==='INPUT') ? el.value : p.stock; try { await updateProduct(p.id, { stock: Number(value) }, token); toast.success('Stock updated', TOAST_PRESET); await refreshPreserveScroll({ syncCatalog: true }); } catch (er) { toast.error(er?.message || 'Update failed', TOAST_PRESET); console.error(er); } }}>Save</button>
+                          <input type="number" className="form-control form-control-sm" style={{ ...INPUT_STYLE, width:100, padding:'8px 12px' }} defaultValue={p.stock||0} onBlur={async (e)=>{ try { await updateProduct(p.id, { stock: Number(e.target.value) }, token); toast.success('Stock updated', TOAST_PRESET); await refreshPreserveScroll({ syncCatalog: true }); } catch (er) { toast.error(er?.message || 'Update failed', TOAST_PRESET); console.error(er); } }} />
+                          <button className="btn btn-sm btn-dark" style={{ borderRadius:999 }} onClick={async ()=>{ const el = document.activeElement; const value = (el && el.tagName==='INPUT') ? el.value : p.stock; try { await updateProduct(p.id, { stock: Number(value) }, token); toast.success('Stock updated', TOAST_PRESET); await refreshPreserveScroll({ syncCatalog: true }); } catch (er) { toast.error(er?.message || 'Update failed', TOAST_PRESET); console.error(er); } }}>Save</button>
                         </div>
                       </td>
                       <td style={{ minWidth: 220 }}>
@@ -753,7 +764,7 @@ const AdminProducts = () => {
                         </details>
                       </td>
                       <td style={{ whiteSpace:'nowrap', display:'flex', gap:6 }}>
-                        <button className="btn btn-sm btn-outline-secondary" onClick={()=>{
+                        <button className="btn btn-sm btn-outline-secondary" style={{ borderRadius:999 }} onClick={()=>{
                           const normalizedSizes = { ...createEmptySizeStocks() };
                           const cleaned = sanitizeSizeStocks(p.sizeStocks || {});
                           Object.entries(cleaned).forEach(([key, value]) => {
@@ -770,7 +781,7 @@ const AdminProducts = () => {
                             previewUrl: preview
                           });
                         }}>Edit</button>
-                        <button className="btn btn-sm btn-outline-danger" onClick={async ()=>{
+                        <button className="btn btn-sm btn-outline-danger" style={{ borderRadius:999 }} onClick={async ()=>{
                           try {
                             await deleteProduct(p.id, token);
                             toast.success('Product deleted', TOAST_PRESET);
