@@ -8,8 +8,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { resolveImageSource } from '../../utils/image';
 import { getBestsellers, saveBestsellers as saveBestsellersApi } from '../../Services/bestsellers-api';
-import { getAdminHeroSlides, saveAdminHeroSlides } from '../../Services/slider-api';
-import defaultHeroSliderData from '../../data/hero-sliders/hero-slider-nineteen.json';
 
 const SIZE_OPTIONS = ['1.5LTR', '1LTR', '75CL', '70CL', '35CL', '20CL', '10CL', '5CL'];
 
@@ -172,24 +170,6 @@ const getBestsellerRowStyle = (selected) => ({
   marginBottom: 10
 });
 
-const normalizeHeroSlides = (list = []) => (
-  list.map((slide, idx) => ({
-    id: slide.id ?? `slide-${idx + 1}`,
-    title: slide.title || '',
-    subtitle: slide.subtitle || '',
-    image: slide.image || slide.imageUrl || '',
-    url: slide.url || slide.href || '/shop-grid-standard'
-  }))
-);
-
-const createEmptyHeroSlide = (index = 0) => ({
-  id: `new-${Date.now()}-${index}`,
-  title: '',
-  subtitle: '',
-  image: '',
-  url: '/shop-grid-standard'
-});
-
 const formatCurrency = (amount, currency = 'GBP') => {
   if (amount === null || amount === undefined || Number.isNaN(Number(amount))) return '—';
   try {
@@ -210,9 +190,6 @@ const AdminProducts = () => {
   const [bestsellersSearch, setBestsellersSearch] = useState('');
   const [allProductsForBestsellers, setAllProductsForBestsellers] = useState([]);
   const [showBestsellersPicker, setShowBestsellersPicker] = useState(false);
-  const [heroSlides, setHeroSlides] = useState(() => normalizeHeroSlides(defaultHeroSliderData));
-  const [heroSlidesLoading, setHeroSlidesLoading] = useState(true);
-  const [heroSlidesSaving, setHeroSlidesSaving] = useState(false);
 
   const dispatch = useDispatch();
   const token = useMemo(() => { try { return localStorage.getItem('admin_token') || ''; } catch (_) { return ''; } }, []);
@@ -350,121 +327,8 @@ const AdminProducts = () => {
     return allProductsForBestsellers.filter(p => p.name.toLowerCase().includes(q));
   }, [allProductsForBestsellers, bestsellersSearch]);
 
-  const loadHeroSlides = async () => {
-    setHeroSlidesLoading(true);
-    try {
-      const data = await getAdminHeroSlides();
-      const list = normalizeHeroSlides(data?.slides || data || []);
-      setHeroSlides(list.length ? list : normalizeHeroSlides(defaultHeroSliderData));
-    } catch (e) {
-      console.error('Failed to load hero slides', e);
-      setHeroSlides(normalizeHeroSlides(defaultHeroSliderData));
-    } finally {
-      setHeroSlidesLoading(false);
-    }
-  };
-
-  const handleHeroSlideFieldChange = (index, field, value) => {
-    setHeroSlides(prev => {
-      const next = [...prev];
-      next[index] = { ...next[index], [field]: value };
-      return next;
-    });
-  };
-
-  const handleHeroSlideImageChange = async (index, file) => {
-    if (!file) return;
-    try {
-      const dataUrl = await fileToDataUrl(file);
-      setHeroSlides(prev => {
-        const next = [...prev];
-        next[index] = { ...next[index], image: dataUrl };
-        return next;
-      });
-    } catch (e) {
-      console.error(e);
-      toast.error('Unable to process image', TOAST_PRESET);
-    }
-  };
-
-  const moveHeroSlide = (index, delta) => {
-    setHeroSlides(prev => {
-      const next = [...prev];
-      const target = index + delta;
-      if (target < 0 || target >= next.length) return prev;
-      const temp = next[index];
-      next[index] = next[target];
-      next[target] = temp;
-      return next;
-    });
-  };
-
-  const removeHeroSlide = (index) => {
-    setHeroSlides(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const addHeroSlide = () => {
-    setHeroSlides(prev => {
-      if (prev.length >= 6) {
-        toast.error('Maximum 6 slides allowed', TOAST_PRESET);
-        return prev;
-      }
-      return [...prev, createEmptyHeroSlide(prev.length)];
-    });
-  };
-
-  const saveHeroSlidesChanges = async () => {
-    setHeroSlidesSaving(true);
-    try {
-      const cleaned = heroSlides.filter(slide => slide.image);
-      const res = await saveAdminHeroSlides(cleaned);
-      if (res?.source === 'local_fallback') {
-        toast.success('Saved locally (CORS blocked API)', TOAST_PRESET);
-      } else {
-        toast.success('Hero slider updated', TOAST_PRESET);
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error(e?.message || 'Failed to save hero slides', TOAST_PRESET);
-    } finally {
-      setHeroSlidesSaving(false);
-    }
-  };
-
-  const renderHeroSlideCard = (slide, index) => (
-    <div key={slide.id} style={{ border:'1px solid #eadfcf', borderRadius:20, padding:16, background:'#fffef9', boxShadow:'0 15px 35px rgba(33,0,6,0.08)', minWidth:260 }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
-        <div>
-          <div style={{ fontSize:12, fontWeight:700, color:'rgba(53,0,8,0.6)' }}>Slide #{index + 1}</div>
-          <div style={{ fontWeight:800 }}>{slide.title || 'Untitled Slide'}</div>
-        </div>
-        <div style={{ display:'flex', gap:6 }}>
-          <button className="btn btn-sm btn-outline-secondary" disabled={index===0} onClick={()=>moveHeroSlide(index, -1)}>↑</button>
-          <button className="btn btn-sm btn-outline-secondary" disabled={index===heroSlides.length-1} onClick={()=>moveHeroSlide(index, 1)}>↓</button>
-          <button className="btn btn-sm btn-outline-danger" onClick={()=>removeHeroSlide(index)}>×</button>
-        </div>
-      </div>
-      <div style={{ display:'flex', gap:12 }}>
-        <div style={{ width:140 }}>
-          {slide.image ? (
-            <img src={slide.image} alt={slide.title || 'Slide preview'} style={{ width:'100%', height:90, objectFit:'cover', borderRadius:12, marginBottom:8 }} />
-          ) : (
-            <div style={{ width:'100%', height:90, background:'#f4e8da', borderRadius:12, display:'flex', alignItems:'center', justifyContent:'center', color:'#8c5c3c', marginBottom:8 }}>No image</div>
-          )}
-          <input type="file" accept="image/*" className="form-control form-control-sm" onChange={(e)=>handleHeroSlideImageChange(index, e.target.files?.[0] || null)} />
-        </div>
-        <div style={{ flex:1, display:'flex', flexDirection:'column', gap:8 }}>
-          <input className="form-control" placeholder="Headline" value={slide.title} onChange={(e)=>handleHeroSlideFieldChange(index, 'title', e.target.value)} />
-          <textarea className="form-control" rows={2} placeholder="Subtitle" value={slide.subtitle} onChange={(e)=>handleHeroSlideFieldChange(index, 'subtitle', e.target.value)} />
-          <input className="form-control" placeholder="Target URL" value={slide.url} onChange={(e)=>handleHeroSlideFieldChange(index, 'url', e.target.value)} />
-        </div>
-      </div>
-    </div>
-  );
-
   useEffect(() => { fetchData(); }, [page, debouncedQ]); // eslint-disable-line
   useEffect(() => { loadBestsellers(); }, []); // eslint-disable-line
-  useEffect(() => { loadHeroSlides(); }, []); // eslint-disable-line
 
   // Debounce search query
   useEffect(() => {
@@ -891,36 +755,6 @@ const AdminProducts = () => {
               No picks yet. Click “Add Products” to choose up to six spotlight bottles.
             </div>
           )}
-        </div>
-
-        {/* Homepage Hero Slider Manager */}
-        <div className="mt-5" style={{ background:'#fef6ff', borderRadius:24, padding:24, border:'1px solid #f1dff1' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:16 }}>
-            <div>
-              <h4 style={{ fontWeight:800, marginBottom:6 }}>Homepage Ads Slider</h4>
-              <p style={{ margin:0, color:'rgba(45,0,31,0.65)' }}>Upload up to six hero images (auto-rotating banner). Drag via arrows to reorder; first slide shows first.</p>
-            </div>
-            <button className="btn btn-dark" onClick={addHeroSlide} disabled={heroSlides.length >= 6}>Add Slide</button>
-          </div>
-          <div style={{ marginTop:20 }}>
-            {heroSlidesLoading ? (
-              <div style={{ padding:20, textAlign:'center', color:'rgba(45,0,31,0.7)' }}>Loading current slides…</div>
-            ) : (
-              <div style={{ display:'flex', gap:18, flexWrap:'wrap' }}>
-                {heroSlides.map((slide, idx) => renderHeroSlideCard(slide, idx))}
-                {!heroSlides.length && (
-                  <div style={{ border:'1px dashed rgba(45,0,31,0.4)', borderRadius:20, padding:24, minWidth:260, color:'rgba(45,0,31,0.6)' }}>
-                    No slides configured yet. Click “Add Slide” to begin.
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          <div style={{ display:'flex', justifyContent:'flex-end', gap:12, marginTop:20 }}>
-            <button className="btn btn-success" disabled={heroSlidesSaving || heroSlidesLoading} onClick={saveHeroSlidesChanges}>
-              {heroSlidesSaving ? 'Saving…' : 'Save Slider' }
-            </button>
-          </div>
         </div>
 
         {/* Bestsellers Picker Modal */}
