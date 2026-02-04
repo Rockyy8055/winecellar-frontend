@@ -1,7 +1,6 @@
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { getDiscountPrice } from "../../../helpers/product";
 import { deleteFromCart } from "../../../store/slices/cart-slice";
 import { resolveImageSource } from "../../../utils/image";
 
@@ -17,20 +16,15 @@ const MenuCart = () => {
         <Fragment>
           <ul>
             {cartItems.map((item) => {
-              const discountedPrice = getDiscountPrice(
-                item.price,
-                item.discount
+              const basePrice = Number(item.price || 0);
+              const convertedUnitPrice = Number(
+                (basePrice * currency.currencyRate).toFixed(2)
               );
-              const finalProductPrice = (
-                item.price * currency.currencyRate
-              ).toFixed(2);
-              const finalDiscountedPrice = (
-                discountedPrice * currency.currencyRate
-              ).toFixed(2);
+              const lineTotal = Number(
+                (convertedUnitPrice * item.quantity).toFixed(2)
+              );
 
-              discountedPrice != null
-                ? (cartTotalPrice += finalDiscountedPrice * item.quantity)
-                : (cartTotalPrice += finalProductPrice * item.quantity);
+              cartTotalPrice += lineTotal;
 
               return (
                 <li className="single-shopping-cart" key={item.cartItemId}>
@@ -54,9 +48,7 @@ const MenuCart = () => {
                     </h4>
                     <h6>Qty: {item.quantity}</h6>
                     <span>
-                      {discountedPrice !== null
-                        ? currency.currencySymbol + finalDiscountedPrice
-                        : currency.currencySymbol + finalProductPrice}
+                      {currency.currencySymbol + convertedUnitPrice.toFixed(2)}
                     </span>
                     {item.selectedProductColor &&
                     item.selectedProductSize ? (

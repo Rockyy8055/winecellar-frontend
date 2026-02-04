@@ -2,7 +2,6 @@ import { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 /* import SEO from "../../components/seo"; */
-import { getDiscountPrice } from "../../helpers/product";
 import Layout from "../../layouts/Layout";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import { addToCart, decreaseQuantity, deleteFromCart, deleteAllFromCart } from "../../store/slices/cart-slice";
@@ -55,22 +54,15 @@ const Cart = () => {
                         </thead>
                         <tbody>
                           {cartItems.map((cartItem, key) => {
-                            const discountedPrice = getDiscountPrice(
-                              cartItem.price,
-                              cartItem.discount
+                            const basePrice = Number(cartItem.price || 0);
+                            const convertedUnitPrice = Number(
+                              (basePrice * currency.currencyRate).toFixed(2)
                             );
-                            const finalProductPrice = (
-                              cartItem.price * currency.currencyRate
-                            ).toFixed(2);
-                            const finalDiscountedPrice = (
-                              discountedPrice * currency.currencyRate
-                            ).toFixed(2);
+                            const lineTotal = Number(
+                              (convertedUnitPrice * cartItem.quantity).toFixed(2)
+                            );
 
-                            discountedPrice != null
-                              ? (cartTotalPrice +=
-                                  finalDiscountedPrice * cartItem.quantity)
-                              : (cartTotalPrice +=
-                                  finalProductPrice * cartItem.quantity);
+                            cartTotalPrice += lineTotal;
                             return (
                               <tr key={key} style={{ height: 160 }}>
                                 <td className="product-thumbnail" style={{ padding: '26px' }}>
@@ -115,23 +107,9 @@ const Cart = () => {
                                 </td>
 
                                 <td className="product-price-cart" style={{ padding: '26px' }}>
-                                  {discountedPrice !== null ? (
-                                    <Fragment>
-                                      <span className="amount old">
-                                        {currency.currencySymbol +
-                                          finalProductPrice}
-                                      </span>
-                                      <span className="amount">
-                                        {currency.currencySymbol +
-                                          finalDiscountedPrice}
-                                      </span>
-                                    </Fragment>
-                                  ) : (
-                                    <span className="amount">
-                                      {currency.currencySymbol +
-                                        finalProductPrice}
-                                    </span>
-                                  )}
+                                  <span className="amount">
+                                    {currency.currencySymbol + convertedUnitPrice.toFixed(2)}
+                                  </span>
                                 </td>
 
                                 <td className="product-quantity">
@@ -175,15 +153,7 @@ const Cart = () => {
                                   </div>
                                 </td>
                                 <td className="product-subtotal" style={{ padding: '26px' }}>
-                                  {discountedPrice !== null
-                                    ? currency.currencySymbol +
-                                      (
-                                        finalDiscountedPrice * cartItem.quantity
-                                      ).toFixed(2)
-                                    : currency.currencySymbol +
-                                      (
-                                        finalProductPrice * cartItem.quantity
-                                      ).toFixed(2)}
+                                  {currency.currencySymbol + lineTotal.toFixed(2)}
                                 </td>
 
                                 <td className="product-remove" style={{ padding: '26px' }}>

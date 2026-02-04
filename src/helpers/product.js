@@ -29,9 +29,8 @@ export const getProducts = (products, category, type, limit) => {
 };
 
 // get product discount price
-export const getDiscountPrice = (price, discount) => {
-  return discount && discount > 0 ? price - price * (discount / 100) : null;
-};
+// Discounts are disabled to keep pricing consistent across the app.
+export const getDiscountPrice = () => null;
 
 // get product cart quantity
 export const QUANTITY_SIZE_OPTIONS = [
