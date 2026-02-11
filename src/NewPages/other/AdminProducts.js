@@ -1346,7 +1346,6 @@ const AdminProducts = () => {
           </div>
         </div>
 
-        </div>
         <ToastContainer position="bottom-right" />
       </Fragment>
     </Layout>
