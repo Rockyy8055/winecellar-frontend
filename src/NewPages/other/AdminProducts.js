@@ -709,7 +709,7 @@ const AdminProducts = () => {
     <Layout headerContainerClass="container-fluid" headerPaddingClass="header-padding-2" headerTop="visible">
       <Fragment>
         <div style={ADMIN_PAGE_STYLE}>
-        <div style={{ marginBottom: 26 }}>
+        <Fragment>
           <div style={{ fontSize: 13, letterSpacing: '0.08em', fontWeight: 700, color: 'rgba(53,0,8,0.6)', textTransform: 'uppercase' }}>Operations</div>
           <h1 style={{ color:'#2e050b', fontWeight:800, marginBottom: 12 }}>Admin Products</h1>
           <p style={{ color:'rgba(46,5,11,0.7)', maxWidth: 560 }}>Search, create and curate your catalogue without ever leaving this page. Use the toolkit below to keep pricing, inventory and bestsellers perfectly in sync.</p>
@@ -1346,6 +1346,7 @@ const AdminProducts = () => {
           </div>
         </div>
 
+        </Fragment>
         <ToastContainer position="bottom-right" />
       </Fragment>
     </Layout>
