@@ -175,6 +175,7 @@ const normalizeQuantityValue = value => {
     .replace(/LITRES?/g, "LTR")
     .replace(/LITERS?/g, "LTR")
     .replace(/\s+/g, "")
+    .replace(/_/g, "")
     .replace(/\./g, "");
 };
 

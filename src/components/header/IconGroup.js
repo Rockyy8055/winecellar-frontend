@@ -81,15 +81,15 @@ const IconGroup = ({ iconWhiteClass }) => {
       <div className="same-style account-setting d-block d-lg-none">
         <Link
           to={process.env.PUBLIC_URL + (authed ? "/my-orders" : "/login")}
-          style={{ fontSize: '38px' }}
+          style={{ fontSize: '34px', color: '#350008', display: 'flex', alignItems: 'center' }}
           aria-label={authed ? 'My Orders' : 'Login'}
         >
-          <i className="pe-7s-user-female" />
+          <i className="pe-7s-user-female" style={{ color: '#350008' }} />
         </Link>
       </div>
       <div className="same-style header-wishlist">
-        <Link to={process.env.PUBLIC_URL + "/Wishlist"} style={{ fontSize: '38px' }}>
-          <i className="pe-7s-like" />
+        <Link to={process.env.PUBLIC_URL + "/Wishlist"} style={{ fontSize: '34px', color: '#350008', display: 'flex', alignItems: 'center' }}>
+          <i className="pe-7s-like" style={{ color: '#350008' }} />
           <span className="count-style">
             {wishlistItems && wishlistItems.length ? wishlistItems.length : 0}
           </span>
@@ -106,8 +106,8 @@ const IconGroup = ({ iconWhiteClass }) => {
         <MenuCart />
       </div>
       <div className="same-style cart-wrap d-block d-lg-none">
-        <Link className="icon-cart" to={process.env.PUBLIC_URL + "/Cart"} style={{ fontSize: '38px' }}>
-          <i className="pe-7s-shopbag" />
+        <Link className="icon-cart" to={process.env.PUBLIC_URL + "/Cart"} style={{ fontSize: '34px', color: '#350008', display: 'flex', alignItems: 'center' }}>
+          <i className="pe-7s-shopbag" style={{ color: '#350008' }} />
           <span className="count-style">
             {cartItems && cartItems.length ? cartItems.length : 0}
           </span>
@@ -117,9 +117,10 @@ const IconGroup = ({ iconWhiteClass }) => {
         <button
           className="mobile-aside-button"
           onClick={() => triggerMobileMenu()}
-          style={{ fontSize: '38px' }}
+          style={{ fontSize: '34px', color: '#350008', display: 'flex', alignItems: 'center' }}
+          aria-label="Open menu"
         >
-          <i className="pe-7s-menu" />
+          <i className="pe-7s-menu" style={{ color: '#350008' }} />
         </button>
       </div>
     </div>

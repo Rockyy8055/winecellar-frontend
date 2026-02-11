@@ -43,10 +43,7 @@ const MobileNavMenu = () => {
           </Link>
         </li>
         {!authed ? (
-          <>
-          <li><Link to={process.env.PUBLIC_URL + "/login"} onClick={closeMobileMenu}>Login</Link></li>
           <li><Link to={process.env.PUBLIC_URL + "/signup"} onClick={closeMobileMenu}>Sign Up</Link></li>
-          </>
         ) : (
           <>
             <li><Link to={process.env.PUBLIC_URL + "/my-orders"} onClick={closeMobileMenu}>My Orders</Link></li>

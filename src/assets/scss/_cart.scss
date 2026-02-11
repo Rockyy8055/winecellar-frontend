@@ -507,7 +507,7 @@ h3.cart-page-title {
       float: right;
     }
   }
-  a {
+  .grand-totall a {
     font-size: 14px;
     font-weight: 500;
     line-height: 1;
@@ -519,9 +519,9 @@ h3.cart-page-title {
     text-align: center;
     text-transform: uppercase;
 
-    color: #fff;
+    color: #fff !important;
     border-radius: 50px;
-    background-color: $theme-color;
+    background-color: #350008;
     &:hover {
       background-color: #333;
     }

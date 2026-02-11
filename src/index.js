@@ -13,6 +13,7 @@ import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import { store } from "./store/store";
 import { setProducts } from "./store/slices/product-slice";
+import { mapProductPayload } from "./Services/product-admin-api";
 //import products from "./data/products.json";
 import { Provider } from 'react-redux';
 
@@ -29,8 +30,9 @@ const fetchProducts = async () => {
     }
     
     const products = await response.json();
-    console.log('Products fetched successfully:', products.length, 'products');
-    store.dispatch(setProducts(products));
+    const normalizedProducts = Array.isArray(products) ? products.map(mapProductPayload) : [];
+    console.log('Products fetched successfully:', normalizedProducts.length, 'products');
+    store.dispatch(setProducts(normalizedProducts));
   } catch (error) {
     console.error('Failed to fetch products from backend:', error);
     console.log('Using fallback local products...');

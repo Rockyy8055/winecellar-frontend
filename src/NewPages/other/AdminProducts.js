@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Layout from '../../layouts/Layout';
-import { listProducts, createProduct, updateProduct, deleteProduct } from '../../Services/product-admin-api';
+import { listProducts, createProduct, updateProduct, deleteProduct, mapProductPayload } from '../../Services/product-admin-api';
 import { API_BASE } from '../../Services/admin-api';
 import { setProducts as setProductsAction } from '../../store/slices/product-slice';
 import { ToastContainer, toast } from 'react-toastify';
@@ -245,8 +245,9 @@ const AdminProducts = () => {
   const [debouncedQ, setDebouncedQ] = useState('');
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState([]);
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [showEdit, setShowEdit] = useState(null); // product to edit
-  const [newProd, setNewProd] = useState({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', previewUrl: '', stock: '', sizeStocks: createEmptySizeStocks(), sizeEntries: createEmptySizeEntries() });
+  const [newProd, setNewProd] = useState({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', previewUrl: '', sizeStocks: createEmptySizeStocks(), sizeEntries: createEmptySizeEntries() });
   const [bestsellers, setBestsellers] = useState([]); // selected bestsellers (up to 6)
   const [bestsellersSearch, setBestsellersSearch] = useState('');
   const [allProductsForBestsellers, setAllProductsForBestsellers] = useState([]);
@@ -258,6 +259,8 @@ const AdminProducts = () => {
   const newProdFileInputRef = useRef(null);
   const editFileInputsRef = useRef({});
   const productsTableRef = useRef(null);
+  const stockInputsRef = useRef({});
+  const sizeInputsRef = useRef({});
 
   const TOAST_PRESET = {
     style: {
@@ -277,33 +280,52 @@ const AdminProducts = () => {
       if (!res.ok) throw new Error(`Catalog refresh failed (${res.status})`);
       const payload = await res.json();
       const catalog = Array.isArray(payload) ? payload : (payload.items || payload.rows || payload.products || payload.data || []);
-      dispatch(setProductsAction(catalog));
+      const normalizedCatalog = Array.isArray(catalog) ? catalog.map(mapProductPayload) : [];
+      dispatch(setProductsAction(normalizedCatalog));
     } catch (err) {
       console.warn('Unable to update storefront catalog after admin change:', err);
     }
   };
 
+  const normalizeRow = (item) => {
+    const base = mapProductPayload(item);
+    const sanitizedSizes = sanitizeSizeStocks(base.sizeStocks || item.sizeStocks || item.stockBySize || {});
+    const resolvedStock = base.stock !== undefined && base.stock !== null
+      ? Number(base.stock)
+      : computeTotalStock(sanitizedSizes);
+    const rawImage = base.img || item.img || item.imageUrl || item.image || '';
+    const preview = resolveImageSource(rawImage, item.imageUrl || item.previewUrl || rawImage);
+    return {
+      ...item,
+      ...base,
+      img: rawImage,
+      imageUrl: item.imageUrl || base.imageUrl || rawImage,
+      stock: resolvedStock,
+      sizeStocks: sanitizedSizes,
+      sizeEntries: buildEntriesFromStocks(sanitizedSizes),
+      previewUrl: preview
+    };
+  };
+
+  const getCategoryKey = (p) => {
+    const raw = Array.isArray(p?.category) ? p.category[0] : p?.category;
+    return String(raw || '').toUpperCase().trim();
+  };
+
+  const getAllowedSizesForProduct = (p) => {
+    const key = getCategoryKey(p);
+    if (key === 'BEER') return ['35CL'];
+    if (key === 'WINE') return ['75CL'];
+    return SIZE_OPTIONS;
+  };
+
   const fetchData = async (opts = {}) => {
     try {
-      const data = await listProducts({ page, limit: opts.limit ?? 20, search: debouncedQ }, token);
+      const selectedCategory = opts.category !== undefined ? opts.category : categoryFilter;
+      const apiCategory = selectedCategory && selectedCategory !== 'ALL' ? selectedCategory : '';
+      const data = await listProducts({ page, limit: opts.limit ?? 20, search: debouncedQ, category: apiCategory }, token);
       const list = data.items || data.rows || [];
-      const normalizedRows = list.map((item) => {
-        const sanitizedSizes = sanitizeSizeStocks(item.sizeStocks || item.stockBySize || {});
-        const resolvedStock = item.stock !== undefined && item.stock !== null
-          ? Number(item.stock)
-          : computeTotalStock(sanitizedSizes);
-        const rawImage = item.img || item.imageUrl || item.image || '';
-        const preview = resolveImageSource(rawImage, item.imageUrl || item.previewUrl || rawImage);
-        return {
-          ...item,
-          img: rawImage,
-          imageUrl: item.imageUrl || rawImage,
-          stock: resolvedStock,
-          sizeStocks: sanitizedSizes,
-          sizeEntries: buildEntriesFromStocks(sanitizedSizes),
-          previewUrl: preview
-        };
-      });
+      const normalizedRows = list.map(normalizeRow);
       setRows(normalizedRows);
       if (opts.syncCatalog) {
         await syncStorefrontCatalog();
@@ -311,15 +333,67 @@ const AdminProducts = () => {
     } catch (e) { console.error(e); }
   };
 
-  const refreshPreserveScroll = async (opts = {}) => {
-    const el = productsTableRef.current;
-    const scrollTop = el ? el.scrollTop : 0;
-    await fetchData(opts);
-    requestAnimationFrame(() => {
-      if (productsTableRef.current) {
-        productsTableRef.current.scrollTop = scrollTop;
+  const handleStockSave = async (product) => {
+    const rawValue = stockInputsRef.current[product.id]?.value;
+    const parsed = Number(rawValue);
+    const safeValue = Number.isFinite(parsed) ? parsed : Number(product.stock || 0);
+
+    const allowedSizes = getAllowedSizesForProduct(product);
+
+    const rawSizeRefs = sizeInputsRef.current[product.id] || {};
+    const sizeValueMap = {};
+    Object.entries(rawSizeRefs).forEach(([size, input]) => {
+      const value = input?.value;
+      if (value !== undefined && value !== null && value !== '') {
+        sizeValueMap[size] = value;
       }
     });
+    const cleanedSizeStocks = sanitizeSizeStocks(sizeValueMap);
+    const filteredCleanedSizeStocks = allowedSizes.reduce((acc, size) => {
+      if (cleanedSizeStocks[size] !== undefined) acc[size] = cleanedSizeStocks[size];
+      return acc;
+    }, {});
+    const existingSizeStocks = sanitizeSizeStocks(product.sizeStocks || {});
+    const filteredExistingSizeStocks = allowedSizes.reduce((acc, size) => {
+      if (existingSizeStocks[size] !== undefined) acc[size] = existingSizeStocks[size];
+      return acc;
+    }, {});
+    const hasSizeEntries = Object.keys(filteredCleanedSizeStocks).length > 0;
+    const derivedSizeTotal = computeTotalStock(filteredCleanedSizeStocks);
+    let payload;
+    if (hasSizeEntries) {
+      payload = { sizeStocks: filteredCleanedSizeStocks, stock: derivedSizeTotal };
+    } else if (Object.keys(filteredExistingSizeStocks).length > 0) {
+      payload = {
+        sizeStocks: filteredExistingSizeStocks,
+        stock: computeTotalStock(filteredExistingSizeStocks)
+      };
+    } else {
+      payload = { stock: safeValue };
+    }
+    try {
+      const updated = await updateProduct(product.id, payload, token);
+      const normalized = normalizeRow(updated);
+      setRows((prev) => prev.map((row) => (row.id === product.id ? normalized : row)));
+      if (stockInputsRef.current[product.id]) {
+        stockInputsRef.current[product.id].value = Number(normalized.stock ?? safeValue) || 0;
+      }
+      if (sizeInputsRef.current[product.id]) {
+        const allowedSizesNext = getAllowedSizesForProduct(normalized);
+        allowedSizesNext.forEach((size) => {
+          const inputEl = sizeInputsRef.current[product.id][size];
+          if (inputEl) {
+            const nextValue = normalized.sizeStocks?.[size];
+            inputEl.value = nextValue ?? '';
+          }
+        });
+      }
+      await syncStorefrontCatalog();
+      toast.success('Stock updated', TOAST_PRESET);
+    } catch (err) {
+      toast.error(err?.message || 'Update failed', TOAST_PRESET);
+      console.error(err);
+    }
   };
 
   const fetchAllProductsForBestsellers = async () => {
@@ -388,7 +462,7 @@ const AdminProducts = () => {
     return allProductsForBestsellers.filter(p => p.name.toLowerCase().includes(q));
   }, [allProductsForBestsellers, bestsellersSearch]);
 
-  useEffect(() => { fetchData(); }, [page, debouncedQ]); // eslint-disable-line
+  useEffect(() => { fetchData(); }, [page, debouncedQ, categoryFilter]); // eslint-disable-line
   useEffect(() => { loadBestsellers(); }, []); // eslint-disable-line
 
   // Debounce search query
@@ -424,7 +498,7 @@ const AdminProducts = () => {
 
   const resetNewProduct = () => {
     if (newProdFileInputRef.current) newProdFileInputRef.current.value = '';
-    setNewProd({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', previewUrl: '', stock: '', sizeStocks: createEmptySizeStocks(), sizeEntries: createEmptySizeEntries() });
+    setNewProd({ name: '', price: '', desc: '', category: '', subCategory: '', img: '', previewUrl: '', sizeStocks: createEmptySizeStocks(), sizeEntries: createEmptySizeEntries() });
   };
 
   const onAdd = async () => {
@@ -442,7 +516,7 @@ const AdminProducts = () => {
         category: newProd.category ? [newProd.category] : [],
         subCategory: newProd.subCategory || '',
         img: newProd.img || '',
-        stock: newProd.stock !== '' ? Number(newProd.stock || 0) : mergedStockTotal || fallbackStock,
+        stock: mergedStockTotal || fallbackStock,
         sizeStocks: mergedSizeStocks
       }, token);
       resetNewProduct();
@@ -456,25 +530,31 @@ const AdminProducts = () => {
 
   const onQuickPrice = async (id, value) => {
     try {
-      await updateProduct(id, { price: Number(value) }, token);
+      const updated = await updateProduct(id, { price: Number(value) }, token);
+      const normalized = normalizeRow(updated);
+      setRows((prev) => prev.map((row) => (row.id === id ? normalized : row)));
+      await syncStorefrontCatalog();
       toast.success('Price updated', TOAST_PRESET);
-      await fetchData({ syncCatalog: true });
     } catch (e) { toast.error(e?.message || 'Update failed', TOAST_PRESET); console.error(e); }
   };
 
   const onQuickName = async (id, value) => {
     try {
-      await updateProduct(id, { name: String(value || '').trim() }, token);
+      const updated = await updateProduct(id, { name: String(value || '').trim() }, token);
+      const normalized = normalizeRow(updated);
+      setRows((prev) => prev.map((row) => (row.id === id ? normalized : row)));
+      await syncStorefrontCatalog();
       toast.success('Name updated', TOAST_PRESET);
-      await fetchData({ syncCatalog: true });
     } catch (e) { toast.error(e?.message || 'Update failed', TOAST_PRESET); console.error(e); }
   };
 
   const onQuickDesc = async (id, value) => {
     try {
-      await updateProduct(id, { description: String(value || '').trim() }, token);
+      const updated = await updateProduct(id, { description: String(value || '').trim() }, token);
+      const normalized = normalizeRow(updated);
+      setRows((prev) => prev.map((row) => (row.id === id ? normalized : row)));
+      await syncStorefrontCatalog();
       toast.success('Description updated', TOAST_PRESET);
-      await fetchData({ syncCatalog: true });
     } catch (e) { toast.error(e?.message || 'Update failed', TOAST_PRESET); console.error(e); }
   };
 
@@ -514,6 +594,24 @@ const AdminProducts = () => {
           <div style={{ flex: '1 1 320px' }}>
             <div style={SECTION_LABEL_STYLE}>Search products</div>
             <input className="form-control" style={INPUT_STYLE} placeholder="Type product name or SKU" value={q} onChange={(e)=>setQ(e.target.value)} />
+          </div>
+          <div style={{ flex: '0 0 220px' }}>
+            <div style={SECTION_LABEL_STYLE}>Filter by Category</div>
+            <select
+              className="form-select"
+              style={{ ...INPUT_STYLE, padding: '10px 14px', fontWeight: 700 }}
+              value={categoryFilter}
+              onChange={(e)=>{
+                setPage(1);
+                setCategoryFilter(e.target.value);
+              }}
+            >
+              {[
+                'ALL','BEER','WINE','SPIRITS','VODKA','WHISKEY','TEQUILA','RUM','LIQUOR','GIN','CHAMPAGNE','BRANDY','BOURBON WHISKEY','SPIRIT','Wine'
+              ].map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
           </div>
           <div style={{ display:'flex', gap:12 }}>
             <button className="btn btn-dark" style={{ padding:'11px 28px', borderRadius:999 }} onClick={()=>fetchData()}>Search</button>
@@ -557,7 +655,6 @@ const AdminProducts = () => {
               </div>
             </div>
             <div className="mb-2"><input className="form-control" placeholder="Subcategory" value={newProd.subCategory} onChange={(e)=>setNewProd({ ...newProd, subCategory: e.target.value })} /></div>
-            <div className="mb-2"><input type="number" className="form-control" placeholder="Total Stock (auto from sizes if blank)" value={newProd.stock} onChange={(e)=>setNewProd({ ...newProd, stock: e.target.value })} /></div>
             <div className="mb-3" style={{ background:'#fff8f3', borderRadius:12, padding:12 }}>
               <div style={{ fontWeight:700, marginBottom:6 }}>Per-Size Stock</div>
               <div className="row">
@@ -722,16 +819,40 @@ const AdminProducts = () => {
                       </td>
                       <td>{Array.isArray(p.category) ? p.category.join(', ') : p.category}</td>
                       <td style={{ minWidth: 120 }}>
-                        <div style={{ display:'flex', gap:6 }}>
-                          <input type="number" className="form-control form-control-sm" style={{ ...INPUT_STYLE, width:100, padding:'8px 12px' }} defaultValue={p.stock||0} onBlur={async (e)=>{ try { await updateProduct(p.id, { stock: Number(e.target.value) }, token); toast.success('Stock updated', TOAST_PRESET); await refreshPreserveScroll({ syncCatalog: true }); } catch (er) { toast.error(er?.message || 'Update failed', TOAST_PRESET); console.error(er); } }} />
-                          <button className="btn btn-sm btn-dark" style={{ borderRadius:999 }} onClick={async ()=>{ const el = document.activeElement; const value = (el && el.tagName==='INPUT') ? el.value : p.stock; try { await updateProduct(p.id, { stock: Number(value) }, token); toast.success('Stock updated', TOAST_PRESET); await refreshPreserveScroll({ syncCatalog: true }); } catch (er) { toast.error(er?.message || 'Update failed', TOAST_PRESET); console.error(er); } }}>Save</button>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <input
+                            type="number"
+                            className="form-control form-control-sm"
+                            style={{ ...INPUT_STYLE, width: 100, padding: '8px 12px' }}
+                            defaultValue={p.stock || 0}
+                            ref={(el) => {
+                              if (el) {
+                                stockInputsRef.current[p.id] = el;
+                              } else {
+                                delete stockInputsRef.current[p.id];
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleStockSave(p);
+                              }
+                            }}
+                          />
+                          <button
+                            className="btn btn-sm btn-dark"
+                            style={{ borderRadius: 999 }}
+                            onClick={() => handleStockSave(p)}
+                          >
+                            Save
+                          </button>
                         </div>
                       </td>
                       <td style={{ minWidth: 220 }}>
                         <details>
                           <summary style={{ cursor:'pointer', fontWeight:600 }}>View / Edit</summary>
                           <div style={{ paddingTop:8 }}>
-                            {SIZE_OPTIONS.map((size) => {
+                            {getAllowedSizesForProduct(p).map((size) => {
                               const current = (p.sizeStocks && p.sizeStocks[size] !== undefined) ? p.sizeStocks[size] : '';
                               return (
                                 <div key={size} style={{ display:'flex', alignItems:'center', gap:6, marginBottom:6 }}>
@@ -741,16 +862,33 @@ const AdminProducts = () => {
                                     min="0"
                                     defaultValue={current}
                                     className="form-control form-control-sm"
+                                    ref={(el) => {
+                                      if (!sizeInputsRef.current[p.id]) sizeInputsRef.current[p.id] = {};
+                                      if (el) {
+                                        sizeInputsRef.current[p.id][size] = el;
+                                      } else if (sizeInputsRef.current[p.id]) {
+                                        delete sizeInputsRef.current[p.id][size];
+                                      }
+                                    }}
                                     onBlur={async (e) => {
                                       const value = e.target.value;
-                                      const payload = { sizeStocks: { ...(p.sizeStocks || {}), [size]: value === '' ? undefined : Number(value) } };
-                                      if (value === '') delete payload.sizeStocks[size];
-                                      const cleaned = sanitizeSizeStocks(payload.sizeStocks);
+                                      const allowed = getAllowedSizesForProduct(p);
+                                      const nextMap = { ...(p.sizeStocks || {}), [size]: value === '' ? undefined : Number(value) };
+                                      allowed.forEach((key) => {
+                                        if (nextMap[key] === undefined) return;
+                                      });
+                                      Object.keys(nextMap).forEach((key) => {
+                                        if (!allowed.includes(key)) delete nextMap[key];
+                                      });
+                                      if (value === '') delete nextMap[size];
+                                      const cleaned = sanitizeSizeStocks(nextMap);
                                       const stock = computeTotalStock(cleaned);
                                       try {
-                                        await updateProduct(p.id, { sizeStocks: cleaned, stock }, token);
+                                        const updated = await updateProduct(p.id, { sizeStocks: cleaned, stock }, token);
+                                        const normalized = normalizeRow(updated);
+                                        setRows((prev) => prev.map((row) => (row.id === p.id ? normalized : row)));
+                                        await syncStorefrontCatalog();
                                         toast.success('Size stock updated', TOAST_PRESET);
-                                        await refreshPreserveScroll({ syncCatalog: true });
                                       } catch (er) {
                                         toast.error(er?.message || 'Update failed', TOAST_PRESET);
                                         console.error(er);
@@ -775,7 +913,6 @@ const AdminProducts = () => {
                             ...p,
                             category: Array.isArray(p.category) ? p.category[0] : (p.category || ''),
                             subCategory: p.subCategory || '',
-                            stock: p.stock ?? '',
                             sizeStocks: normalizedSizes,
                             sizeEntries: buildEntriesFromStocks(normalizedSizes),
                             previewUrl: preview
@@ -904,7 +1041,7 @@ const AdminProducts = () => {
                   <div className="mb-2"><label className="form-label">Subcategory</label><input className="form-control" value={showEdit.subCategory||''} onChange={(e)=>setShowEdit({ ...showEdit, subCategory: e.target.value })} /></div>
                 </div>
                 <div className="col-md-6">
-                  <div className="mb-2"><label className="form-label">Stock</label><input type="number" className="form-control" value={showEdit.stock||0} onChange={(e)=>setShowEdit({ ...showEdit, stock: e.target.value })} /></div>
+                  <div className="mb-2"><label className="form-label">Stock</label><input type="number" className="form-control" value={Number(showEdit.stock || 0)} disabled /></div>
                   <div className="mb-3">
                     <label className="form-label" style={{ fontWeight:600 }}>Product Image</label>
                     <div style={{ display:'flex', gap:12, alignItems:'center' }}>
@@ -952,7 +1089,7 @@ const AdminProducts = () => {
                   <div className="mb-3" style={{ background:'#fff8f3', borderRadius:12, padding:12 }}>
                     <div style={{ fontWeight:700, marginBottom:6 }}>Per-Size Stock</div>
                     <div className="row">
-                      {SIZE_OPTIONS.map((size) => (
+                      {getAllowedSizesForProduct(showEdit).map((size) => (
                         <div className="col-6" key={size} style={{ marginBottom:8 }}>
                           <label style={{ fontSize:12, fontWeight:600 }}>{size}</label>
                           <input
@@ -979,7 +1116,7 @@ const AdminProducts = () => {
                                   ...prev,
                                   sizeStocks: { ...createEmptySizeStocks(), ...nextSizeStocks },
                                   sizeEntries: { ...createEmptySizeEntries(), ...nextEntries },
-                                  stock: prev.stock === '' || prev.stock === null || prev.stock === undefined ? total : prev.stock
+                                  stock: total
                                 };
                               });
                             }}

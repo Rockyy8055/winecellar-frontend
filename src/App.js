@@ -22,6 +22,7 @@ const OrderStatus = lazy(() => import("./NewPages/other/OrderStatus"));
 const MyOrders = lazy(() => import("./NewPages/other/MyOrders"));
 const AdminOrders = lazy(() => import("./NewPages/other/AdminOrders"));
 const AdminProducts = lazy(() => import("./NewPages/other/AdminProducts"));
+const AdminSlider = lazy(() => import("./NewPages/other/AdminSlider"));
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
            <Route path="/order-status" element={<OrderStatus />} />
            <Route path="/admin/orders" element={<AdminOrders />} />
            <Route path="/admin/products" element={<AdminProducts />} />
+           <Route path="/admin/slider" element={<AdminSlider />} />
            <Route path="/product/:productId" element={<ProductDetailsNew />} />
            </Routes>
            </Suspense>

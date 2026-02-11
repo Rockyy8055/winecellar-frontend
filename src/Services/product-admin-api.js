@@ -25,6 +25,7 @@ const normalizeQuantityKey = (value) => {
     .replace(/LITRES?/g, 'LTR')
     .replace(/LITERS?/g, 'LTR')
     .replace(/\s+/g, '')
+    .replace(/_/g, '')
     .replace(/\./g, '');
   return SIZE_CANONICAL_MAP[normalized] || normalized;
 };
@@ -69,7 +70,7 @@ const sumSizeStocks = (map = {}) => {
   return Object.values(map).reduce((total, qty) => total + (Number.isFinite(Number(qty)) ? Number(qty) : 0), 0);
 };
 
-const mapProductPayload = (p) => {
+export const mapProductPayload = (p) => {
   const sizeStocks = cleanSizeStocks(
     p?.sizeStocks ||
     p?.stockBySize ||
@@ -100,10 +101,11 @@ function getToken(token) {
   try { return localStorage.getItem('admin_token') || ''; } catch (_) { return ''; }
 }
 
-export async function listProducts({ page = 1, limit = 20, search = '' } = {}, token) {
+export async function listProducts({ page = 1, limit = 20, search = '', category = '' } = {}, token) {
   // Try admin endpoint first
   try {
-    const r = await fetch(`${API_BASE}/api/admin/products?q=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
+    const categoryParam = category ? `&category=${encodeURIComponent(category)}` : '';
+    const r = await fetch(`${API_BASE}/api/admin/products?q=${encodeURIComponent(search)}&page=${page}&limit=${limit}${categoryParam}`, {
       headers: {
         Authorization: `Bearer ${getToken(token)}`,
         'Accept': 'application/json'
@@ -152,7 +154,10 @@ export async function createProduct({ name, price, desc, category = [], subCateg
     formData.append('subCategory', subCategory);
     formData.append('stock', Number.isFinite(Number(stock)) ? stock : derivedStock);
     if (Object.keys(cleanedSizeStocks).length) {
-      formData.append('sizeStocks', JSON.stringify(cleanedSizeStocks));
+      const serialized = JSON.stringify(cleanedSizeStocks);
+      formData.append('sizeStocks', serialized);
+      formData.append('stockBySize', serialized);
+      formData.append('inventoryBySize', serialized);
     }
     if (img) formData.append('img', img);
     formData.append('image', imageFile);
@@ -170,6 +175,8 @@ export async function createProduct({ name, price, desc, category = [], subCateg
     };
     if (Object.keys(cleanedSizeStocks).length) {
       payload.sizeStocks = cleanedSizeStocks;
+      payload.stockBySize = cleanedSizeStocks;
+      payload.inventoryBySize = cleanedSizeStocks;
     }
     body = JSON.stringify(payload);
   }
@@ -207,7 +214,10 @@ export async function updateProduct(id, fields = {}, token) {
       formData.append('stock', derivedStock);
     }
     if (Object.keys(cleanedSizeStocks).length) {
-      formData.append('sizeStocks', JSON.stringify(cleanedSizeStocks));
+      const serialized = JSON.stringify(cleanedSizeStocks);
+      formData.append('sizeStocks', serialized);
+      formData.append('stockBySize', serialized);
+      formData.append('inventoryBySize', serialized);
     }
     if (fields.img !== undefined) formData.append('img', fields.img);
     formData.append('image', fields.imageFile);
@@ -227,6 +237,8 @@ export async function updateProduct(id, fields = {}, token) {
     }
     if (Object.keys(cleanedSizeStocks).length) {
       payload.sizeStocks = cleanedSizeStocks;
+      payload.stockBySize = cleanedSizeStocks;
+      payload.inventoryBySize = cleanedSizeStocks;
     }
     if (fields.name !== undefined) payload.name = fields.name;
     headers['Content-Type'] = 'application/json';

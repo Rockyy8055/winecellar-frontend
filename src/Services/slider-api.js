@@ -73,3 +73,79 @@ export const saveAdminHeroSlides = async (slides) => {
     return { ok: true, slides, source: 'local_fallback' };
   }
 };
+
+const authHeaders = (token) => {
+  if (!token) return {};
+  return { Authorization: `Bearer ${token}` };
+};
+
+export const listAdminHeroSlides = async (token) => {
+  const res = await fetch(`${API_BASE}/api/admin/slider/slides`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      ...authHeaders(token)
+    },
+    credentials: 'include'
+  });
+  if (!res.ok) throw new Error(`listAdminHeroSlides failed: ${res.status}`);
+  return res.json();
+};
+
+export const createAdminHeroSlide = async ({ file, title = '', subtitle = '', url = '', sortOrder = 0, isActive = true }, token) => {
+  const form = new FormData();
+  if (file) form.append('image', file);
+  form.append('title', title);
+  form.append('subtitle', subtitle);
+  form.append('url', url);
+  form.append('sortOrder', String(sortOrder || 0));
+  form.append('isActive', String(Boolean(isActive)));
+
+  const res = await fetch(`${API_BASE}/api/admin/slider/slides`, {
+    method: 'POST',
+    headers: {
+      ...authHeaders(token)
+    },
+    credentials: 'include',
+    body: form
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`createAdminHeroSlide failed: ${res.status} ${text}`);
+  }
+  return res.json();
+};
+
+export const updateAdminHeroSlide = async (id, patch, token) => {
+  const res = await fetch(`${API_BASE}/api/admin/slider/slides/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...authHeaders(token)
+    },
+    credentials: 'include',
+    body: JSON.stringify(patch || {})
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`updateAdminHeroSlide failed: ${res.status} ${text}`);
+  }
+  return res.json();
+};
+
+export const deleteAdminHeroSlide = async (id, token) => {
+  const res = await fetch(`${API_BASE}/api/admin/slider/slides/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: {
+      Accept: 'application/json',
+      ...authHeaders(token)
+    },
+    credentials: 'include'
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`deleteAdminHeroSlide failed: ${res.status} ${text}`);
+  }
+  return res.json();
+};

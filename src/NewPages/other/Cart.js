@@ -236,7 +236,22 @@ const Cart = () => {
                           {currency.currencySymbol + cartTotalPrice.toFixed(2)}
                         </span>
                       </h4>
-                      <Link to={"/checkout"}>
+                      <Link 
+                        to={"/checkout"}
+                        style={{
+                          display: 'block',
+                          fontSize: '14px',
+                          fontWeight: '500',
+                          lineHeight: '1',
+                          padding: '18px 10px 17px',
+                          textAlign: 'center',
+                          textTransform: 'uppercase',
+                          color: '#fff',
+                          borderRadius: '50px',
+                          backgroundColor: '#350008',
+                          textDecoration: 'none'
+                        }}
+                      >
                         Proceed to Checkout
                       </Link>
                     </div>

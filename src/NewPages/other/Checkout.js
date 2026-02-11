@@ -5,7 +5,7 @@ import Layout from "../../layouts/Layout";
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { createOrder } from '../../Services/orders-api';
+import { createOrder, API_BASE } from '../../Services/orders-api';
 import { useAuth } from '../../contexts/AuthContext';
 import { clearRemoteCart, deleteAllFromCart } from '../../store/slices/cart-slice';
 
@@ -32,36 +32,20 @@ const STORE_LOCATIONS = [
   }
 ];
 
-const StripePaymentForm = ({ onSuccess, canPay, isSubmitting }) => {
+const StripePaymentForm = ({ onPayNow, canPay, uiState }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState(null);
-  const [processing, setProcessing] = useState(false);
-  const [succeeded, setSucceeded] = useState(false);
+  const isPaying = uiState === 'paying' || uiState === 'payment_confirmed_placing_order';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setProcessing(true);
-    if (!stripe || !elements) return;
-
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {},
-      redirect: "if_required",
-    });
-
-    if (error) {
-      setError(error.message);
-      setProcessing(false);
-    } else {
-      setSucceeded(true);
-      setProcessing(false);
-      try {
-        const id = paymentIntent?.id || `pi_${Date.now()}`;
-        if (onSuccess) await onSuccess(id);
-      } catch (submissionError) {
-        setError(submissionError?.message || 'Unable to finalize order.');
-      }
+    setError(null);
+    if (!stripe || !elements || !canPay || !onPayNow) return;
+    try {
+      await onPayNow({ stripe, elements, setLocalError: setError });
+    } catch (e) {
+      setError(e?.message || 'Payment failed');
     }
   };
 
@@ -71,7 +55,6 @@ const StripePaymentForm = ({ onSuccess, canPay, isSubmitting }) => {
         <PaymentElement />
       </div>
       {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
-      {succeeded && <div style={{ color: 'green', marginBottom: '10px' }}>Payment successful!</div>}
       {!canPay && (
         <div style={{ color: '#b12704', marginBottom: 10, fontWeight: 600 }}>
           Enter a valid UK postcode in Billing Details to proceed.
@@ -79,7 +62,7 @@ const StripePaymentForm = ({ onSuccess, canPay, isSubmitting }) => {
       )}
       <button
         type="submit"
-        disabled={processing || !stripe || !elements || !canPay || isSubmitting}
+        disabled={isPaying || !stripe || !elements || !canPay}
         style={{
           background: '#111',
           color: '#fff',
@@ -91,7 +74,11 @@ const StripePaymentForm = ({ onSuccess, canPay, isSubmitting }) => {
           width: '100%'
         }}
       >
-        {processing ? 'Processing...' : (isSubmitting ? 'Finalizing order...' : 'Pay Now')}
+        {uiState === 'paying'
+          ? 'Processing payment...'
+          : uiState === 'payment_confirmed_placing_order'
+            ? 'Placing your order...'
+            : 'Pay Now'}
       </button>
     </form>
   );
@@ -131,6 +118,9 @@ const Checkout = () => {
   );
   const orderSubmitLock = useRef(false);
   const postcodeLookupAbort = useRef(null);
+  const [uiState, setUiState] = useState('idle'); // idle | paying | payment_confirmed_placing_order | success | failed_refunded | failed_not_refunded
+  const [lastOrderPayload, setLastOrderPayload] = useState(null);
+  const [lastPaymentId, setLastPaymentId] = useState(null);
   const isTradeCustomer = (() => {
     try { return !!localStorage.getItem('trade_customer_profile'); } catch (_) { return false; }
   })();
@@ -164,7 +154,7 @@ const Checkout = () => {
       fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: totalAmount, currency: "gbp" })
+        body: JSON.stringify({ amount: totalAmount, currency: currency.currencyName.toLowerCase() })
       })
         .then(async (res) => {
           if (!res.ok) {
@@ -179,7 +169,7 @@ const Checkout = () => {
           setClientSecret("");
         });
     }
-  }, [totalAmount, paymentMethod]);
+  }, [totalAmount, paymentMethod, currency.currencyName]);
 
   useEffect(() => {
     if (showStoreSelector && selectedStoreId == null && STORE_LOCATIONS.length) {
@@ -258,6 +248,66 @@ const Checkout = () => {
       lineTotal: Number((item.price * item.quantity).toFixed(2))
     }))
   ), [cartItems]);
+
+  const buildStripeOrderPayload = useCallback((paymentId) => {
+    const normalizedTotals = {
+      subtotal: Number(subtotal.toFixed(2)),
+      tax: Number(vatAmount.toFixed(2)),
+      discount: Number(discountAmount.toFixed(2)),
+      shipping: Number(shipping.toFixed(2)),
+      total: Number(totalAmount.toFixed(2))
+    };
+
+    return {
+      customerEmail: billing.email.trim(),
+      customerName: `${billing.firstName} ${billing.lastName}`.trim(),
+      paymentMethod: 'CARD',
+      orderItems: orderItemsPayload.map(({ id, name, quantity, price, size }) => ({
+        id,
+        name,
+        quantity,
+        price,
+        size
+      })),
+      subtotal: normalizedTotals.subtotal,
+      tax: normalizedTotals.tax,
+      total: normalizedTotals.total,
+      shopLocation: 'Online Checkout',
+      billingDetails: {
+        firstName: billing.firstName,
+        lastName: billing.lastName,
+        email: billing.email,
+        phone: billing.phone,
+        address: billing.address,
+        postcode: billing.postcode
+      },
+      paymentReference: paymentId,
+      method: 'card',
+      customer: {
+        name: `${billing.firstName} ${billing.lastName}`.trim(),
+        email: billing.email,
+        phone: billing.phone
+      },
+      items: orderItemsPayload.map(({ id, name, quantity, price, size, lineTotal }) => ({
+        id,
+        name,
+        qty: quantity,
+        price,
+        size,
+        total: lineTotal
+      })),
+      discount: normalizedTotals.discount,
+      vat: normalizedTotals.tax,
+      shipping: normalizedTotals.shipping,
+      shippingAddress: {
+        line1: billing.address,
+        city: 'London',
+        postcode: billing.postcode,
+        country: 'United Kingdom',
+        phone: billing.phone
+      }
+    };
+  }, [billing, orderItemsPayload, subtotal, vatAmount, discountAmount, shipping, totalAmount]);
 
   const finalizeOrder = useCallback(async (method, meta = {}) => {
     if (!isBillingComplete) {
@@ -400,39 +450,162 @@ const Checkout = () => {
     }
   }, [billing, isBillingComplete, orderItemsPayload, subtotal, vatAmount, totalAmount, selectedStore, discountAmount, shipping, dispatch]);
 
-  const handleStripeSuccess = useCallback(async (paymentIntentId) => {
-    const orderData = {
-      customerEmail: billing.email.trim(),
-      customerName: `${billing.firstName} ${billing.lastName}`.trim(),
-      paymentMethod: 'card',
-      orderItems: orderItemsPayload.map(({ id, name, quantity, price, size }) => ({
-        id,
-        name,
-        quantity,
-        price,
-        size
-      })),
-      subtotal: Number(subtotal.toFixed(2)),
-      tax: Number(vatAmount.toFixed(2)),
-      total: Number(totalAmount.toFixed(2)),
-      shopLocation: 'Online Checkout',
-      billingDetails: {
-        firstName: billing.firstName,
-        lastName: billing.lastName,
-        email: billing.email,
-        phone: billing.phone,
-        address: billing.address,
-        postcode: billing.postcode
-      },
-      paymentReference: paymentIntentId
-    };
-
-    if (!requireAuth(orderData)) {
+  const handleStripePayNow = useCallback(async ({ stripe, elements, setLocalError }) => {
+    if (!isBillingComplete) {
+      setLocalError('Please fill the Billing Details with a valid UK postcode.');
+      return;
+    }
+    if (!orderItemsPayload.length) {
+      setLocalError('Your cart is empty.');
       return;
     }
 
-    await finalizeOrder('card', { transactionId: paymentIntentId });
-  }, [finalizeOrder, billing, orderItemsPayload, subtotal, vatAmount, totalAmount, requireAuth]);
+    const previewPayload = buildStripeOrderPayload('pi_preview');
+    if (!requireAuth(previewPayload)) {
+      return;
+    }
+
+    setUiState('paying');
+    setOrderError('');
+
+    const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {},
+      redirect: 'if_required',
+    });
+
+    if (stripeError) {
+      setUiState('idle');
+      setLocalError(stripeError.message || 'Payment failed');
+      return;
+    }
+
+    if (!paymentIntent || paymentIntent.status !== 'succeeded') {
+      setUiState('idle');
+      setLocalError(`Payment not completed. Status: ${paymentIntent?.status || 'unknown'}`);
+      return;
+    }
+
+    const paymentId = paymentIntent.id;
+    setLastPaymentId(paymentId);
+    const orderPayload = buildStripeOrderPayload(paymentId);
+    setLastOrderPayload(orderPayload);
+
+    setUiState('payment_confirmed_placing_order');
+
+    try {
+      const url = new URL('/api/orders/create', API_BASE).toString();
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(orderPayload),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const refunded = !!data?.refunded;
+        const attempted = !!data?.refundAttempted;
+
+        if (attempted && refunded) {
+          setUiState('failed_refunded');
+          setOrderError(data?.message || 'Order could not be created. Refund initiated.');
+        } else if (attempted && !refunded) {
+          setUiState('failed_not_refunded');
+          setOrderError((data?.message || 'Order failed.') + ` Refund attempt failed: ${data?.refundReason || 'unknown'}`);
+        } else {
+          setUiState('failed_not_refunded');
+          setOrderError(data?.message || `Order creation failed (${res.status})`);
+        }
+        return;
+      }
+
+      const primaryTracking = data?.trackingCode || data?.upsTrackingNumber || data?.internalTrackingCode || data?.orderId || data?.id || `ORD-${Date.now()}`;
+      const internalTracking = data?.internalTrackingCode || null;
+      const upsTracking = data?.upsTrackingNumber || null;
+
+      setOrderId(primaryTracking);
+      setConfirmation({
+        trackingCode: primaryTracking,
+        internalTrackingCode: internalTracking,
+        upsTrackingNumber: upsTracking
+      });
+      setOrderPlaced(true);
+      setConfirmedStore(null);
+      setConfirmationEmail(orderPayload.customerEmail);
+      setConfirmationLocation(orderPayload.shopLocation);
+      setEmailSent(typeof data?.emailSent === 'boolean' ? data.emailSent : null);
+      setPaypalPaid(false);
+      setUiState('success');
+
+      try {
+        localStorage.setItem('last_order_id', primaryTracking);
+        localStorage.setItem('last_tracking_code', primaryTracking);
+      } catch (_) {}
+
+      try {
+        await dispatch(clearRemoteCart()).unwrap();
+      } catch (_) {}
+      dispatch(deleteAllFromCart());
+      try { localStorage.removeItem('cartProducts'); } catch (_) {}
+    } catch (e) {
+      setUiState('failed_not_refunded');
+      setOrderError(e?.message || 'Order creation failed after payment.');
+    }
+  }, [buildStripeOrderPayload, dispatch, isBillingComplete, orderItemsPayload.length, requireAuth]);
+
+  const retryPlaceOrder = useCallback(async () => {
+    if (!lastOrderPayload) return;
+    setUiState('payment_confirmed_placing_order');
+    setOrderError('');
+    try {
+      const url = new URL('/api/orders/create', API_BASE).toString();
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(lastOrderPayload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setUiState('failed_not_refunded');
+        setOrderError(data?.message || 'Retry failed');
+        return;
+      }
+
+      const primaryTracking = data?.trackingCode || data?.upsTrackingNumber || data?.internalTrackingCode || data?.orderId || data?.id || `ORD-${Date.now()}`;
+      const internalTracking = data?.internalTrackingCode || null;
+      const upsTracking = data?.upsTrackingNumber || null;
+
+      setOrderId(primaryTracking);
+      setConfirmation({
+        trackingCode: primaryTracking,
+        internalTrackingCode: internalTracking,
+        upsTrackingNumber: upsTracking
+      });
+      setOrderPlaced(true);
+      setConfirmedStore(null);
+      setConfirmationEmail(lastOrderPayload.customerEmail);
+      setConfirmationLocation(lastOrderPayload.shopLocation);
+      setEmailSent(typeof data?.emailSent === 'boolean' ? data.emailSent : null);
+      setPaypalPaid(false);
+      setUiState('success');
+
+      try {
+        localStorage.setItem('last_order_id', primaryTracking);
+        localStorage.setItem('last_tracking_code', primaryTracking);
+      } catch (_) {}
+
+      try {
+        await dispatch(clearRemoteCart()).unwrap();
+      } catch (_) {}
+      dispatch(deleteAllFromCart());
+      try { localStorage.removeItem('cartProducts'); } catch (_) {}
+    } catch (e) {
+      setUiState('failed_not_refunded');
+      setOrderError(e?.message || 'Retry failed');
+    }
+  }, [dispatch, lastOrderPayload]);
 
   const handlePayPalSuccess = useCallback(async (orderID) => {
     const orderData = {
@@ -702,19 +875,19 @@ const Checkout = () => {
                           <Elements stripe={stripePromise} options={elementsOptions} key={clientSecret}>
                             <StripePaymentForm
                               canPay={isBillingComplete}
-                              isSubmitting={submittingOrder}
-                              onSuccess={handleStripeSuccess}
+                              uiState={uiState}
+                              onPayNow={handleStripePayNow}
                             />
                           </Elements>
                         )}
                         {paymentMethod === 'paypal' && (
-                          <PayPalScriptProvider options={{ "client-id": PAYPAL_CLIENT_ID, currency: "GBP" }}>
+                          <PayPalScriptProvider options={{ "client-id": PAYPAL_CLIENT_ID, currency: currency.currencyName }}>
                             <div style={{ maxWidth: 640 }}>
                               <PayPalButtons
                                 style={{ layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal' }}
                                 createOrder={(data, actions) => {
                                   return actions.order.create({
-                                    purchase_units: [{ amount: { value: totalAmount.toFixed(2), currency_code: "GBP" } }]
+                                    purchase_units: [{ amount: { value: totalAmount.toFixed(2), currency_code: currency.currencyName } }]
                                   });
                                 }}
                                 onApprove={(data, actions) => {
@@ -737,14 +910,48 @@ const Checkout = () => {
                             </div>
                           </PayPalScriptProvider>
                         )}
+                        {uiState === 'payment_confirmed_placing_order' && !orderError && (
+                          <div style={{ color: '#350008', fontWeight: 600, marginTop: 8 }}>
+                            Payment successful. Placing your order...
+                          </div>
+                        )}
+                        {uiState === 'success' && (
+                          <div style={{ color: 'green', fontWeight: 600, marginTop: 8 }}>
+                            Order placed successfully.
+                          </div>
+                        )}
+                        {uiState === 'failed_refunded' && (
+                          <div style={{ color: '#b12704', fontWeight: 600, marginTop: 8 }}>
+                            Order could not be created. Refund initiated.
+                          </div>
+                        )}
+                        {uiState === 'failed_not_refunded' && (
+                          <div style={{ color: '#b12704', fontWeight: 600, marginTop: 8 }}>
+                            Order failed. Please contact support with Payment ID {lastPaymentId || '(unavailable)'}.
+                          </div>
+                        )}
                         {orderError && (
-                          <div style={{ color: '#b12704', fontWeight: 600, marginTop: 16 }}>
+                          <div style={{ color: '#b12704', fontWeight: 600, marginTop: 8 }}>
                             {orderError}
                           </div>
                         )}
-                        {submittingOrder && (
-                          <div style={{ color: '#350008', fontWeight: 600, marginTop: 8 }}>
-                            Finalizing your order...
+                        {uiState === 'failed_not_refunded' && lastOrderPayload && (
+                          <div style={{ marginTop: 12 }}>
+                            <button
+                              type="button"
+                              onClick={retryPlaceOrder}
+                              style={{
+                                background: '#111',
+                                color: '#fff',
+                                padding: '10px 20px',
+                                border: 'none',
+                                borderRadius: 6,
+                                fontSize: 14,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Retry placing order (no new charge)
+                            </button>
                           </div>
                         )}
                         {confirmation?.trackingCode && (

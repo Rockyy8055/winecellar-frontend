@@ -29,13 +29,20 @@ const ProductGridSingleTwo = ({ product }) => {
     return list.map((c) => String(c).toUpperCase());
   }, [product]);
 
+  const categoryKey = useMemo(() => {
+    const raw = Array.isArray(product?.category) ? product.category[0] : product?.category;
+    return String(raw || '').toUpperCase().trim();
+  }, [product]);
+
   const isWineCategory = useMemo(() => {
-    // Treat any category or subcategory containing 'WINE' as wine
     const sub = String(product?.subCategory || "").toUpperCase();
-    return (
-      normalizedCategories.some((c) => c.includes("WINE")) || sub.includes("WINE")
-    );
-  }, [normalizedCategories, product]);
+    return categoryKey === 'WINE' || normalizedCategories.some((c) => c === 'WINE' || c.includes('WINE')) || sub.includes('WINE');
+  }, [categoryKey, normalizedCategories, product]);
+
+  const isBeerCategory = useMemo(() => {
+    const sub = String(product?.subCategory || "").toUpperCase();
+    return categoryKey === 'BEER' || normalizedCategories.some((c) => c === 'BEER' || c.includes('BEER')) || sub.includes('BEER');
+  }, [categoryKey, normalizedCategories, product]);
 
   const displaySizes = useMemo(() => [
     "1.5LTR", "1LTR", "75CL", "70CL", "35CL", "20CL", "10CL", "5CL"
@@ -51,8 +58,12 @@ const ProductGridSingleTwo = ({ product }) => {
     return normalized;
   }, [product, displaySizes]);
 
-  // Latest requirement: For wine, only 70CL is selectable; for all other drinks, all sizes are selectable
-  const allowedSizes = useMemo(() => (isWineCategory ? ["70CL"] : displaySizes), [isWineCategory, displaySizes]);
+  // Requirement: BEER => 35CL only, WINE => 75CL only, others => all sizes
+  const allowedSizes = useMemo(() => {
+    if (isBeerCategory) return ['35CL'];
+    if (isWineCategory) return ['75CL'];
+    return displaySizes;
+  }, [isBeerCategory, isWineCategory, displaySizes]);
   const sizeOptions = displaySizes;
 
   const inStockSizes = useMemo(() => allowedSizes.filter((size) => sizeStockMap[size] > 0), [allowedSizes, sizeStockMap]);
@@ -384,7 +395,9 @@ const ProductGridSingleTwo = ({ product }) => {
                   }}
                 >
                   {size}
-                  <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, color: isSelected ? '#fffef1' : (enabled ? '#350008' : 'rgba(53,0,8,0.55)') }}>{stockAvailable} in stock</span>
+                  <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, color: isSelected ? '#fffef1' : (enabled ? '#350008' : 'rgba(53,0,8,0.55)') }}>
+                    {stockAvailable > 0 ? `${stockAvailable} in stock` : 'Out of stock'}
+                  </span>
                 </button>
               );})}
             </div>
