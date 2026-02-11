@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Layout from '../../layouts/Layout';
 import { listProducts, createProduct, updateProduct, deleteProduct, mapProductPayload } from '../../Services/product-admin-api';
@@ -707,7 +707,8 @@ const AdminProducts = () => {
 
   return (
     <Layout headerContainerClass="container-fluid" headerPaddingClass="header-padding-2" headerTop="visible">
-      <div style={ADMIN_PAGE_STYLE}>
+      <Fragment>
+        <div style={ADMIN_PAGE_STYLE}>
         <div style={{ marginBottom: 26 }}>
           <div style={{ fontSize: 13, letterSpacing: '0.08em', fontWeight: 700, color: 'rgba(53,0,8,0.6)', textTransform: 'uppercase' }}>Operations</div>
           <h1 style={{ color:'#2e050b', fontWeight:800, marginBottom: 12 }}>Admin Products</h1>
@@ -1339,13 +1340,15 @@ const AdminProducts = () => {
               <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
                 <button className="btn btn-dark" onClick={onSaveEdit}>Save</button>
                 <button className="btn btn-outline-secondary" onClick={()=>setShowEdit(null)}>Cancel</button>
+
               </div>
             </div>
           </div>
         </div>
 
-      </div>
-      <ToastContainer position="bottom-right" />
+        </div>
+        <ToastContainer position="bottom-right" />
+      </Fragment>
     </Layout>
   );
 
