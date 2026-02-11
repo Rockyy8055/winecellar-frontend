@@ -8,6 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { resolveImageSource } from '../../utils/image';
 import { getBestsellers, saveBestsellers as saveBestsellersApi } from '../../Services/bestsellers-api';
+import { createAdminHeroSlide, deleteAdminHeroSlide, listAdminHeroSlides, updateAdminHeroSlide } from '../../Services/slider-api';
 
 const SIZE_OPTIONS = ['1.5LTR', '1LTR', '75CL', '70CL', '35CL', '20CL', '10CL', '5CL'];
 
@@ -214,6 +215,30 @@ const SECTION_LABEL_STYLE = {
   marginBottom: 6
 };
 
+const SLIDER_INPUT_STYLE = {
+  borderRadius: 14,
+  border: '1px solid rgba(93,28,4,0.2)',
+  background: '#fffdfb',
+  fontWeight: 600,
+  padding: '10px 14px'
+};
+
+const resolveHeroSlideImage = (slide) => slide?.imageUrl || slide?.image || slide?.imagePath || slide?.url || '';
+
+const normalizeHeroSlides = (payload) => {
+  const list = payload?.slides || payload?.items || payload?.rows || payload || [];
+  if (!Array.isArray(list)) return [];
+  return list.map((s, idx) => ({
+    id: s.id ?? s._id ?? `slide-${idx}`,
+    title: s.title || '',
+    subtitle: s.subtitle || '',
+    url: s.url || s.href || '',
+    sortOrder: Number.isFinite(Number(s.sortOrder)) ? Number(s.sortOrder) : idx,
+    isActive: s.isActive !== undefined ? Boolean(s.isActive) : true,
+    imageUrl: resolveHeroSlideImage(s)
+  })).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+};
+
 const INPUT_STYLE = {
   borderRadius: 14,
   border: '1px solid rgba(93,28,4,0.2)',
@@ -253,10 +278,19 @@ const AdminProducts = () => {
   const [allProductsForBestsellers, setAllProductsForBestsellers] = useState([]);
   const [showBestsellersPicker, setShowBestsellersPicker] = useState(false);
 
+  const [heroSlides, setHeroSlides] = useState([]);
+  const [heroLoading, setHeroLoading] = useState(false);
+  const [heroTitle, setHeroTitle] = useState('');
+  const [heroSubtitle, setHeroSubtitle] = useState('');
+  const [heroUrl, setHeroUrl] = useState('/shop-grid-standard');
+  const [heroActive, setHeroActive] = useState(true);
+  const [heroFile, setHeroFile] = useState(null);
+
   const dispatch = useDispatch();
   const token = useMemo(() => { try { return localStorage.getItem('admin_token') || ''; } catch (_) { return ''; } }, []);
 
   const newProdFileInputRef = useRef(null);
+  const heroFileInputRef = useRef(null);
   const editFileInputsRef = useRef({});
   const productsTableRef = useRef(null);
   const stockInputsRef = useRef({});
@@ -272,6 +306,95 @@ const AdminProducts = () => {
     },
     progressStyle: { background: '#350008' },
     iconTheme: { primary: '#350008', secondary: '#fffef1' }
+  };
+
+  const loadHeroSlides = async () => {
+    setHeroLoading(true);
+    try {
+      const payload = await listAdminHeroSlides(token);
+      setHeroSlides(normalizeHeroSlides(payload));
+    } catch (e) {
+      console.error(e);
+      toast.error(e?.message || 'Failed to load slider images', TOAST_PRESET);
+    } finally {
+      setHeroLoading(false);
+    }
+  };
+
+  const resetHeroForm = () => {
+    setHeroTitle('');
+    setHeroSubtitle('');
+    setHeroUrl('/shop-grid-standard');
+    setHeroActive(true);
+    setHeroFile(null);
+    if (heroFileInputRef.current) heroFileInputRef.current.value = '';
+  };
+
+  const uploadHeroSlide = async () => {
+    if (!heroFile) {
+      toast.error('Please choose an image file to upload', TOAST_PRESET);
+      return;
+    }
+    try {
+      const maxSort = heroSlides.reduce((m, s) => Math.max(m, Number(s.sortOrder) || 0), 0);
+      await createAdminHeroSlide({
+        file: heroFile,
+        title: heroTitle,
+        subtitle: heroSubtitle,
+        url: heroUrl,
+        sortOrder: maxSort + 1,
+        isActive: heroActive
+      }, token);
+      toast.success('Slider image uploaded', TOAST_PRESET);
+      resetHeroForm();
+      await loadHeroSlides();
+    } catch (e) {
+      console.error(e);
+      toast.error(e?.message || 'Upload failed', TOAST_PRESET);
+    }
+  };
+
+  const toggleHeroSlide = async (slide) => {
+    try {
+      await updateAdminHeroSlide(slide.id, { isActive: !slide.isActive }, token);
+      setHeroSlides((prev) => prev.map((s) => (s.id === slide.id ? { ...s, isActive: !s.isActive } : s)));
+      toast.success('Updated', TOAST_PRESET);
+    } catch (e) {
+      console.error(e);
+      toast.error(e?.message || 'Update failed', TOAST_PRESET);
+    }
+  };
+
+  const deleteHeroSlide = async (slide) => {
+    try {
+      await deleteAdminHeroSlide(slide.id, token);
+      setHeroSlides((prev) => prev.filter((s) => s.id !== slide.id));
+      toast.success('Deleted', TOAST_PRESET);
+    } catch (e) {
+      console.error(e);
+      toast.error(e?.message || 'Delete failed', TOAST_PRESET);
+    }
+  };
+
+  const moveHeroSlide = async (slide, dir) => {
+    const sorted = [...heroSlides].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+    const idx = sorted.findIndex((s) => s.id === slide.id);
+    const swapIdx = idx + dir;
+    if (idx < 0 || swapIdx < 0 || swapIdx >= sorted.length) return;
+    const a = sorted[idx];
+    const b = sorted[swapIdx];
+    try {
+      await updateAdminHeroSlide(a.id, { sortOrder: b.sortOrder }, token);
+      await updateAdminHeroSlide(b.id, { sortOrder: a.sortOrder }, token);
+      setHeroSlides((prev) => prev.map((s) => {
+        if (s.id === a.id) return { ...s, sortOrder: b.sortOrder };
+        if (s.id === b.id) return { ...s, sortOrder: a.sortOrder };
+        return s;
+      }).sort((x, y) => (x.sortOrder ?? 0) - (y.sortOrder ?? 0)));
+    } catch (e) {
+      console.error(e);
+      toast.error(e?.message || 'Reorder failed', TOAST_PRESET);
+    }
   };
 
   const syncStorefrontCatalog = async () => {
@@ -464,6 +587,7 @@ const AdminProducts = () => {
 
   useEffect(() => { fetchData(); }, [page, debouncedQ, categoryFilter]); // eslint-disable-line
   useEffect(() => { loadBestsellers(); }, []); // eslint-disable-line
+  useEffect(() => { loadHeroSlides(); }, []); // eslint-disable-line
 
   // Debounce search query
   useEffect(() => {
@@ -1218,9 +1342,10 @@ const AdminProducts = () => {
               </div>
             </div>
           </div>
-        )}
+        </div>
+
       </div>
-      <ToastContainer position="bottom-center" autoClose={1800} hideProgressBar theme="light" newestOnTop limit={2} />
+      <ToastContainer position="bottom-right" />
     </Layout>
   );
 
