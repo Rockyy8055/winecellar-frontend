@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from 'react';
-import { API_BASE } from '../../Services/auth-api';
+import { API_BASE, buildAuthHeaders } from '../../Services/auth-api';
 import { useAuth } from "../../contexts/AuthContext";
 import clsx from "clsx";
 import MenuCart from "./sub-components/MenuCart";
@@ -30,7 +30,10 @@ const IconGroup = ({ iconWhiteClass }) => {
 
   const checkAuthStatus = async () => {
     try {
-      const res = await fetch(new URL('/api/auth/me', API_BASE).toString(), { credentials: 'include' });
+      const res = await fetch(new URL('/api/auth/me', API_BASE).toString(), {
+        headers: buildAuthHeaders({ Accept: 'application/json' }),
+        credentials: 'include'
+      });
       setAuthed(res.ok);
     } catch (_) { setAuthed(false); }
   };

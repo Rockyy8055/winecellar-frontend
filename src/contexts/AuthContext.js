@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { API_BASE } from '../Services/auth-api';
+import { API_BASE, buildAuthHeaders, persistAuthToken } from '../Services/auth-api';
 import { createOrder } from '../Services/orders-api';
 import { clearRemoteCart, deleteAllFromCart } from '../store/slices/cart-slice';
 
@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
   const checkAuthStatus = async () => {
     try {
       const res = await fetch(new URL('/api/auth/me', API_BASE).toString(), { 
+        headers: buildAuthHeaders({ Accept: 'application/json' }),
         credentials: 'include' 
       });
       if (res.ok) {
@@ -54,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(new URL('/api/auth/login', API_BASE).toString(), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
         credentials: 'include',
         body: JSON.stringify({ email, password })
       });
@@ -65,6 +66,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       const userData = await res.json();
+      persistAuthToken(userData);
       setUser(userData);
       setIsAuthenticated(true);
       
@@ -95,6 +97,7 @@ export const AuthProvider = ({ children }) => {
       }
       await fetch(new URL('/api/auth/logout', API_BASE).toString(), { 
         method: 'POST', 
+        headers: buildAuthHeaders({ Accept: 'application/json' }),
         credentials: 'include' 
       });
     } catch (_) {}
@@ -110,8 +113,8 @@ export const AuthProvider = ({ children }) => {
     navigate('/');
   };
 
-  const requireAuth = (orderData = null) => {
-    if (!isAuthenticated) {
+  const requireAuth = (orderData = null, options = {}) => {
+    if (options.forceLogin || !isAuthenticated) {
       if (orderData) {
         setPendingOrder(orderData);
       }
@@ -132,6 +135,28 @@ export const AuthProvider = ({ children }) => {
     if (!pendingOrder || !isAuthenticated) return;
 
     try {
+      const authRes = await fetch(new URL('/api/auth/me', API_BASE).toString(), {
+        method: 'GET',
+        headers: buildAuthHeaders({ Accept: 'application/json' }),
+        credentials: 'include'
+      });
+      if (authRes.status === 401 || authRes.status === 403) {
+        setIsAuthenticated(false);
+        setUser(null);
+        showNotification('Please login to place an order', 'warning');
+        navigate('/login', {
+          state: {
+            from: '/checkout',
+            message: 'Login required to place order',
+            orderData: pendingOrder
+          }
+        });
+        return;
+      }
+      if (!authRes.ok) {
+        throw new Error(`Authentication check failed: ${authRes.status}`);
+      }
+
       const orderResult = await createOrder(pendingOrder);
       setPendingOrder(null);
       showNotification('Order placed successfully!', 'success');

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate,  useLocation} from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { buildAuthHeaders, persistAuthToken } from '../Services/auth-api';
 
 const ULogin = () => {
     const [username, setUsername] = useState('');
@@ -20,9 +21,10 @@ const ULogin = () => {
         try {
             const response = await fetch(`${process.env.REACT_APP_API_URL}webusers/Login`, {
               method: 'POST',
-              headers: {
+              headers: buildAuthHeaders({
                 'Content-Type': 'application/json',
-              },
+              }),
+              credentials: 'include',
               body: JSON.stringify({ username, password }),
             });
       
@@ -30,7 +32,7 @@ const ULogin = () => {
       
             if (response.ok) {
               toast.success('Login successful!');
-              localStorage.setItem('token', data.token);
+              persistAuthToken(data);
               const redirectTo = locationState.state?.from || '/';
               navigate(redirectTo);
             } else {

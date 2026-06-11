@@ -6,6 +6,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { createOrder, API_BASE } from '../../Services/orders-api';
+import { buildAuthHeaders } from '../../Services/auth-api';
 import { useAuth } from '../../contexts/AuthContext';
 import { clearRemoteCart, deleteAllFromCart } from '../../store/slices/cart-slice';
 
@@ -31,6 +32,18 @@ const STORE_LOCATIONS = [
     phone: '020 7241 1593'
   }
 ];
+
+const extractOrderTracking = (data = {}) => {
+  const upsTrackingNumber = data?.upsTrackingNumber || data?.carrierTrackingNumber || data?.carrierTracking || null;
+  const trackingCode = data?.trackingCode || null;
+  const internalTrackingCode = data?.internalTrackingCode || null;
+
+  return {
+    primaryTracking: upsTrackingNumber || trackingCode || internalTrackingCode || data?.orderId || data?.id || `ORD-${Date.now()}`,
+    internalTracking: internalTrackingCode || (upsTrackingNumber ? trackingCode : null),
+    upsTracking: upsTrackingNumber
+  };
+};
 
 const StripePaymentForm = ({ onPayNow, canPay, uiState }) => {
   const stripe = useStripe();
@@ -87,7 +100,7 @@ const StripePaymentForm = ({ onPayNow, canPay, uiState }) => {
 const Checkout = () => {
   const { cartItems } = useSelector((state) => state.cart);
   const currency = useSelector((state) => state.currency);
-  const { requireAuth } = useAuth();
+  const { requireAuth, showNotification } = useAuth();
   const dispatch = useDispatch();
   const [subtotal, setSubtotal] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -132,6 +145,34 @@ const Checkout = () => {
   const elementsOptions = useMemo(() => (
     clientSecret ? { clientSecret, appearance: { theme: 'stripe' } } : undefined
   ), [clientSecret]);
+
+  const ensureAuthenticatedForOrder = useCallback(async (orderData) => {
+    try {
+      const response = await fetch(new URL('/api/auth/me', API_BASE).toString(), {
+        method: 'GET',
+        headers: buildAuthHeaders({ Accept: 'application/json' }),
+        credentials: 'include'
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        setOrderError('Please login to place your order.');
+        showNotification?.('Please login to place your order', 'warning');
+        requireAuth(orderData, { forceLogin: true });
+        return false;
+      }
+
+      if (!response.ok) {
+        throw new Error(`Authentication check failed (${response.status})`);
+      }
+
+      return true;
+    } catch (error) {
+      const message = error?.message || 'Unable to verify your login. Please try again.';
+      setOrderError(message);
+      showNotification?.(message, 'error');
+      return false;
+    }
+  }, [requireAuth, showNotification]);
 
   useEffect(() => {
     let sub = 0;
@@ -408,10 +449,14 @@ const Checkout = () => {
     };
 
     try {
+      const authenticated = await ensureAuthenticatedForOrder(payload);
+      if (!authenticated) {
+        orderSubmitLock.current = false;
+        return;
+      }
+
       const response = await createOrder(payload);
-      const primaryTracking = response?.trackingCode || response?.upsTrackingNumber || response?.internalTrackingCode || response?.orderId || response?.id || `ORD-${Date.now()}`;
-      const internalTracking = response?.internalTrackingCode || null;
-      const upsTracking = response?.upsTrackingNumber || null;
+      const { primaryTracking, internalTracking, upsTracking } = extractOrderTracking(response);
 
       setOrderId(primaryTracking);
       setConfirmation({
@@ -448,7 +493,7 @@ const Checkout = () => {
     } finally {
       setSubmittingOrder(false);
     }
-  }, [billing, isBillingComplete, orderItemsPayload, subtotal, vatAmount, totalAmount, selectedStore, discountAmount, shipping, dispatch]);
+  }, [billing, isBillingComplete, orderItemsPayload, subtotal, vatAmount, totalAmount, selectedStore, discountAmount, shipping, dispatch, ensureAuthenticatedForOrder]);
 
   const handleStripePayNow = useCallback(async ({ stripe, elements, setLocalError }) => {
     if (!isBillingComplete) {
@@ -494,10 +539,16 @@ const Checkout = () => {
     setUiState('payment_confirmed_placing_order');
 
     try {
+      const authenticated = await ensureAuthenticatedForOrder(orderPayload);
+      if (!authenticated) {
+        setUiState('idle');
+        return;
+      }
+
       const url = new URL('/api/orders/create', API_BASE).toString();
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
         credentials: 'include',
         body: JSON.stringify(orderPayload),
       });
@@ -520,9 +571,7 @@ const Checkout = () => {
         return;
       }
 
-      const primaryTracking = data?.trackingCode || data?.upsTrackingNumber || data?.internalTrackingCode || data?.orderId || data?.id || `ORD-${Date.now()}`;
-      const internalTracking = data?.internalTrackingCode || null;
-      const upsTracking = data?.upsTrackingNumber || null;
+      const { primaryTracking, internalTracking, upsTracking } = extractOrderTracking(data);
 
       setOrderId(primaryTracking);
       setConfirmation({
@@ -552,17 +601,23 @@ const Checkout = () => {
       setUiState('failed_not_refunded');
       setOrderError(e?.message || 'Order creation failed after payment.');
     }
-  }, [buildStripeOrderPayload, dispatch, isBillingComplete, orderItemsPayload.length, requireAuth]);
+  }, [buildStripeOrderPayload, dispatch, ensureAuthenticatedForOrder, isBillingComplete, orderItemsPayload.length, requireAuth]);
 
   const retryPlaceOrder = useCallback(async () => {
     if (!lastOrderPayload) return;
     setUiState('payment_confirmed_placing_order');
     setOrderError('');
     try {
+      const authenticated = await ensureAuthenticatedForOrder(lastOrderPayload);
+      if (!authenticated) {
+        setUiState('idle');
+        return;
+      }
+
       const url = new URL('/api/orders/create', API_BASE).toString();
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
         credentials: 'include',
         body: JSON.stringify(lastOrderPayload),
       });
@@ -573,9 +628,7 @@ const Checkout = () => {
         return;
       }
 
-      const primaryTracking = data?.trackingCode || data?.upsTrackingNumber || data?.internalTrackingCode || data?.orderId || data?.id || `ORD-${Date.now()}`;
-      const internalTracking = data?.internalTrackingCode || null;
-      const upsTracking = data?.upsTrackingNumber || null;
+      const { primaryTracking, internalTracking, upsTracking } = extractOrderTracking(data);
 
       setOrderId(primaryTracking);
       setConfirmation({
@@ -605,7 +658,7 @@ const Checkout = () => {
       setUiState('failed_not_refunded');
       setOrderError(e?.message || 'Retry failed');
     }
-  }, [dispatch, lastOrderPayload]);
+  }, [dispatch, ensureAuthenticatedForOrder, lastOrderPayload]);
 
   const handlePayPalSuccess = useCallback(async (orderID) => {
     const orderData = {
@@ -1237,5 +1290,3 @@ const Checkout = () => {
 };
 
 export default Checkout;
-
-

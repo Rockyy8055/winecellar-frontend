@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import 'react-toastify/dist/ReactToastify.css';
 import './Register.css';
+import { buildAuthHeaders, persistAuthToken } from '../Services/auth-api';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -42,9 +43,10 @@ const Register = () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}webusers/Check`, {
         method: 'POST',
-        headers: {
+        headers: buildAuthHeaders({
           'Content-Type': 'application/json',
-        },
+        }),
+        credentials: 'include',
         body: JSON.stringify({ [field]: value }),
       });
 
@@ -112,9 +114,10 @@ const Register = () => {
     try {
         const response = await fetch(`${process.env.REACT_APP_API_URL}webusers/send-otp`, {
           method: 'POST',
-          headers: {
+          headers: buildAuthHeaders({
             'Content-Type': 'application/json',
-          },
+          }),
+          credentials: 'include',
           body: JSON.stringify({ email, username }),
         });
   
@@ -143,16 +146,17 @@ const Register = () => {
       try {
         const response = await fetch(`${process.env.REACT_APP_API_URL}webusers/verify-otp`, {
           method: 'POST',
-          headers: {
+          headers: buildAuthHeaders({
             'Content-Type': 'application/json',
-          },
+          }),
+          credentials: 'include',
           body: JSON.stringify({ email, otp: value, username, password }),
         });
 
         const data = await response.json();
         if (response.ok) {
           toast.success(data.message || 'OTP verified and user created successfully');
-          localStorage.setItem('token', data.token);
+          persistAuthToken(data);
         } else {
           toast.error(data.message || 'Failed to verify OTP');
         }

@@ -1,4 +1,4 @@
-import { API_BASE } from './admin-api';
+import { API_BASE, buildAuthHeaders } from './auth-api';
 
 const resolveItemsFromResponse = async (response) => {
   if (response.status === 204) {
@@ -17,6 +17,7 @@ const resolveItemsFromResponse = async (response) => {
 
 export const fetchCart = async () => {
   const res = await fetch(new URL('/api/cart', API_BASE).toString(), {
+    headers: buildAuthHeaders({ Accept: 'application/json' }),
     credentials: 'include'
   });
 
@@ -34,9 +35,9 @@ export const fetchCart = async () => {
 export const persistCart = async (items) => {
   const res = await fetch(new URL('/api/cart', API_BASE).toString(), {
     method: 'PUT',
-    headers: {
+    headers: buildAuthHeaders({
       'Content-Type': 'application/json'
-    },
+    }),
     credentials: 'include',
     body: JSON.stringify({ items })
   });
@@ -55,6 +56,7 @@ export const persistCart = async (items) => {
 export const clearRemoteCart = async () => {
   const res = await fetch(new URL('/api/cart', API_BASE).toString(), {
     method: 'DELETE',
+    headers: buildAuthHeaders({ Accept: 'application/json' }),
     credentials: 'include'
   });
 

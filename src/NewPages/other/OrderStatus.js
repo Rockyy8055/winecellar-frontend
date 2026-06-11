@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Layout from '../../layouts/Layout';
 import UserAuthModal from './UserAuthModal';
 import { cancelOrderByTracking, trackOrder } from '../../Services/orders-api';
+import { API_BASE, buildAuthHeaders } from '../../Services/auth-api';
 
 function useQuery() {
   const { search } = useLocation();
@@ -182,7 +183,10 @@ const OrderStatus = () => {
     // Check auth status for showing login CTA
     (async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, { credentials: 'include' });
+        const res = await fetch(new URL('/api/auth/me', API_BASE).toString(), {
+          headers: buildAuthHeaders({ Accept: 'application/json' }),
+          credentials: 'include'
+        });
         setAuthed(res.ok);
       } catch (_) { setAuthed(false); }
     })();
@@ -272,7 +276,7 @@ const OrderStatus = () => {
           />
           <button type="submit" className="btn btn-dark">Track</button>
         </form>
-        <div style={{ background: '#fffef1', border: '1px solid #eee', borderRadius: 12, padding: 20, boxShadow: '0 10px 22px rgba(0,0,0,0.05)' }}>
+        <div className="liquid-status-card" style={{ background: '#fffef1', border: '1px solid #eee', borderRadius: 12, padding: 20, boxShadow: '0 10px 22px rgba(0,0,0,0.05)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: '1.05rem' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
               <div>
@@ -326,8 +330,8 @@ const OrderStatus = () => {
           )}
 
           {ownerView && (
-            <div style={{ marginTop: 24, display: 'grid', gap: 20, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
-              <div style={{ padding: 16, borderRadius: 10, border: '1px solid #e4dada', background: '#ffffff' }}>
+            <div className="liquid-status-grid" style={{ marginTop: 24, display: 'grid', gap: 20, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
+              <div className="liquid-status-subcard" style={{ padding: 16, borderRadius: 10, border: '1px solid #e4dada', background: '#ffffff' }}>
                 <h5 style={{ margin: '0 0 8px', fontWeight: 800, color: '#350008' }}>Shipping to</h5>
                 {shippingAddress ? (
                   <div style={{ lineHeight: 1.6 }}>
@@ -343,7 +347,7 @@ const OrderStatus = () => {
                 )}
               </div>
 
-              <div style={{ padding: 16, borderRadius: 10, border: '1px solid #e4dada', background: '#ffffff' }}>
+              <div className="liquid-status-subcard" style={{ padding: 16, borderRadius: 10, border: '1px solid #e4dada', background: '#ffffff' }}>
                 <h5 style={{ margin: '0 0 8px', fontWeight: 800, color: '#350008' }}>Billing</h5>
                 {billingAddress ? (
                   <div style={{ lineHeight: 1.6 }}>
@@ -359,7 +363,7 @@ const OrderStatus = () => {
                 )}
               </div>
 
-              <div style={{ padding: 16, borderRadius: 10, border: '1px solid #e4dada', background: '#ffffff' }}>
+              <div className="liquid-status-subcard" style={{ padding: 16, borderRadius: 10, border: '1px solid #e4dada', background: '#ffffff' }}>
                 <h5 style={{ margin: '0 0 8px', fontWeight: 800, color: '#350008' }}>Order summary</h5>
                 <div style={{ display: 'grid', gap: 6 }}>
                   {order?.subtotal !== undefined && (
@@ -392,7 +396,7 @@ const OrderStatus = () => {
           {ownerView && items.length > 0 && (
             <div style={{ marginTop: 24 }}>
               <h4 style={{ fontWeight: 800, color: '#350008', marginBottom: 12 }}>Items in this order</h4>
-              <div style={{ overflowX: 'auto' }}>
+              <div className="liquid-status-table" style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, minWidth: 480 }}>
                   <thead>
                     <tr style={{ background: '#f8ece2', color: '#350008', textTransform: 'uppercase', fontSize: '0.85rem' }}>
@@ -415,7 +419,7 @@ const OrderStatus = () => {
             </div>
           )}
 
-          <div style={{ marginTop: 28 }}>
+          <div className="liquid-status-progress" style={{ marginTop: 28 }}>
             <h4 style={{ fontWeight: 800, color: '#350008', marginBottom: 16 }}>Order progress</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 12 }}>
               {timeline.map((step, index) => (

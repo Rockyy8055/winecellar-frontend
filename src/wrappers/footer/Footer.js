@@ -19,7 +19,7 @@ const Footer = ({
         <div className="row">
           <div
             className={`${
-              sideMenu ? "col-xl-2 col-sm-4" : "col-lg-2 col-sm-4"
+              sideMenu ? "col-xl-4 col-sm-6" : "col-12"
             }`}
           >
             {/* footer copyright */}

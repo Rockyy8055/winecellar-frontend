@@ -38,24 +38,23 @@ const FooterCopyright = ({ footerLogo, spaceBottomClass, colorClass }) => {
 
   return (
     <div className={clsx("copyright", spaceBottomClass, colorClass)}>
-      <div className="footer-logo">
-        <Link to={"/"}>
-          <img alt="" src={process.env.PUBLIC_URL + footerLogo} style={{ maxHeight: '200px', maxWidth: '200px', width: 'auto', height: 'auto', objectFit: 'contain', transform: 'translateY(-20px)' }} />
-        </Link>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
+        <div className="footer-logo">
+          <Link to={"/"}>
+            <img alt="WineCellar" src={process.env.PUBLIC_URL + footerLogo} style={{ maxHeight: '180px', maxWidth: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }} />
+          </Link>
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14, color: '#350008', fontWeight: 700 }}>
+          <a href="/privacy-policy" style={{ color: '#350008' }}>Privacy Policy</a>
+          <span aria-hidden="true" style={{ opacity: 0.45 }}>|</span>
+          <a href="/account-deletion" style={{ color: '#350008' }}>Account Deletion</a>
+          <span aria-hidden="true" style={{ opacity: 0.45 }}>|</span>
+          <Link to="/contact-us" style={{ color: '#350008' }}>Contact</Link>
+          <button onClick={() => setShowLogin(true)} className="btn btn-sm" style={{ background: '#350008', color: '#fffef1', borderRadius: 20, padding: '8px 14px', minWidth: 80 }}>Admin</button>
+        </div>
       </div>
-      <div style={{ marginTop: 8 }}>
-        <button onClick={() => setShowLogin(true)} className="btn btn-sm" style={{ background: '#350008', color: '#fffef1', borderRadius: 20, padding: '8px 14px' }}>Admin</button>
-      </div>
-      <p>
-        &copy; {new Date().getFullYear()}{" "}
-        <a
-          href="https://hasthemes.com"
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          Flone
-        </a>
-        .<br /> All Rights Reserved
+      <p style={{ color: '#350008', marginTop: 16 }}>
+        &copy; {new Date().getFullYear()} WineCellar by AXHET LIMITED.<br /> All Rights Reserved
       </p>
       {showLogin && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999 }} onClick={()=>setShowLogin(false)}>

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from 'react';
-import { API_BASE } from '../../../Services/auth-api';
+import { API_BASE, buildAuthHeaders } from '../../../Services/auth-api';
 import { useAuth } from "../../../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 
@@ -8,7 +8,7 @@ const MobileNavMenu = () => {
   const { logout } = useAuth();
   const { t } = useTranslation();
   const [authed, setAuthed] = useState(false);
-  useEffect(() => { (async () => { try { const r = await fetch(new URL('/api/auth/me', API_BASE).toString(), { credentials:'include' }); setAuthed(r.ok); } catch(_) { setAuthed(false); } })(); }, []);
+  useEffect(() => { (async () => { try { const r = await fetch(new URL('/api/auth/me', API_BASE).toString(), { headers: buildAuthHeaders({ Accept: 'application/json' }), credentials:'include' }); setAuthed(r.ok); } catch(_) { setAuthed(false); } })(); }, []);
 
   const closeMobileMenu = () => {
     const offcanvas = document.querySelector('#offcanvas-mobile-menu');

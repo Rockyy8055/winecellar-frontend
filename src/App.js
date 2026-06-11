@@ -23,6 +23,8 @@ const MyOrders = lazy(() => import("./NewPages/other/MyOrders"));
 const AdminOrders = lazy(() => import("./NewPages/other/AdminOrders"));
 const AdminProducts = lazy(() => import("./NewPages/other/AdminProducts"));
 const AdminSlider = lazy(() => import("./NewPages/other/AdminSlider"));
+const PrivacyPolicy = lazy(() => import("./NewPages/other/PrivacyPolicy"));
+const AccountDeletion = lazy(() => import("./NewPages/other/AccountDeletion"));
 
 function App() {
   return (
@@ -45,6 +47,8 @@ function App() {
            <Route path="/Home"  element={<HomeNew />} />
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/contact-us" element={<ContactUs />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/account-deletion" element={<AccountDeletion />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/trade-customer" element={<TradeCustomerForm />} />
@@ -69,4 +73,3 @@ function App() {
 }
 
 export default App;
-

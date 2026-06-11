@@ -6,6 +6,7 @@ import './assets/css/responsive-overrides.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import "./assets/scss/style.scss";
+import "./theme/liquid-glass-2026.css";
 import "./i18n";
 import 'animate.css';
 import 'swiper/css/bundle';

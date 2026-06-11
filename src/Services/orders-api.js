@@ -1,11 +1,12 @@
 import { API_BASE } from './admin-api';
+import { buildAuthHeaders } from './auth-api';
 
 export { API_BASE };
 
 export async function createOrder(payload) {
   const r = await fetch(new URL('/api/orders/create', API_BASE).toString(), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
     credentials: 'include',
     body: JSON.stringify(payload)
   });
@@ -16,6 +17,7 @@ export async function createOrder(payload) {
 export async function getMyOrders() {
   const r = await fetch(new URL('/api/my-orders', API_BASE).toString(), {
     method: 'GET',
+    headers: buildAuthHeaders({ Accept: 'application/json' }),
     credentials: 'include'
   });
   if (!r.ok) throw new Error(`getMyOrders failed: ${r.status}`);
@@ -26,7 +28,7 @@ export async function trackOrder(trackingCode) {
   if (!trackingCode) throw new Error('trackingCode is required');
   const r = await fetch(
     new URL(`/api/orders/track/${encodeURIComponent(trackingCode)}`, API_BASE).toString(),
-    { method: 'GET', credentials: 'include' }
+    { method: 'GET', credentials: 'include', headers: buildAuthHeaders({ Accept: 'application/json' }) }
   );
 
   if (!r.ok) throw new Error(`trackOrder failed: ${r.status}`);
@@ -40,13 +42,13 @@ export async function cancelOrderByTracking(trackingCode) {
   const attempts = [
     {
       url: new URL(`/api/orders/cancel/${encodeURIComponent(trackingCode)}`, API_BASE).toString(),
-      init: { method: 'POST', credentials: 'include' }
+      init: { method: 'POST', credentials: 'include', headers: buildAuthHeaders({ Accept: 'application/json' }) }
     },
     {
       url: new URL(`/api/orders/by-tracking/${encodeURIComponent(trackingCode)}/status`, API_BASE).toString(),
       init: {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
         credentials: 'include',
         body: JSON.stringify({ status: 'CANCELLED', note: 'Customer cancelled via Order Status page' })
       }
@@ -55,7 +57,7 @@ export async function cancelOrderByTracking(trackingCode) {
       url: new URL('/api/orders/cancel', API_BASE).toString(),
       init: {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
         credentials: 'include',
         body: JSON.stringify({ trackingCode })
       }
