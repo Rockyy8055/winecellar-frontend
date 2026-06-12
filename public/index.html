@@ -16,6 +16,15 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script>
+      (function () {
+        var legalPaths = ['/privacy-policy', '/account-deletion'];
+        var path = window.location.pathname.replace(/\/$/, '');
+        if (legalPaths.indexOf(path) !== -1 && !window.location.hash) {
+          window.location.replace('/#' + path);
+        }
+      })();
+    </script>
     <div id="root"></div>
     <!--
       This HTML file is a template.

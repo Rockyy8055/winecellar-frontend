@@ -44,10 +44,11 @@ const FooterCopyright = ({ footerLogo, spaceBottomClass, colorClass }) => {
             <img alt="WineCellar" src={process.env.PUBLIC_URL + footerLogo} style={{ maxHeight: '180px', maxWidth: '180px', width: 'auto', height: 'auto', objectFit: 'contain' }} />
           </Link>
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14, color: '#350008', fontWeight: 700 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14, color: '#350008', fontWeight: 700 }} aria-label="Account and privacy links">
+          <span style={{ width: '100%', fontSize: 13, fontWeight: 800, opacity: 0.72 }}>Account &amp; privacy</span>
           <a href="/privacy-policy" style={{ color: '#350008' }}>Privacy Policy</a>
           <span aria-hidden="true" style={{ opacity: 0.45 }}>|</span>
-          <a href="/account-deletion" style={{ color: '#350008' }}>Account Deletion</a>
+          <a href="/account-deletion" style={{ color: '#350008' }}>Request Account Deletion</a>
           <span aria-hidden="true" style={{ opacity: 0.45 }}>|</span>
           <Link to="/contact-us" style={{ color: '#350008' }}>Contact</Link>
           <button onClick={() => setShowLogin(true)} className="btn btn-sm" style={{ background: '#350008', color: '#fffef1', borderRadius: 20, padding: '8px 14px', minWidth: 80 }}>Admin</button>
